@@ -1,0 +1,238 @@
+#include "Connexion.h"
+#include "Employe.h"
+#include "Data_base.h"
+#include "Administrateur.h"
+#include "Admin_Data_Base.h"
+#include <string>
+#include <iostream>
+#include <iomanip>
+
+
+void pageAcceuil()
+{
+    int option;
+    bool resultat;
+    do
+    {
+            /* code */
+            
+            
+            dessinnerL();
+            std::cout << "| " << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."
+            << "| " << std::setw(18) << "1. PRESENTATION"
+            << "| " << std::setw(23) << "2. PRODUITS & SERVICES"
+            << "| " << std::setw(18) << "3. PROJETS"        
+            << "| " << std::setw(18) << "4. BOUTIQUE"
+            << "| " << std::setw(18) << "5. CONTACTS"
+            << "| " << std::setw(18) << "6. CONNEXION"<< "|" << std::endl;
+        dessinnerL();
+        std::cout << std::endl << std::endl;
+
+        std::cout << "> BIENVENU !! " << std::endl;
+        std::cout << "> Merci de choisir une Option : ";
+        std::cin >> option;
+
+        switch (option)
+        {
+            case 1: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
+            case 2: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
+            case 3: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
+            case 4: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
+            case 5: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
+            case 6: resultat = login(); clearCLI(); break;
+            
+            
+            default: resultat = true;
+            break;
+        }
+    } while (resultat == false);
+
+}
+
+bool login()
+{
+   bool resultat = true;
+   std::string identifiant_;
+   std::cout << std::endl << std::endl;
+    dessinerLdeux();
+    std::cout << "| " << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."
+              << "| " << std::setw(18) << "CONNEXION"<< "|" << std::endl;
+    dessinerLdeux();
+
+    std::cout << "> Identifiant : ";
+     std::cin >> identifiant_;
+     std::cin.ignore(1000, '\n');
+
+    if(identifiant_[0] == 'A') 
+        resultat =  viewAdmin(identifiant_);
+    else if (identifiant_[0] == 'E')
+        resultat = viewUser(identifiant_);
+    else
+        std::cout << "Erreur d'Identifiant." << std::endl;
+
+    return resultat;
+
+}
+
+bool viewUser(std::string IdUser)
+{
+    DataBase User("entreprise.db");
+    bool resultat;
+
+    do
+    {
+        if ( User.connexionEmploye(IdUser) == true)
+        {
+            std::cout << std::endl << std::endl;
+            dessinerLdeux();
+            std::cout << "| " << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."
+            << "| " << std::setw(18) << User.getData().name<< "|" << std::endl;
+            dessinerLdeux();
+            User.afficherUser(User.getData().id_);
+        
+        
+            std::cout << "\n\n1. Modifier mes Informations de connexion" << std::endl;
+            std::cout << "2. Messages" << std::endl;
+            std::cout << "3. Imprimer Fiche de paie" << std::endl;
+            std::cout << "4. Se Deconnecter" << std::endl << std::endl;
+            int choix;
+            std::cout << "> ";
+             std::cin >> choix;
+
+            switch (choix)
+            {
+            case 1: User.changerInfoEmploye(); break;
+            case 2: std::cout << "Informations sur la Messagerie non Disponibles" << std::endl; break;
+            case 3: User.imprimer_fiche_paie(User.getData().id_); break;
+            case 4: resultat = false; break;
+            
+            default:
+                break;
+            }
+        }
+
+    }while (resultat == true);
+
+
+
+    return resultat;
+}
+
+
+bool viewAdmin(std::string IdAdmin)
+{
+    Admin_db admin_user("dataBase_admin.db");
+    bool rester_Menu_Admin = false;
+
+    if ( admin_user.connexionAdmin(IdAdmin) == true)
+    {
+        std::cout << std::endl << std::endl;
+        dessinerLdeux();
+        std::cout << "| " << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."
+        << "| " << std::setw(18) << admin_user.getAdminData().name<< "|" << std::endl;
+        dessinerLdeux();
+        admin_user.afficherUserAdmin(admin_user.getAdminData().id_);
+        
+
+        do
+        {
+            int choix;
+            std::cout << "\n\n1. Options Employes" << std::endl;
+            std::cout << "2. Message" << std::endl;
+            std::cout << "3. Modifier mes INFOs de CONNEXION" << std::endl;
+            std::cout << "4. Se Deconnecter" << std::endl;
+            std::cout << "> ";
+            std::cin >> choix;
+
+
+            switch (choix)
+            {
+                case 1: 
+                {
+                    bool rester_Menu_employe = false;
+                    int choice; std::string id_;
+                    DataBase bd_user("entreprise.db");
+
+                    do
+                        {
+                            std::cout << "\n\n1. Afficher les Employes" << std::endl;
+                            std::cout << "2. Changer Infos Employes" << std::endl;
+                            std::cout << "3. Activer/Desactiver Employes" << std::endl;
+                            std::cout << "4. Imprimer fiche de paie" << std::endl;
+                            std::cout << "5. Recherche d'un Employe" << std::endl;
+                            std::cout << "6. Retour Menu Admin" << std::endl << std::endl;
+                            std::cout << "> ";  
+                            std::cin >> choice;
+                            
+                            switch (choice)
+                            {
+                            case 1: bd_user.afficherEmploye(); rester_Menu_employe = true; break;
+                            case 2: bd_user.changerInfoEmploye(); rester_Menu_employe = true; break;
+                            case 3: bd_user.desactiverEmployer(); rester_Menu_employe = true; break;
+                            case 4: bd_user.imprimer_fiche_paie(id_); rester_Menu_employe = true; break;
+                            case 5: bd_user.rechercherUnEmploye(); rester_Menu_employe = true; break;
+                            case 6: rester_Menu_employe = false; break;
+
+                            default: rester_Menu_employe = true;
+                                break;
+                            }
+                            
+                        }while(rester_Menu_employe == true);
+                    
+                    rester_Menu_Admin = false; 
+                    break;
+                }
+                case 2: std::cout << std::endl << std::endl << "Option de Messagerie non DISPONIBLE" << std::endl; rester_Menu_Admin = false; break;
+                case 3: admin_user.modifierAdmin(admin_user.getAdminData().id_); rester_Menu_Admin = false; break;
+                case 4: rester_Menu_Admin = true; break;
+            
+                default: rester_Menu_Admin = true; break;
+            }
+
+        } while (rester_Menu_Admin == false);
+        
+    }
+
+    return rester_Menu_Admin;
+}
+
+void options_EMployes(int idAdmin)
+{
+
+}
+
+void dessinnerL()
+{
+
+    std::cout << "+"
+         << std::setfill('-')
+         << std::setw(30)
+         << "+" 
+         << std::setw(20)
+         << "+" 
+         << std::setw(25)         
+         << "+"
+         << std::setw(20)         
+         << "+"
+         << std::setw(20)
+         << "+"        
+         << std::setw(20)
+         << "+" 
+         << std::setw(20)         
+         << "+"
+         << std::setfill(' ')
+         << std::endl;
+    
+}
+
+void dessinerLdeux()
+{
+   std::cout << "+"
+         << std::setfill('-')
+         << std::setw(30)  
+         << "+" 
+         << std::setw(20)         
+         << "+"
+         << std::setfill(' ')
+         << std::endl;
+}

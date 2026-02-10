@@ -16,6 +16,7 @@ class Employe
         std::string m_type_contrat;
         int m_age;
         bool m_actif;
+        int m_etat;
         double m_salaire;
         char m_mdp;
         std::string m_mot_de_passe;
@@ -45,6 +46,8 @@ class Employe
         std::string getEmail() ;
         std::string getCategorie() const;
         std::string getId();
+        int activer();
+        int desactiver();
 
 };
 

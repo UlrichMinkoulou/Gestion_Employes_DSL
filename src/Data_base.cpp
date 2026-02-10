@@ -19,9 +19,10 @@ DataBase::DataBase(char const* nomFichier)
     else 
         std::cout << "  " << endl; //Base de donnees ouverte avec succes !
     
+    
     char * msg_err;
     string sqlCreate =  "CREATE TABLE IF NOT EXISTS EMPLOYE ("
-                        "ID TEXT NOT NULL,"
+                        "ID TEXT NOT NULL PRIMARY KEY,"
                         "NOM TEXT NOT NULL,"
                         "PRENOM TEXT NOT NULL,"
                         "AGE INTEGER,"
@@ -32,9 +33,11 @@ DataBase::DataBase(char const* nomFichier)
                         "SALAIRE DOUBLE,"
                         "CATEGORIE TEXT NOT NULL,"
                         "EMAIL TEXT NOT NULL,"
-                        "MDP TEXT NOT NULL);";
+                        "MDP TEXT NOT NULL,"
+                        "ETAT INTEGER);";
 
     sqlite3_exec(m_db, sqlCreate.c_str(), NULL, 0, &msg_err);
+
 }
 
 DataBase::~DataBase()
@@ -45,37 +48,42 @@ DataBase::~DataBase()
 
 void DataBase::ajouterEmploye()
     {
-    string id_user = generateurID(m_db, "EDSL", 'e');
-    
-    Employe e;
+        string id_user = generateurID(m_db, "EDSL", 'e');
         
-    string sqlInsert = "INSERT INTO EMPLOYE (ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, EMAIL, MDP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-    sqlite3_stmt *stmt;
-    if(sqlite3_prepare_v2(m_db, sqlInsert.c_str(), -1, &stmt, NULL) != SQLITE_OK)
-        cerr << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl;
+        Employe e;
+            
+        string sqlInsert = "INSERT INTO EMPLOYE (ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, EMAIL, MDP, ETAT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        sqlite3_stmt *stmt;
+
+        if(sqlite3_prepare_v2(m_db, sqlInsert.c_str(), -1, &stmt, NULL) != SQLITE_OK)
+        {
+            cerr << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl; 
+            return;
+        }
+
+
+        sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, e.getNom().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 3, e.getPrenom().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int(stmt, 4, e.getAge());
+        sqlite3_bind_text(stmt, 5, e.getDate_adhesion().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 6, e.getSituation_matrimonial().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 7, e.getPoste().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 8, e.getType_contrat().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_double(stmt, 9, e.getSalaire());
+        sqlite3_bind_text(stmt, 10, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 11, e.getEmail().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 12, e.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int(stmt, 13, e.activer());
+            
+        if(sqlite3_step(stmt) == SQLITE_DONE)
+            cout << "\nEmploye ajoute avec succes !! " <<endl;
+        else
+            cerr << "\nErreur  lors de l'insertion : " << sqlite3_errmsg(m_db) << endl;
+            
+        sqlite3_finalize(stmt);
     
-
-    sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 2, e.getNom().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 3, e.getPrenom().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_int(stmt, 4, e.getAge());
-    sqlite3_bind_text(stmt, 5, e.getDate_adhesion().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 6, e.getSituation_matrimonial().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 7, e.getPoste().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 8, e.getType_contrat().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_double(stmt, 9, e.getSalaire());
-    sqlite3_bind_text(stmt, 10, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 11, e.getEmail().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 12, e.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
-
-
-    if(sqlite3_step(stmt) == SQLITE_DONE)
-        cout << "\nEmploye ajoute avec succes !! " <<endl;
-    else
-        cerr << "\nErreur  lors de l'insertion : " << sqlite3_errmsg(m_db) << endl;
-    
-    sqlite3_finalize(stmt);
-
+            
     }
 
 
@@ -97,12 +105,13 @@ void DataBase::ajouterEmploye()
          << "| " << setw(8) << "SALAIRE"        
          << "| " << setw(10) << "CATEGORIE"
          << "| " << setw(14) << "MDP"
-         << "| " << setw(18) << "EMAIL" << "|" << endl;
+         << "| " << setw(18) << "EMAIL"
+         << "| " << setw(18) << "ETAT" << "|" << endl;
 
     dessinnerLignes();
 
 
-    string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL FROM EMPLOYE;";
+    string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE;";
     sqlite3_stmt *stmt;
 
     sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL);
@@ -115,6 +124,7 @@ void DataBase::ajouterEmploye()
 
     bool desactiverEmployer(sqlite3* m_db, sqlite3_stmt *stmt)
     {
+
         return true;
     }
 
@@ -133,12 +143,13 @@ void DataBase::ajouterEmploye()
          << "| " << setw(8) << "SALAIRE"        
          << "| " << setw(10) << "CATEGORIE"
          << "| " << setw(14) << "MDP"
-         << "| " << setw(18) << "EMAIL" << "|" << endl;
+         << "| " << setw(18) << "EMAIL"
+         << "| " << setw(18) << "ETAT" << "|" << endl;
 
     dessinnerLignes();
 
 
-    string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL FROM EMPLOYE WHERE ID =?;";
+    string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID =?;";
     sqlite3_stmt *stmt;
 
     if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
@@ -149,6 +160,7 @@ void DataBase::ajouterEmploye()
         sqlite3_finalize(stmt);
     }
     
+
     }
 
 
@@ -159,7 +171,7 @@ void DataBase::ajouterEmploye()
         cout << "Entrez le nom (ou une partie du nom) a rechercher : "; cin >> recherche;
         recherche = "%" + recherche + "%"; // format pour le LIkE SQL
         sqlite3_stmt *stmt;
-        string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL FROM EMPLOYE WHERE NOM LIKE ?;";
+        string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE NOM LIKE ?;";
         if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
         {
             sqlite3_bind_text(stmt, 1, recherche.c_str(), -1, SQLITE_TRANSIENT);
@@ -175,6 +187,33 @@ void DataBase::ajouterEmploye()
             }
 
             if(!trouve) cout << "| Aucun Employe trouve pour ce nom. " << setw(15) << " " << "|" << endl;
+            dessinnerLignes();
+        }
+        sqlite3_finalize(stmt);
+    }
+
+    void DataBase::rechercherUnEmploye_id (string identifiant)
+    {
+
+
+        // recherche = "%" + recherche + "%"; // format pour le LIkE SQL
+        sqlite3_stmt *stmt;
+        string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
+        if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+        {
+            sqlite3_bind_text(stmt, 1, identifiant.c_str(), -1, SQLITE_TRANSIENT);
+
+            cout << "\n --- EMPLOYE ---" <<endl;
+            dessinnerLignes();
+            bool trouve = false;
+
+            while(sqlite3_step(stmt) == SQLITE_ROW)
+            {
+                afficherLigneEmploye(stmt);
+                trouve = true;
+            }
+
+            if(!trouve) cout << "| Aucun Employe trouve pour cet identifiant. " << setw(15) << " " << "|" << endl;
             dessinnerLignes();
         }
         sqlite3_finalize(stmt);
@@ -202,11 +241,11 @@ void DataBase::ajouterEmploye()
         break;
     }
 
-    string sql = "UPDATE EMPLOYE SET NOM=?, PRENOM=?, AGE=?, DATE_ADHE=?, SITUATION_MAT=?, POSTE=?, TYPECONTRAT=?, SALAIRE=?, CATEGORIE=?, MDP=?, EMAIL=?  WHERE ID=?;";
+    string sql = "UPDATE EMPLOYE SET NOM=?, PRENOM=?, AGE=?, DATE_ADHE=?, SITUATION_MAT=?, POSTE=?, TYPECONTRAT=?, SALAIRE=?, CATEGORIE=?, MDP=?, EMAIL=?, ETAT=?  WHERE ID=?;";
     sqlite3_stmt *stmt;
     sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
 
-    sqlite3_bind_text(stmt, 12, e.getId().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 13, e.getId().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 1, e.getNom().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, e.getPrenom().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_int(stmt, 3, e.getAge());
@@ -218,6 +257,7 @@ void DataBase::ajouterEmploye()
     sqlite3_bind_text(stmt, 9, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 10, e.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 11, e.getEmail().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 12, e.activer());
 
     
     if(sqlite3_step(stmt) == SQLITE_DONE) 
@@ -287,7 +327,7 @@ void DataBase::ajouterEmploye()
     std::cout << "votre mot de passe : " << mot_de_passe << std::endl;
 
 
-    std::string sql_recherche = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL FROM EMPLOYE WHERE ID = ? AND MDP = ?;";
+    std::string sql_recherche = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ? AND MDP = ?;";
     sqlite3_stmt *stmt;
 
     if(sqlite3_prepare_v2(m_db, sql_recherche.c_str(), -1, &stmt, NULL) == SQLITE_OK)
@@ -330,10 +370,61 @@ void DataBase::ajouterEmploye()
     }
 
     void DataBase::imprimer_fiche_paie(std::string id_){ std::cout << "Fonction Non Disponible !!!" << std::endl;}
-    void DataBase::desactiverEmployer()
+
+    void DataBase::activerdesactiverEmployer()
     {
+        cout << "----Entrez l'identifiant : ";
+         cin >> m_data.id_;
+
+        DataBase BD("entreprise_.db");
+        BD.rechercherUnEmploye_id(m_data.id_);
+        int etat;
+
+        string sql = "UPDATE EMPLOYE SET ETAT = ? WHERE ID = ?;";
+        sqlite3_stmt* stmt;
+        Employe e;
+
+        int choix; bool valide;
+        do
+        {
+
+            cout << "\n1. Activer le compte." << endl;
+            cout << "2. Desactiver le compte." << endl;
+            cout << "> ";
+             cin >> choix;
+            
+            switch (choix)
+            {
+                case 1: etat = 1; valide = true; break;
+                case 2: etat = 0; valide = true; break;
+                
+                default: cout << "Valeur incorrect !" << endl; valide = false;
+                break;
+            }
+        }while (valide == false);
+
         
+        sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL);
+
+        sqlite3_bind_int(stmt, 1, etat);
+        sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+        if(sqlite3_step(stmt) == SQLITE_DONE) 
+            {
+                if(sqlite3_changes(m_db) > 0)
+                    cout << "Mise a jour d'etat reussie !" << endl;
+                else    
+                    cout << "Aucun Employe trouve avec cet Id !" << endl;
+            }
+        else
+            {
+                cerr << "Erreur lors de la mise a jour de l'etat : " << sqlite3_errmsg(m_db) << endl;
+            }
+
+        sqlite3_finalize(stmt);
+
     }
+
 
     void afficherLigneEmploye(sqlite3_stmt *stmt_)
     {
@@ -348,7 +439,8 @@ void DataBase::ajouterEmploye()
              << "| " << setw(8) << sqlite3_column_double(stmt_, 8)
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 9)
              << "| " << setw(14) << (const char*)sqlite3_column_text(stmt_, 10)
-             << "| " << setw(18) << (const char*)sqlite3_column_text(stmt_, 11) << "|" << endl; 
+             << "| " << setw(18) << (const char*)sqlite3_column_text(stmt_, 11) 
+             << "| " << setw(18) << (const char*)sqlite3_column_text(stmt_, 12) << "|" << endl; 
     }
 
     void dessinnerLignes()
@@ -377,6 +469,8 @@ void DataBase::ajouterEmploye()
          << "+" 
          << setw(16)         
          << "+"
+         << setw(20)         
+         << "+"         
          << setw(20)         
          << "+"
          << setfill(' ')

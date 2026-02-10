@@ -151,27 +151,29 @@ bool viewAdmin(std::string IdAdmin)
                 {
                     bool rester_Menu_employe = false;
                     int choice; std::string id_;
-                    DataBase bd_user("entreprise.db");
+                    DataBase bd_user("entreprise_.db");
 
                     do
                         {
                             std::cout << "\n\n1. Afficher les Employes" << std::endl;
-                            std::cout << "2. Changer Infos Employes" << std::endl;
-                            std::cout << "3. Activer/Desactiver Employes" << std::endl;
-                            std::cout << "4. Imprimer fiche de paie" << std::endl;
-                            std::cout << "5. Recherche d'un Employe" << std::endl;
-                            std::cout << "6. Retour Menu Admin" << std::endl << std::endl;
+                            std::cout << "2. Ajouter un Employes" << std::endl;
+                            std::cout << "3. Changer Infos Employes" << std::endl;
+                            std::cout << "4. Activer/Desactiver Employes" << std::endl;
+                            std::cout << "5. Imprimer fiche de paie" << std::endl;
+                            std::cout << "6. Recherche d'un Employe" << std::endl;
+                            std::cout << "7. Retour Menu Admin" << std::endl << std::endl;
                             std::cout << "> ";  
                             std::cin >> choice;
                             
                             switch (choice)
                             {
                             case 1: bd_user.afficherEmploye(); rester_Menu_employe = true; break;
-                            case 2: bd_user.changerInfoEmploye(); rester_Menu_employe = true; break;
-                            case 3: bd_user.desactiverEmployer(); rester_Menu_employe = true; break;
-                            case 4: bd_user.imprimer_fiche_paie(id_); rester_Menu_employe = true; break;
-                            case 5: bd_user.rechercherUnEmploye(); rester_Menu_employe = true; break;
-                            case 6: rester_Menu_employe = false; break;
+                            case 2: bd_user.ajouterEmploye(); rester_Menu_employe = true; break;
+                            case 3: bd_user.changerInfoEmploye(); rester_Menu_employe = true; break;
+                            case 4: bd_user.activerdesactiverEmployer(); rester_Menu_employe = true; break;
+                            case 5: bd_user.imprimer_fiche_paie(id_); rester_Menu_employe = true; break;
+                            case 6: bd_user.rechercherUnEmploye(); rester_Menu_employe = true; break;
+                            case 7: rester_Menu_employe = false; break;
 
                             default: rester_Menu_employe = true;
                                 break;

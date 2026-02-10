@@ -58,9 +58,9 @@ void Admin_db::ajouterAdmin()
     sqlite3_bind_text(stmt, 4, admin.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);  
     
     if(sqlite3_step(stmt) == SQLITE_DONE)
-    std::cout << "\nAdmin ajoute avec le succes !" << std::endl;
+        std::cout << "\nAdmin ajoute avec le succes !" << std::endl;
     else    
-    std::cerr << "\nErreur lors de l'insertion : " << sqlite3_errmsg(m_bd) <<  std::endl;
+        std::cerr << "\nErreur lors de l'insertion : " << sqlite3_errmsg(m_bd) <<  std::endl;
 
     sqlite3_finalize(stmt);
 }

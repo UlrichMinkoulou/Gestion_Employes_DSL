@@ -20,12 +20,13 @@ class DataBase
         ~DataBase();
         void ajouterEmploye();
         void rechercherUnEmploye()const;
-        void desactiverEmployer();
+        void activerdesactiverEmployer();
         void changerInfoEmploye();
         void afficherEmploye();
         void afficherUser(std::string idUser);
         bool connexionEmploye(std::string id_);
         void imprimer_fiche_paie(std::string id_);
+        void rechercherUnEmploye_id(std::string id_);
         DataConnxion getData(){return m_data;}
 
     private:

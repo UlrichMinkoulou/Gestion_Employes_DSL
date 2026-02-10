@@ -177,13 +177,13 @@ Employe::Employe()
                 switch (choix)
                 {
                     case  1: m_poste = "Ingenieur"; bon = false; break;
-                    case  2: m_poste = "Ingenieur(e)"; bon = false; break;
-                    case  3: m_poste = "Medecin"; bon = false; break;
-                    case  4: m_poste = "Directeur"; bon = false; break;
-                    case  5: m_poste = "Financier"; bon = false; break;
-                    case  6: m_poste = "Informaticien(ne)"; bon = false; break;
-                    case  7: m_poste = "Commercial(e)"; bon = false; break;
-                    case  8: m_poste = "Gestionnaire"; bon = false; break;
+                    case  2: m_poste = "Medecin"; bon = false; break;
+                    case  3: m_poste = "Directeur"; bon = false; break;
+                    case  4: m_poste = "Financier"; bon = false; break;
+                    case  5: m_poste = "Informaticien"; bon = false; break;
+                    case  6: m_poste = "Commercial"; bon = false; break;
+                    case  7: m_poste = "Gestionnaire"; bon = false; break;
+                    case  8: m_poste = "Agent de sec"; bon = false; break;
                     case  9: m_poste = "Garagiste"; bon = false; break;
                     
                     
@@ -377,6 +377,17 @@ Employe::Employe()
             return m_categorie;
         }
 
+        int Employe::activer()
+        {
+            m_etat = 1;
+            return m_etat;
+        }
+
+        int Employe::desactiver()
+        {
+            m_etat = 0;
+            return m_etat;
+        }
 
 
 

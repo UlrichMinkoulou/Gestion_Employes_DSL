@@ -225,54 +225,358 @@ void DataBase::ajouterEmploye()
     {
 
     Employe e;
+    cout << "----Entrez l'identifiant : ";
+     cin >> m_data.id_;
+
+    DataBase BD("entreprise_.db");
+    BD.rechercherUnEmploye_id(m_data.id_);
 
     int choix;
 
     std::cout << "---- Quelles Informations souhaitez-vous changer?" << std::endl;
     std::cout << "1. Tout" << std::endl;
-    std::cout << "2. Information relative a la carriere " << std::endl;
-    std::cout << "3. Informations de connexion" << std::endl;
+    std::cout << "2. Nom " << std::endl;
+    std::cout << "3. Prenom " << std::endl;
+    std::cout << "4. Age " << std::endl;
+    std::cout << "5. Date d'adhesion " << std::endl;
+    std::cout << "6. Situation Matrimonial " << std::endl;
+    std::cout << "7. Poste " << std::endl;
+    std::cout << "8. Type de contrat " << std::endl;
+    std::cout << "9. Salaire " << std::endl;
+    std::cout << "10. Mot de passe " << std::endl;
+    std::cout << "11. Email " << std::endl;
+    std::cout << "> ";
+     std::cin >> choix;
+
 
     switch (choix)
     {
-    case 1: break;
+        case 1: 
+                {
+                    string sql = "UPDATE EMPLOYE SET NOM=?, PRENOM=?, AGE=?, DATE_ADHE=?, SITUATION_MAT=?, POSTE=?, TYPECONTRAT=?, SALAIRE=?, CATEGORIE=?, MDP=?, EMAIL=?, ETAT=?  WHERE ID=?;";
+                    sqlite3_stmt *stmt;
+                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                    sqlite3_bind_text(stmt, 13, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 1, e.getNom().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 2, e.getPrenom().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_int(stmt, 3, e.getAge());
+                    sqlite3_bind_text(stmt, 4, e.getDate_adhesion().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 5, e.getSituation_matrimonial().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 6, e.getPoste().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 7, e.getType_contrat().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_double(stmt, 8, e.getSalaire());
+                    sqlite3_bind_text(stmt, 9, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 10, e.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 11, e.getEmail().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_int(stmt, 12, e.activer());
+
+    
+                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                        {
+                            if(sqlite3_changes(m_db) > 0)
+                                cout << "Mise a jour reussie !" << endl;
+                            else    
+                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                        }
+                    else
+                        {
+                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                        }
+
+                    sqlite3_finalize(stmt);
+                    break;}
+
+        case 2: {
+                    string sql = "UPDATE EMPLOYE SET NOM=?  WHERE ID=?;";
+                    sqlite3_stmt *stmt;
+                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 1, e.getNom().c_str(), -1, SQLITE_TRANSIENT);
+
+    
+                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                        {
+                            if(sqlite3_changes(m_db) > 0)
+                                cout << "Mise a jour reussie !" << endl;
+                            else    
+                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                        }
+                    else
+                        {
+                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                        }
+
+                    sqlite3_finalize(stmt);
+                    break;
+                }
+
+        case 3: 
+                {
+                    string sql = "UPDATE EMPLOYE SET PRENOM=?  WHERE ID=?;";
+                    sqlite3_stmt *stmt;
+                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 1, e.getPrenom().c_str(), -1, SQLITE_TRANSIENT);
+
+    
+                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                        {
+                            if(sqlite3_changes(m_db) > 0)
+                                cout << "Mise a jour reussie !" << endl;
+                            else    
+                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                        }
+                    else
+                        {
+                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                        }
+
+                    sqlite3_finalize(stmt);
+                    break;
+                }
+
+        case 4: 
+                {
+                    string sql = "UPDATE EMPLOYE SET AGE=?  WHERE ID=?;";
+                    sqlite3_stmt *stmt;
+                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                    sqlite3_bind_int(stmt, 1, e.getAge());
+                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+    
+                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                        {
+                            if(sqlite3_changes(m_db) > 0)
+                                cout << "Mise a jour reussie !" << endl;
+                            else    
+                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                        }
+                    else
+                        {
+                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                        }
+
+                    sqlite3_finalize(stmt);
+                    break;
+                }
+
+        case 5: 
+                {
+                    string sql = "UPDATE EMPLOYE SET DATE_ADHE=?  WHERE ID=?;";
+                    sqlite3_stmt *stmt;
+                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                    sqlite3_bind_text(stmt, 1, e.getDate_adhesion().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+    
+                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                        {
+                            if(sqlite3_changes(m_db) > 0)
+                                cout << "Mise a jour reussie !" << endl;
+                            else    
+                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                        }
+                    else
+                        {
+                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                        }
+
+                    sqlite3_finalize(stmt);
+                    break;
+                }
+
+        case 6:
+                {
+                    string sql = "UPDATE EMPLOYE SET SITUATION_MAT=?  WHERE ID=?;";
+                    sqlite3_stmt *stmt;
+                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                    sqlite3_bind_text(stmt, 1, e.getSituation_matrimonial().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+    
+                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                        {
+                            if(sqlite3_changes(m_db) > 0)
+                                cout << "Mise a jour reussie !" << endl;
+                            else    
+                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                        }
+                    else
+                        {
+                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                        }
+
+                    sqlite3_finalize(stmt);
+                    break;
+                }
+
+        case 7:
+                {
+                    string sql = "UPDATE EMPLOYE SET POSTE=?  WHERE ID=?;";
+                    sqlite3_stmt *stmt;
+                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                    sqlite3_bind_text(stmt, 1, e.getPoste().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+    
+                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                        {
+                            if(sqlite3_changes(m_db) > 0)
+                                cout << "Mise a jour reussie !" << endl;
+                            else    
+                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                        }
+                    else
+                        {
+                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                        }
+
+                    sqlite3_finalize(stmt);
+                    break;
+                }
+
+        case 8: 
+                {
+                    string sql = "UPDATE EMPLOYE SET TYPECONTRAT=?  WHERE ID=?;";
+                    sqlite3_stmt *stmt;
+                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                    sqlite3_bind_text(stmt, 1, e.getType_contrat().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+    
+                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                        {
+                            if(sqlite3_changes(m_db) > 0)
+                                cout << "Mise a jour reussie !" << endl;
+                            else    
+                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                        }
+                    else
+                        {
+                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                        }
+
+                    sqlite3_finalize(stmt);
+                    break;
+                }
+
+        case 9: 
+                {
+                    string sql = "UPDATE EMPLOYE SET SALAIRE=?  WHERE ID=?;";
+                    sqlite3_stmt *stmt;
+                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                    sqlite3_bind_double(stmt, 1, e.getSalaire());
+                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+    
+                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                        {
+                            if(sqlite3_changes(m_db) > 0)
+                                cout << "Mise a jour reussie !" << endl;
+                            else    
+                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                        }
+                    else
+                        {
+                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                        }
+
+                    sqlite3_finalize(stmt);
+                    break;
+                }
+
+        case 10: 
+                {
+                    string sql = "UPDATE EMPLOYE SET CATEGORIE=?  WHERE ID=?;";
+                    sqlite3_stmt *stmt;
+                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                    sqlite3_bind_text(stmt, 1, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+    
+                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                        {
+                            if(sqlite3_changes(m_db) > 0)
+                                cout << "Mise a jour reussie !" << endl;
+                            else    
+                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                        }
+                    else
+                        {
+                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                        }
+
+                    sqlite3_finalize(stmt);
+                    break;
+                }
+
+        case 11:
+                {
+                    string sql = "UPDATE EMPLOYE SET MDP=?  WHERE ID=?;";
+                    sqlite3_stmt *stmt;
+                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                    sqlite3_bind_text(stmt, 1, e.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+    
+                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                        {
+                            if(sqlite3_changes(m_db) > 0)
+                                cout << "Mise a jour reussie !" << endl;
+                            else    
+                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                        }
+                    else
+                        {
+                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                        }
+
+                    sqlite3_finalize(stmt);
+                    break;
+                }
+                
+        case 12: 
+                {
+                    string sql = "UPDATE EMPLOYE SET EMAIL=?  WHERE ID=?;";
+                    sqlite3_stmt *stmt;
+                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                    sqlite3_bind_text(stmt, 1, e.getEmail().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+    
+                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                        {
+                            if(sqlite3_changes(m_db) > 0)
+                                cout << "Mise a jour reussie !" << endl;
+                            else    
+                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                        }
+                    else
+                        {
+                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                        }
+
+                    sqlite3_finalize(stmt);
+                    break;
+                }
     
     default:
         break;
     }
 
-    string sql = "UPDATE EMPLOYE SET NOM=?, PRENOM=?, AGE=?, DATE_ADHE=?, SITUATION_MAT=?, POSTE=?, TYPECONTRAT=?, SALAIRE=?, CATEGORIE=?, MDP=?, EMAIL=?, ETAT=?  WHERE ID=?;";
-    sqlite3_stmt *stmt;
-    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
 
-    sqlite3_bind_text(stmt, 13, e.getId().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 1, e.getNom().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 2, e.getPrenom().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_int(stmt, 3, e.getAge());
-    sqlite3_bind_text(stmt, 4, e.getDate_adhesion().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 5, e.getSituation_matrimonial().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 6, e.getPoste().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 7, e.getType_contrat().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_double(stmt, 8, e.getSalaire());
-    sqlite3_bind_text(stmt, 9, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 10, e.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 11, e.getEmail().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_int(stmt, 12, e.activer());
-
-    
-    if(sqlite3_step(stmt) == SQLITE_DONE) 
-        {
-            if(sqlite3_changes(m_db) > 0)
-                cout << "Mise a jour reussie !" << endl;
-            else    
-                cout << "Aucun Employe trouve avec cet Id !" << endl;
-        }
-    else
-        {
-            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
-        }
-
-    sqlite3_finalize(stmt);
 
     }
 

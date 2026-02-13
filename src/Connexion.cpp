@@ -34,7 +34,7 @@ void pageAcceuil()
 
         switch (option)
         {
-            case 1: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
+            case 1: clearCLI(); presentation(); resultat = false; break;
             case 2: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
             case 3: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
             case 4: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
@@ -203,6 +203,38 @@ void options_EMployes(int idAdmin)
 
 }
 
+void presentation()
+{
+   std::cout << std::endl << std::endl;
+    dessinerLdeux();
+    std::cout << "| " << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."
+              << "| " << std::setw(18) << "PRESENTATION"<< "|" << std::endl;
+    dessinerLdeux();
+
+    std::cout << "DRONE.Solutions est une startup Camerounaise qui conçoit des drones et déploie des services via les ";
+    std::cout << "technologies de drones, l’informatique, l’électronique, la robotique, les conceptions FPGA, l’automatique ";
+    std::cout << "et l’intelligence artificielle.\n";
+
+    int choix;
+
+    std::cout << "";
+}
+
+void produits_services()
+{
+
+}
+
+void boutique()
+{
+
+}
+
+void contats()
+{
+
+}
+
 void dessinnerL()
 {
 
@@ -238,3 +270,6 @@ void dessinerLdeux()
          << std::setfill(' ')
          << std::endl;
 }
+
+
+

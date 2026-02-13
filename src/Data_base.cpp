@@ -38,6 +38,16 @@ DataBase::DataBase(char const* nomFichier)
 
     sqlite3_exec(m_db, sqlCreate.c_str(), NULL, 0, &msg_err);
 
+    //creation de la table pour les message dans la base de donnees
+    string sqlCreate_message = "CREATE TABLE IF NOT EXISTS MESSAGE ("
+                               "ID_MSG INTEGER PRIMARY KEY AUTOINCREMENT,"
+                               "ID_DESTINATAIRE TEXT NOT NULL,"
+                               "ID_EXPEDITEUR TEXT NOT NULL,"
+                               "CONTENU_MESSAGE TEXT NOT NULL,"
+                               "LU INTEGER DEFAULT 0);";
+
+    sqlite3_exec(m_db, sqlCreate_message.c_str(), NULL, 0, &msg_err);
+
 }
 
 DataBase::~DataBase()

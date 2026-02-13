@@ -29,6 +29,10 @@ class DataBase
         void rechercherUnEmploye_id(std::string id_);
         DataConnxion getData(){return m_data;}
 
+        //variables pour l'implementation de l'envoi des messages
+        void envoyer_MSG(std::string destinataire, std::string expediteur, std::string contenu);
+        void lecture_MSG();
+
     private:
         sqlite3 *m_db;
         DataConnxion m_data;

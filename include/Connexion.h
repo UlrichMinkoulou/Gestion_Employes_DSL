@@ -16,5 +16,8 @@ void modifier_Infos();
 void options_Employes(int id_admin);
 void messages();
 void clearCLI();
-
+void presentation();
+void produits_services();
+void boutique();
+void contats();
 #endif

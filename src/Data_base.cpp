@@ -740,6 +740,33 @@ void DataBase::ajouterEmploye()
     }
 
 
+    //Fonctions pour Messagerie
+
+    void DataBase::envoyer_MSG(string destinataire, string expediteur, string contenu)
+    {
+        string sql = "INSERT INTO MESSAGE (ID_DESTINATAIRE, ID_EXPEDITEUR, CONTENU, LU) VALUES(?, ?, ?, ?);";
+        sqlite3_stmt* stmt;
+
+        if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+            {
+                cerr << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl;
+                return;
+            }
+        
+        sqlite3_bind_text(stmt, 1, m_data_msg.getIDdestinataire().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, m_data_msg.getIDexpediteur().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 3, m_data_msg.getContenu().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int(stmt, 4, 1);
+
+        if(sqlite3_step(stmt) == SQLITE_DONE)
+            cout << "\nMessage envoye avec succes !!" << endl;
+        else 
+            cerr << "\nErreur d'envoi : " << sqlite3_errmsg(m_db) << endl;
+        
+        sqlite3_finalize(stmt);
+
+    }
+
     void afficherLigneEmploye(sqlite3_stmt *stmt_)
     {
         cout << "| " << left << setw(8) << (const char*)sqlite3_column_text(stmt_, 0)

@@ -744,18 +744,18 @@ void DataBase::ajouterEmploye()
 
     void DataBase::envoyer_MSG(string destinataire, string expediteur, string contenu)
     {
-        string sql = "INSERT INTO MESSAGE (ID_DESTINATAIRE, ID_EXPEDITEUR, CONTENU, LU) VALUES(?, ?, ?, ?);";
+        string sql = "INSERT INTO MESSAGE (ID_DESTINATAIRE, ID_EXPEDITEUR, CONTENU_MESSAGE, LU) VALUES(?, ?, ?, ?);";
         sqlite3_stmt* stmt;
 
-        if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+        if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
             {
                 cerr << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl;
                 return;
             }
         
-        sqlite3_bind_text(stmt, 1, m_data_msg.getIDdestinataire().c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_bind_text(stmt, 2, m_data_msg.getIDexpediteur().c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_bind_text(stmt, 3, m_data_msg.getContenu().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 1, m_data_msg.setIDdestinataire(destinataire).c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, m_data_msg.setIDexpediteur(expediteur).c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 3, m_data_msg.setContenu(contenu).c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_int(stmt, 4, 1);
 
         if(sqlite3_step(stmt) == SQLITE_DONE)
@@ -766,6 +766,43 @@ void DataBase::ajouterEmploye()
         sqlite3_finalize(stmt);
 
     }
+
+    void DataBase::afficher_MSG()const
+    {
+           cout << "\n --- MESSAGES ENVOYES --- " << endl;
+           dessinnerLignes();
+           cout << "| " << left << setw(8) << "Id_Msg"
+                << "| " << setw(10) << "Destinataire"
+                << "| " << setw(10) << "Expediteur"
+                << "| " << setw(10) << "Contenu"
+                << "| " << setw(4) << "Lu" << "|" << endl; 
+            dessinnerLignes();
+
+            sqlite3_stmt* stmt;
+            string sql = "SELECT ID_MSG, ID_DESTINATAIRE, ID_EXPEDITEUR, CONTENU_MESSAGE, LU FROM MESSAGE";
+
+            if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+            {
+                sqlite3_bind_text(stmt, 1, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);   
+                while(sqlite3_step(stmt) == SQLITE_ROW)
+                {
+                    cout << "| " << left << setw(8) << sqlite3_column_int(stmt, 0)
+                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 1)
+                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 2)
+                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 3)
+                         << "| " << setw(4) << sqlite3_column_int(stmt, 4) 
+                         << "|" << endl;
+                }
+            }
+            else
+            {
+                cerr << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
+            }
+    }
+
+
+
+
 
     void afficherLigneEmploye(sqlite3_stmt *stmt_)
     {

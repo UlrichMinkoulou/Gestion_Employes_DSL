@@ -17,6 +17,9 @@ int main(void)
     // bd_admin.afficherAdmin();
     // base_de_donne.activerdesactiverEmployer();
 
+    base_de_donne.envoyer_MSG("ADSL0001", "EDSL0001", "Mise a jour de mes avancements");
+    base_de_donne.afficher_MSG();
+
 
     pageAcceuil();
 

@@ -144,6 +144,7 @@ bool viewAdmin(std::string IdAdmin)
             std::cout << "> ";
             std::cin >> choix;
 
+            DataBase bd_user("entreprise_.db");
 
             switch (choix)
             {
@@ -151,7 +152,6 @@ bool viewAdmin(std::string IdAdmin)
                 {
                     bool rester_Menu_employe = false;
                     int choice; std::string id_;
-                    DataBase bd_user("entreprise_.db");
 
                     do
                         {
@@ -184,7 +184,7 @@ bool viewAdmin(std::string IdAdmin)
                     rester_Menu_Admin = false; 
                     break;
                 }
-                case 2: std::cout << std::endl << std::endl << "Option de Messagerie non DISPONIBLE" << std::endl; rester_Menu_Admin = false; break;
+                case 2: messages(admin_user.getAdminData().id_); rester_Menu_Admin = false; break;
                 case 3: admin_user.modifierAdmin(admin_user.getAdminData().id_); rester_Menu_Admin = false; break;
                 case 4: rester_Menu_Admin = true; break;
             
@@ -234,6 +234,48 @@ void contats()
 {
 
 }
+
+void messages(std::string id)
+{
+    DataBase user("entreprise.db");
+     std::cout << std::endl;
+
+    std::cout << "---------Messagerie--------- " << std::endl << std::endl;
+    std::cout << "1. Messages Recus" << std::endl;
+    std::cout << "2. Envoyer un Message" << std::endl;
+    std::cout << "3. Message Envoyes" << std::endl;
+    std::cout << "4. Retour Menu" << std::endl << std::endl;
+    int choix;
+    std::cout << "> ";
+    std::cin >> choix;
+
+    switch (choix)
+    {
+        case 1: {
+            
+        break;} 
+        case 2: 
+        {
+            std::string destinataire, contenu;
+            std::cout << "Message : >";
+                std::cin.ignore(1000, '\n');
+                std::getline(std::cin, contenu);
+                destinataire = "ADSL0001";
+            user.envoyer_MSG(id, destinataire, contenu); break;
+        }
+        case 3: break;
+        case 4: break;
+    
+        default:
+            break;
+    }
+}
+
+// void messages(std::string id)
+// {
+
+// }
+
 
 void dessinnerL()
 {

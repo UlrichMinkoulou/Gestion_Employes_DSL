@@ -4,6 +4,7 @@
 #include "Employe.h"
 #include <string>
 #include <sqlite3.h>
+#include <vector>
 
 struct  DataConnxion
     {
@@ -87,6 +88,7 @@ class DataBase
         DataConnxion m_data;
 
         Data_Message m_data_msg;
+        std::vector<Data_Message> m_liste_messages; //pour stocker les messages dans un vecteur
 
 };
 

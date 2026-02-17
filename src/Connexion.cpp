@@ -76,7 +76,7 @@ bool login()
 
 bool viewUser(std::string IdUser)
 {
-    DataBase User("entreprise.db");
+    DataBase User("entreprise_.db");
     bool resultat;
 
     do
@@ -140,7 +140,7 @@ bool viewAdmin(std::string IdAdmin)
             std::cout << "\n\n1. Options Employes" << std::endl;
             std::cout << "2. Message" << std::endl;
             std::cout << "3. Modifier mes INFOs de CONNEXION" << std::endl;
-            std::cout << "4. Se Deconnecter" << std::endl;
+            std::cout << "4. Se Deconnecter" << std::endl << std::endl;
             std::cout << "> ";
             std::cin >> choix;
 
@@ -155,6 +155,7 @@ bool viewAdmin(std::string IdAdmin)
 
                     do
                         {
+                            std::cout << std::endl << "---------OPTIONS EMPLOYES--------- " << std::endl;
                             std::cout << "\n\n1. Afficher les Employes" << std::endl;
                             std::cout << "2. Ajouter un Employes" << std::endl;
                             std::cout << "3. Changer Infos Employes" << std::endl;
@@ -168,11 +169,11 @@ bool viewAdmin(std::string IdAdmin)
                             switch (choice)
                             {
                             case 1: bd_user.afficherEmploye(); rester_Menu_employe = true; break;
-                            case 2: bd_user.ajouterEmploye(); rester_Menu_employe = true; break;
-                            case 3: bd_user.changerInfoEmploye(); rester_Menu_employe = true; break;
-                            case 4: bd_user.activerdesactiverEmployer(); rester_Menu_employe = true; break;
+                            case 2: std::cout << std::endl << std::endl << "--- Ajout employe ---" << std::endl; bd_user.ajouterEmploye(); rester_Menu_employe = true; break;
+                            case 3: std::cout << std::endl << std::endl << "--- Maj employe ---" << std::endl;bd_user.changerInfoEmploye(); rester_Menu_employe = true; break;
+                            case 4: std::cout << std::endl << std::endl << "--- Activer/Desactiver employe ---" << std::endl;bd_user.activerdesactiverEmployer(); rester_Menu_employe = true; break;
                             case 5: bd_user.imprimer_fiche_paie(id_); rester_Menu_employe = true; break;
-                            case 6: bd_user.rechercherUnEmploye(); rester_Menu_employe = true; break;
+                            case 6: std::cout << std::endl << std::endl << "--- Recherche employe ---" << std::endl;bd_user.rechercherUnEmploye(); rester_Menu_employe = true; break;
                             case 7: rester_Menu_employe = false; break;
 
                             default: rester_Menu_employe = true;
@@ -237,43 +238,60 @@ void contats()
 
 void messages(std::string id)
 {
-    DataBase user("entreprise.db");
-     std::cout << std::endl;
-
-    std::cout << "---------Messagerie--------- " << std::endl << std::endl;
-    std::cout << "1. Messages Recus" << std::endl;
-    std::cout << "2. Envoyer un Message" << std::endl;
-    std::cout << "3. Message Envoyes" << std::endl;
-    std::cout << "4. Retour Menu" << std::endl << std::endl;
-    int choix;
-    std::cout << "> ";
-    std::cin >> choix;
-
-    switch (choix)
+  bool condition = false;
+  
+  do
     {
-        case 1: {
+        /* code */
+        
+            DataBase user("entreprise_.db");
+            std::cout << std::endl;
             
-        break;} 
-        case 2: 
+        std::cout << "---------Messagerie--------- " << std::endl << std::endl;
+        std::cout << "1. Messages Recus(non lus)" << std::endl;
+        std::cout << "2. Messages Recus(lus)" << std::endl;
+        std::cout << "3. Envoyer un Message" << std::endl;
+        std::cout << "4. Message Envoyes" << std::endl;
+        std::cout << "5. Retour Menu" << std::endl << std::endl;
+        int choix;
+        std::cout << "> ";
+        std::cin >> choix;
+
+        switch (choix)
         {
-            std::string destinataire, contenu;
-            std::cout << "Message : >";
+            case 1: { user.afficher_MSG_non_lus(id); break;} 
+            case 2: { user.afficher_MSG_lus(id);     break;}
+            case 3: 
+            {
+                std::string destinataire, contenu, objet;
+
+
+                std::cout << "-----Envoyer un Message-----" << std::endl << std::endl;
+                std::cout << "Destinataire: ";
+                std::cin >> destinataire;
+                
+                std::cout << "Objet : ";
                 std::cin.ignore(1000, '\n');
+                std::getline(std::cin, objet);
+
+                std::cout << "Message : ";
                 std::getline(std::cin, contenu);
-                destinataire = "ADSL0001";
-            user.envoyer_MSG(id, destinataire, contenu); break;
+
+                user.envoyer_MSG(destinataire, id, contenu, objet); break;
+            }
+            case 4: { user.afficher_MSG_envoyes(id); break;}
+            case 5: condition = true; break;
+            
+            default: condition = false; break;
+
         }
-        case 3: break;
-        case 4: break;
-    
-        default:
-            break;
-    }
+    } while (condition == false);
+
 }
 
 // void messages(std::string id)
 // {
-
+    
 // }
 
 

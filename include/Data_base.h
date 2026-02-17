@@ -19,6 +19,7 @@ struct Data_Message
         private:
         std::string id_destinataire;
         std::string id_expediteur;
+        std::string objet;
         std::string contenu;
         int lu; //variable de lecture des messages 0(non lu) et 1(lu)
 
@@ -57,6 +58,12 @@ struct Data_Message
             contenu = cont;
             return contenu;
         }
+        
+        std::string setObjet(std::string obt)
+        {
+            objet = obt;
+            return objet;
+        }
 
 
 
@@ -79,9 +86,14 @@ class DataBase
         DataConnxion getData(){return m_data;}
 
         //variables pour l'implementation de l'envoi des messages
-        void envoyer_MSG(std::string destinataire, std::string expediteur, std::string contenu);
+        void envoyer_MSG(std::string destinataire, std::string expediteur, std::string contenu, std::string objet);
         void lecture_MSG();
         void afficher_MSG()const;
+        void afficher_MSG_recus(std::string id_user)const;
+        void lire_MSG_recus(std::string id_user);
+        void afficher_MSG_non_lus(std::string id_user)const;
+        void afficher_MSG_lus(std::string id_user)const;
+        void afficher_MSG_envoyes(std::string id_user)const;
 
     private:
         sqlite3 *m_db;

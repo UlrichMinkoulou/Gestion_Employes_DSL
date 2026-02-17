@@ -94,6 +94,7 @@ class DataBase
         void afficher_MSG_non_lus(std::string id_user)const;
         void afficher_MSG_lus(std::string id_user)const;
         void afficher_MSG_envoyes(std::string id_user)const;
+        void message_RNL(std::string id_user);
 
     private:
         sqlite3 *m_db;
@@ -107,5 +108,6 @@ class DataBase
 void afficherLigneEmploye(sqlite3_stmt *stmt);
 void dessinnerLignes();
 std::string getPassword();
+std::string affichageMessageRecusNonLus(std::string text);
 
 #endif

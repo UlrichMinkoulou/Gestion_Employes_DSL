@@ -8,6 +8,12 @@
 #include <ctime>
 #include <termios.h>
 #include <unistd.h>
+#include <sstream>
+
+const std::string ANSI_RESET = "\033[0m";
+const std::string ANSI_RED = "\033[31m";
+const std::string ANSI_BOLD = "\033[1m";
+const std::string ANSI_GREEN = "\033[32m";
 
 using namespace std;
 
@@ -762,9 +768,9 @@ void DataBase::ajouterEmploye()
          sqlite3_bind_int(stmt, 5, 1);
 
         if(sqlite3_step(stmt) == SQLITE_DONE)
-            cout << "\nMessage envoye avec succes !!" << endl;
+            cout << ANSI_GREEN << "\nMessage envoye avec succes !!" << ANSI_RESET << endl;
         else 
-            cerr << "\nErreur d'envoi : " << sqlite3_errmsg(m_db) << endl;
+            cerr << ANSI_RED << "\nErreur d'envoi : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
         
         sqlite3_finalize(stmt);
 
@@ -856,9 +862,9 @@ void DataBase::ajouterEmploye()
             sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
 
             if(sqlite3_step(stmt) == SQLITE_DONE)
-                cout << "\nMessages marques comme lus avec succes !!" << endl;
+                cout << ANSI_BOLD << ANSI_GREEN << "\nMessages marques comme lus avec succes !!" << ANSI_RESET << endl;
             else 
-                cerr << "\nErreur de mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "\nErreur de mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             
             sqlite3_finalize(stmt);
         }
@@ -977,6 +983,58 @@ void DataBase::ajouterEmploye()
             }  
             sqlite3_finalize(stmt);
         }
+
+        string affichageMessageRecusNonLus(std::string texte)
+        {
+            stringstream ss(texte);
+            string mot, resultat;
+            int compteur = 0;
+
+            while(ss >> mot && compteur < 3)
+            {
+                if(compteur > 0) 
+                {
+                    resultat += " ";
+                }
+                
+                resultat += mot;
+                compteur++;
+            }
+
+            if(ss >> mot)
+            {
+                resultat += "...";
+            }
+
+            return resultat;
+        }
+
+        void DataBase:: message_RNL(std::string id_user)
+        {
+            sqlite3_stmt* stmt;
+            string sql = "SELECT ID_EXPEDITEUR, OBJET, CONTENU_MESSAGE, DATE_TIME FROM MESSAGE WHERE ID_DESTINATAIRE = ? AND LU = 1;";
+
+            if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+            {
+                sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
+                while(sqlite3_step(stmt) == SQLITE_ROW)
+                {                    string contenu = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+                    string objet = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+                    string expediteur   = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+                    string date_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+                    string message = ANSI_BOLD + expediteur + " " + objet + " - " + ANSI_RESET + affichageMessageRecusNonLus(contenu)+ ANSI_BOLD + " [" + date_time + "]" + ANSI_RESET;
+                    std::cout << message << std::endl;
+                }
+                
+            }
+            else
+            {
+                cerr << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
+            }  
+            sqlite3_finalize(stmt);
+        }
+
+
 
 
 

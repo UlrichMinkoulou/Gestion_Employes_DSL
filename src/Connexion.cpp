@@ -11,7 +11,7 @@
 void pageAcceuil()
 {
     int option;
-    bool resultat;
+    bool resultat = false;
     do
     {
             /* code */
@@ -34,11 +34,11 @@ void pageAcceuil()
 
         switch (option)
         {
-            case 1: clearCLI(); presentation(); resultat = false; break;
-            case 2: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
-            case 3: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
-            case 4: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
-            case 5: std::cout<< "Informations non Dispanible !" << std::endl; resultat = false; break;
+            case 1: clearCLI(); presentation();  break;
+            case 2: std::cout<< "Informations non Dispanible !" << std::endl;  break;
+            case 3: std::cout<< "Informations non Dispanible !" << std::endl;  break;
+            case 4: std::cout<< "Informations non Dispanible !" << std::endl;  break;
+            case 5: std::cout<< "Informations non Dispanible !" << std::endl;  break;
             case 6: resultat = login(); clearCLI(); break;
             
             
@@ -51,7 +51,7 @@ void pageAcceuil()
 
 bool login()
 {
-   bool resultat = true;
+   bool resultat = false;
    std::string identifiant_;
    std::cout << std::endl << std::endl;
     dessinerLdeux();
@@ -70,7 +70,7 @@ bool login()
     else
         std::cout << "Erreur d'Identifiant." << std::endl;
 
-    return resultat;
+    return false;
 
 }
 
@@ -134,6 +134,8 @@ bool viewAdmin(std::string IdAdmin)
         admin_user.afficherUserAdmin(admin_user.getAdminData().id_);
         
 
+        bool rester_Menu_employe = true;
+
         do
         {
             int choix;
@@ -150,7 +152,6 @@ bool viewAdmin(std::string IdAdmin)
             {
                 case 1: 
                 {
-                    bool rester_Menu_employe = false;
                     int choice; std::string id_;
 
                     do
@@ -168,12 +169,12 @@ bool viewAdmin(std::string IdAdmin)
                             
                             switch (choice)
                             {
-                            case 1: bd_user.afficherEmploye(); rester_Menu_employe = true; break;
-                            case 2: std::cout << std::endl << std::endl << "--- Ajout employe ---" << std::endl; bd_user.ajouterEmploye(); rester_Menu_employe = true; break;
-                            case 3: std::cout << std::endl << std::endl << "--- Maj employe ---" << std::endl;bd_user.changerInfoEmploye(); rester_Menu_employe = true; break;
-                            case 4: std::cout << std::endl << std::endl << "--- Activer/Desactiver employe ---" << std::endl;bd_user.activerdesactiverEmployer(); rester_Menu_employe = true; break;
-                            case 5: bd_user.imprimer_fiche_paie(id_); rester_Menu_employe = true; break;
-                            case 6: std::cout << std::endl << std::endl << "--- Recherche employe ---" << std::endl;bd_user.rechercherUnEmploye(); rester_Menu_employe = true; break;
+                            case 1: bd_user.afficherEmploye(); break;
+                            case 2: std::cout << std::endl << std::endl << "--- Ajout employe ---" << std::endl; bd_user.ajouterEmploye(); break;
+                            case 3: std::cout << std::endl << std::endl << "--- Maj employe ---" << std::endl;bd_user.changerInfoEmploye(); break;
+                            case 4: std::cout << std::endl << std::endl << "--- Activer/Desactiver employe ---" << std::endl;bd_user.activerdesactiverEmployer(); break;
+                            case 5: bd_user.imprimer_fiche_paie(id_);  break;
+                            case 6: std::cout << std::endl << std::endl << "--- Recherche employe ---" << std::endl;bd_user.rechercherUnEmploye(); break;
                             case 7: rester_Menu_employe = false; break;
 
                             default: rester_Menu_employe = true;
@@ -245,6 +246,7 @@ void messages(std::string id)
         /* code */
         
             DataBase user("entreprise_.db");
+            user.message_RNL(id);
             std::cout << std::endl;
             
         std::cout << "---------Messagerie--------- " << std::endl << std::endl;

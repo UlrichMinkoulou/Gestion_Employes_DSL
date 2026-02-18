@@ -14,6 +14,12 @@ const std::string ANSI_RESET = "\033[0m";
 const std::string ANSI_RED = "\033[31m";
 const std::string ANSI_BOLD = "\033[1m";
 const std::string ANSI_GREEN = "\033[32m";
+const std::string ANSI_BLUE = "\033[34m";
+const std::string ANSI_YELLOW = "\033[33m";
+const std::string ANSI_MAGENTA = "\033[35m";
+const std::string ANSI_CYAN = "\033[36m";
+const std::string ANSI_WHITE = "\033[37m";
+const std::string ANSI_BLACK = "\033[30m";
 
 using namespace std;
 
@@ -237,10 +243,61 @@ void DataBase::ajouterEmploye()
         sqlite3_finalize(stmt);
     }
 
+//Modification des infos Employe cote user
 
-//Modification des infos Employe
+    void DataBase::mofifierInfoConnexionEmploye(std::string id_)
+    {
+        std::cout << "----Mofification des infos de connexion----" << std::endl << std::endl;
+        std::string new_password, confirmPassword;
+
+        bool verifier = true;
+        do
+        {
+            std::cout << "Entrez le nouveau mot de passe : ";
+            std::cin >> new_password;
+            std::cout << "Confirmez le nouveau mot de passe : ";
+             std::cin >> confirmPassword;
+
+            if (new_password != confirmPassword)
+            {
+                std::cout << ANSI_BOLD << ANSI_RED << "Les mots de passe ne correspondent pas. Veuillez reessayer." << ANSI_RESET << std::endl;
+                verifier = false;
+            }
+            else
+                {
+                    verifier = true;
+                }
+
+        }while (verifier == false);
+
+
+
+        string sql = "UPDATE EMPLOYE SET MDP=? WHERE ID=?;";
+        sqlite3_stmt *stmt;
+        sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL);
+        sqlite3_bind_text(stmt, 1, new_password.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, id_.c_str(), -1, SQLITE_TRANSIENT);
+
+        if(sqlite3_step(stmt) == SQLITE_DONE) 
+            {
+                if(sqlite3_changes(m_db) > 0)
+                    cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour du mot de passe reussie !" << ANSI_RESET<< endl;
+                else    
+                    cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+            }
+        else
+            {
+                cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour du mot de passe : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
+            }
+
+        sqlite3_finalize(stmt);
+    }
+
+
+//Modification des infos Employe cote admin
     void DataBase::changerInfoEmploye()
     {
+    std::cout << "----Mofification des infos de connexion----" << std::endl << std::endl;
 
     Employe e;
     cout << "----Entrez l'identifiant : ";
@@ -293,13 +350,13 @@ void DataBase::ajouterEmploye()
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
                         {
                             if(sqlite3_changes(m_db) > 0)
-                                cout << "Mise a jour reussie !" << endl;
+                                cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour reussie !" << ANSI_RESET << endl;
                             else    
-                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                                cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                         }
                     else
                         {
-                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                         }
 
                     sqlite3_finalize(stmt);
@@ -317,13 +374,13 @@ void DataBase::ajouterEmploye()
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
                         {
                             if(sqlite3_changes(m_db) > 0)
-                                cout << "Mise a jour reussie !" << endl;
+                                cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour reussie !" << ANSI_RESET << endl;
                             else    
-                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                                cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                         }
                     else
                         {
-                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                         }
 
                     sqlite3_finalize(stmt);
@@ -343,9 +400,9 @@ void DataBase::ajouterEmploye()
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
                         {
                             if(sqlite3_changes(m_db) > 0)
-                                cout << "Mise a jour reussie !" << endl;
+                                cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour reussie !" << ANSI_RESET << endl;
                             else    
-                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                                cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                         }
                     else
                         {
@@ -369,13 +426,13 @@ void DataBase::ajouterEmploye()
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
                         {
                             if(sqlite3_changes(m_db) > 0)
-                                cout << "Mise a jour reussie !" << endl;
+                                cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour reussie !" << ANSI_RESET << endl;
                             else    
-                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                                cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                         }
                     else
                         {
-                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                         }
 
                     sqlite3_finalize(stmt);
@@ -395,13 +452,13 @@ void DataBase::ajouterEmploye()
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
                         {
                             if(sqlite3_changes(m_db) > 0)
-                                cout << "Mise a jour reussie !" << endl;
+                                cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour reussie !" << ANSI_RESET << endl;
                             else    
-                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                                cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                         }
                     else
                         {
-                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                         }
 
                     sqlite3_finalize(stmt);
@@ -421,13 +478,13 @@ void DataBase::ajouterEmploye()
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
                         {
                             if(sqlite3_changes(m_db) > 0)
-                                cout << "Mise a jour reussie !" << endl;
+                                cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour reussie !" << ANSI_RESET << endl;
                             else    
-                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                                cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                         }
                     else
                         {
-                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                         }
 
                     sqlite3_finalize(stmt);
@@ -447,13 +504,13 @@ void DataBase::ajouterEmploye()
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
                         {
                             if(sqlite3_changes(m_db) > 0)
-                                cout << "Mise a jour reussie !" << endl;
+                                cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour reussie !" << ANSI_RESET << endl;
                             else    
-                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                                cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                         }
                     else
                         {
-                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                         }
 
                     sqlite3_finalize(stmt);
@@ -473,13 +530,13 @@ void DataBase::ajouterEmploye()
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
                         {
                             if(sqlite3_changes(m_db) > 0)
-                                cout << "Mise a jour reussie !" << endl;
+                                cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour reussie !" << ANSI_RESET << endl;
                             else    
-                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                                cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                         }
                     else
                         {
-                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                         }
 
                     sqlite3_finalize(stmt);
@@ -499,13 +556,13 @@ void DataBase::ajouterEmploye()
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
                         {
                             if(sqlite3_changes(m_db) > 0)
-                                cout << "Mise a jour reussie !" << endl;
+                                cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour reussie !" << ANSI_RESET << endl;
                             else    
-                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                                cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                         }
                     else
                         {
-                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                         }
 
                     sqlite3_finalize(stmt);
@@ -525,13 +582,13 @@ void DataBase::ajouterEmploye()
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
                         {
                             if(sqlite3_changes(m_db) > 0)
-                                cout << "Mise a jour reussie !" << endl;
+                                cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour reussie !" << ANSI_RESET << endl;
                             else    
-                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                                cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                         }
                     else
                         {
-                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                         }
 
                     sqlite3_finalize(stmt);
@@ -551,13 +608,13 @@ void DataBase::ajouterEmploye()
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
                         {
                             if(sqlite3_changes(m_db) > 0)
-                                cout << "Mise a jour reussie !" << endl;
+                                cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour reussie !" << ANSI_RESET << endl;
                             else    
-                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                                cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                         }
                     else
                         {
-                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                         }
 
                     sqlite3_finalize(stmt);
@@ -577,13 +634,13 @@ void DataBase::ajouterEmploye()
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
                         {
                             if(sqlite3_changes(m_db) > 0)
-                                cout << "Mise a jour reussie !" << endl;
+                                cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour reussie !" << ANSI_RESET << endl;
                             else    
-                                cout << "Aucun Employe trouve avec cet Id !" << endl;
+                                cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                         }
                     else
                         {
-                            cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                         }
 
                     sqlite3_finalize(stmt);
@@ -661,7 +718,7 @@ void DataBase::ajouterEmploye()
         if(sqlite3_step(stmt) == SQLITE_ROW)
         {
              const unsigned char *user_name = sqlite3_column_text(stmt, 1);
-             std::cout << "Bienvenu " << (user_name ? reinterpret_cast<const char*>(user_name) : "NULL") << std::endl;
+             std::cout << ANSI_BOLD << ANSI_GREEN << "Bienvenu " << (user_name ? reinterpret_cast<const char*>(user_name) : "NULL") << ANSI_RESET << std::endl;
             m_data.name =  reinterpret_cast<const char*>(user_name); //faire le caste
 
             std::cout << "Chargement de la page";
@@ -676,13 +733,13 @@ void DataBase::ajouterEmploye()
          else
          {
             m_data.res = false;
-            std::cout << "Id ou mot de passe Incorrect !" << std::endl;
+            std::cout << ANSI_BOLD << ANSI_RED << "Id ou mot de passe Incorrect !" << ANSI_RESET << std::endl;
          }
 
     } 
       else 
         {
-            std::cerr << "Erreur de preparation : " << sqlite3_errmsg(m_db) << std::endl;
+            std::cerr << ANSI_BOLD << ANSI_RED << "Erreur de preparation : " << sqlite3_errmsg(m_db) << ANSI_RESET << std::endl;
         }
     
     sqlite3_finalize(stmt);
@@ -734,13 +791,13 @@ void DataBase::ajouterEmploye()
         if(sqlite3_step(stmt) == SQLITE_DONE) 
             {
                 if(sqlite3_changes(m_db) > 0)
-                    cout << "Mise a jour d'etat reussie !" << endl;
+                    cout << ANSI_BOLD << ANSI_GREEN << "Mise a jour d'etat reussie !" << ANSI_RESET << endl;
                 else    
-                    cout << "Aucun Employe trouve avec cet Id !" << endl;
+                    cout << ANSI_BOLD << ANSI_RED << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
             }
         else
             {
-                cerr << "Erreur lors de la mise a jour de l'etat : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour de l'etat : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }
 
         sqlite3_finalize(stmt);
@@ -757,7 +814,7 @@ void DataBase::ajouterEmploye()
 
         if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
             {
-                cerr << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "Erreur de preparation : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
                 return;
             }
         
@@ -855,7 +912,7 @@ void DataBase::ajouterEmploye()
 
             if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
                 {
-                    cerr << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl;
+                    cerr << ANSI_BOLD << ANSI_RED << "Erreur de preparation : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
                     return;
                 }
             
@@ -904,7 +961,7 @@ void DataBase::ajouterEmploye()
             }
             else
             {
-                cerr << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
             sqlite3_finalize(stmt);
 
@@ -942,7 +999,7 @@ void DataBase::ajouterEmploye()
             }
             else
             {
-                cerr << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
             sqlite3_finalize(stmt);
         }
@@ -979,7 +1036,7 @@ void DataBase::ajouterEmploye()
             }
             else
             {
-                cerr << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
             sqlite3_finalize(stmt);
         }
@@ -1022,14 +1079,14 @@ void DataBase::ajouterEmploye()
                     string objet = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
                     string expediteur   = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
                     string date_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
-                    string message = ANSI_BOLD + expediteur + " " + objet + " - " + ANSI_RESET + affichageMessageRecusNonLus(contenu)+ ANSI_BOLD + " [" + date_time + "]" + ANSI_RESET;
+                    string message = ANSI_BLUE + ANSI_BOLD +  expediteur +  ANSI_RESET + ANSI_CYAN + ANSI_BOLD  + " " + objet + " - " + ANSI_RESET + ANSI_YELLOW + affichageMessageRecusNonLus(contenu) + ANSI_RESET+ ANSI_BOLD + ANSI_BLUE + " [" + date_time + "]" + ANSI_RESET;
                     std::cout << message << std::endl;
                 }
                 
             }
             else
             {
-                cerr << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
             sqlite3_finalize(stmt);
         }

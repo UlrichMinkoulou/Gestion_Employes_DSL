@@ -77,41 +77,43 @@ bool login()
 bool viewUser(std::string IdUser)
 {
     DataBase User("entreprise_.db");
-    bool resultat;
+    bool resultat = true;
 
-    do
+    if ( User.connexionEmploye(IdUser) == true)
     {
-        if ( User.connexionEmploye(IdUser) == true)
-        {
-            std::cout << std::endl << std::endl;
-            dessinerLdeux();
-            std::cout << "| " << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."
-            << "| " << std::setw(18) << User.getData().name<< "|" << std::endl;
-            dessinerLdeux();
-            User.afficherUser(User.getData().id_);
-        
-        
-            std::cout << "\n\n1. Modifier mes Informations de connexion" << std::endl;
-            std::cout << "2. Messages" << std::endl;
-            std::cout << "3. Imprimer Fiche de paie" << std::endl;
-            std::cout << "4. Se Deconnecter" << std::endl << std::endl;
-            int choix;
-            std::cout << "> ";
-             std::cin >> choix;
-
-            switch (choix)
+            do
             {
-            case 1: User.changerInfoEmploye(); break;
-            case 2: std::cout << "Informations sur la Messagerie non Disponibles" << std::endl; break;
-            case 3: User.imprimer_fiche_paie(User.getData().id_); break;
-            case 4: resultat = false; break;
+                std::cout << std::endl << std::endl;
+                dessinerLdeux();
+                std::cout << "| " << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."
+                << "| " << std::setw(18) << User.getData().name<< "|" << std::endl;
+                dessinerLdeux();
+                User.afficherUser(User.getData().id_);
             
-            default:
-                break;
-            }
-        }
+            
+                std::cout << "\n\n1. Modifier mes Informations de connexion" << std::endl;
+                std::cout << "2. Messages" << std::endl;
+                std::cout << "3. Imprimer Fiche de paie" << std::endl;
+                std::cout << "4. Se Deconnecter" << std::endl << std::endl;
+                int choix;
+                std::cout << "> ";
+                std::cin >> choix;
 
-    }while (resultat == true);
+                switch (choix)
+                {
+                    case 1: User.mofifierInfoConnexionEmploye(User.getData().id_); break;
+                    case 2: messages(User.getData().id_); clearCLI(); break;
+                    case 3: User.imprimer_fiche_paie(User.getData().id_); break;
+                    case 4: resultat = false; break;
+                    
+                    default:
+                        break;
+                }
+
+        }while (resultat == true);
+    
+    }
+
 
 
 

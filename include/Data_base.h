@@ -83,6 +83,7 @@ class DataBase
         bool connexionEmploye(std::string id_);
         void imprimer_fiche_paie(std::string id_);
         void rechercherUnEmploye_id(std::string id_);
+        void mofifierInfoConnexionEmploye(std::string id_);
         DataConnxion getData(){return m_data;}
 
         //variables pour l'implementation de l'envoi des messages

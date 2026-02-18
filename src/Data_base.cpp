@@ -1091,8 +1091,77 @@ void DataBase::ajouterEmploye()
             sqlite3_finalize(stmt);
         }
 
+        std::vector<Data_Message> DataBase::recupererMessages(std::string id_user)
+        {
+            std::vector<Data_Message> messages;
+            sqlite3_stmt* stmt;
+            string sql = "SELECT ID_EXPEDITEUR, CONTENU_MESSAGE, DATE_TIME FROM MESSAGE WHERE ID_DESTINATAIRE = ?;";
 
+            if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+            {
+                sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
+                while(sqlite3_step(stmt) == SQLITE_ROW)
+                {
+                    Data_Message msg;
+                    msg.setIDexpediteur(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
+                    msg.setContenu(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
+                    msg.setDateTime(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3)));
+                    
+                    messages.push_back(msg);
+                }
+            }
+            else
+            {
+                cerr << ANSI_BOLD << ANSI_RED << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+            }  
 
+            sqlite3_finalize(stmt);
+
+            return messages;
+        }
+
+//Discussion entre deux utilisateurs
+        void DataBase::afficherDiscussion(string id_user)const
+        {
+            string id_correspondant;
+
+            cout << "Selectionnez la discussion (Identifiant): ";
+             cin >> id_correspondant;
+
+            sqlite3_stmt* stmt;
+            string sql = "SELECT ID_EXPEDITEUR, CONTENU_MESSAGE, DATE_TIME FROM MESSAGE WHERE (ID_DESTINATAIRE = ? AND ID_EXPEDITEUR = ?) OR (ID_DESTINATAIRE = ? AND ID_EXPEDITEUR = ?) ORDER BY DATE_TIME;";
+
+            if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+            {
+                sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
+                sqlite3_bind_text(stmt, 2, id_correspondant.c_str(), -1, SQLITE_TRANSIENT);
+                sqlite3_bind_text(stmt, 3, id_correspondant.c_str(), -1, SQLITE_TRANSIENT);
+                sqlite3_bind_text(stmt, 4, id_user.c_str(), -1, SQLITE_TRANSIENT);
+
+                while(sqlite3_step(stmt) == SQLITE_ROW)
+                {
+                    string expediteur = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+                    string contenu = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+                    string date_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+                    //string message = ANSI_BLUE + ANSI_BOLD +  expediteur +  ANSI_RESET + ANSI_CYAN + ANSI_BOLD  + " " + contenu + " - " + ANSI_RESET + ANSI_YELLOW + date_time + ANSI_RESET;
+                    //std::cout << message << std::endl;
+
+                        if(expediteur == id_user)
+                        {
+                            cout << ANSI_BLUE << ANSI_BOLD << "[Moi]: " << ANSI_RESET << contenu << " " << ANSI_YELLOW << date_time << ANSI_RESET << endl;
+                        }
+                        else
+                        {
+                            cout << ANSI_GREEN << ANSI_BOLD << "[" << expediteur << "]: " << ANSI_RESET << contenu << " " << ANSI_YELLOW << date_time << ANSI_RESET << endl;
+                        }
+                }
+            }
+            else
+            {
+                cerr << ANSI_BOLD << ANSI_RED << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+            }  
+            sqlite3_finalize(stmt);
+        }
 
 
     void afficherLigneEmploye(sqlite3_stmt *stmt_)

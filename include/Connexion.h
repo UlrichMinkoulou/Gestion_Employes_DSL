@@ -15,6 +15,7 @@ void imprimer_fiches_paies();
 void modifier_Infos();
 void options_Employes(int id_admin);
 void messages(std::string id);
+void discussion(std::string id_user);
 void clearCLI();
 void presentation();
 void produits_services();

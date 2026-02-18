@@ -21,6 +21,7 @@ struct Data_Message
         std::string id_expediteur;
         std::string objet;
         std::string contenu;
+        std::string date_time;
         int lu; //variable de lecture des messages 0(non lu) et 1(lu)
 
         public:
@@ -38,6 +39,14 @@ struct Data_Message
         
         std::string getContenu(){
                 return contenu;
+            }
+        
+        std::string getObjet(){
+                return objet;
+            }
+
+        std::string getDatetime(){
+                return date_time;
             }
 
         //seteurs
@@ -63,6 +72,12 @@ struct Data_Message
         {
             objet = obt;
             return objet;
+        }
+
+        std::string setDateTime(std::string dt)
+        {
+            date_time = dt;
+            return date_time;
         }
 
 
@@ -96,6 +111,8 @@ class DataBase
         void afficher_MSG_lus(std::string id_user)const;
         void afficher_MSG_envoyes(std::string id_user)const;
         void message_RNL(std::string id_user);
+        std::vector<Data_Message> recupererMessages(std::string id_user);
+        void afficherDiscussion(std::string id_user)const;
 
     private:
         sqlite3 *m_db;

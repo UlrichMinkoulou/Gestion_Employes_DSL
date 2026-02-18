@@ -7,6 +7,16 @@
 #include <iostream>
 #include <iomanip>
 
+const std::string ANSI_RESET = "\033[0m";
+const std::string ANSI_RED = "\033[31m";
+const std::string ANSI_BOLD = "\033[1m";
+const std::string ANSI_GREEN = "\033[32m";
+const std::string ANSI_BLUE = "\033[34m";
+const std::string ANSI_YELLOW = "\033[33m";
+const std::string ANSI_MAGENTA = "\033[35m";
+const std::string ANSI_CYAN = "\033[36m";
+const std::string ANSI_WHITE = "\033[37m";
+const std::string ANSI_BLACK = "\033[30m";
 
 void pageAcceuil()
 {
@@ -18,13 +28,13 @@ void pageAcceuil()
             
             
             dessinnerL();
-            std::cout << "| " << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."
+            std::cout << "| " << ANSI_RED << ANSI_BOLD << std::left << std::setw(28) << "DRONE.Solutions ltd." << ANSI_RESET << ANSI_BOLD
             << "| " << std::setw(18) << "1. PRESENTATION"
             << "| " << std::setw(23) << "2. PRODUITS & SERVICES"
             << "| " << std::setw(18) << "3. PROJETS"        
             << "| " << std::setw(18) << "4. BOUTIQUE"
             << "| " << std::setw(18) << "5. CONTACTS"
-            << "| " << std::setw(18) << "6. CONNEXION"<< "|" << std::endl;
+            << "| " << std::setw(18) << "6. CONNEXION"<< "|" << ANSI_RESET << std::endl;
         dessinnerL();
         std::cout << std::endl << std::endl;
 
@@ -55,8 +65,8 @@ bool login()
    std::string identifiant_;
    std::cout << std::endl << std::endl;
     dessinerLdeux();
-    std::cout << "| " << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."
-              << "| " << std::setw(18) << "CONNEXION"<< "|" << std::endl;
+    std::cout << "| " << ANSI_RED << ANSI_BOLD <<  std::left << std::setw(28) << "DRONE.Solutions ltd." << ANSI_RESET << ANSI_BOLD
+              << "| " << std::setw(18) << "CONNEXION"<< ANSI_RESET << "|" << std::endl;
     dessinerLdeux();
 
     std::cout << "> Identifiant : ";
@@ -85,8 +95,8 @@ bool viewUser(std::string IdUser)
             {
                 std::cout << std::endl << std::endl;
                 dessinerLdeux();
-                std::cout << "| " << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."
-                << "| " << std::setw(18) << User.getData().name<< "|" << std::endl;
+                std::cout << "| " << ANSI_RED << ANSI_BOLD << std::left << std::setw(28) << "DRONE.Solutions ltd." << ANSI_RESET << ANSI_BOLD
+                << "| " << std::setw(18) << User.getData().name<< ANSI_RESET << "|" << std::endl;
                 dessinerLdeux();
                 User.afficherUser(User.getData().id_);
             
@@ -130,8 +140,8 @@ bool viewAdmin(std::string IdAdmin)
     {
         std::cout << std::endl << std::endl;
         dessinerLdeux();
-        std::cout << "| " << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."
-        << "| " << std::setw(18) << admin_user.getAdminData().name<< "|" << std::endl;
+        std::cout << "| "<< ANSI_RED << ANSI_BOLD << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."<< ANSI_RESET << ANSI_BOLD
+        << "| " << std::setw(18) << admin_user.getAdminData().name<< ANSI_RESET << "|" << std::endl;
         dessinerLdeux();
         admin_user.afficherUserAdmin(admin_user.getAdminData().id_);
         
@@ -211,8 +221,8 @@ void presentation()
 {
    std::cout << std::endl << std::endl;
     dessinerLdeux();
-    std::cout << "| " << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."
-              << "| " << std::setw(18) << "PRESENTATION"<< "|" << std::endl;
+    std::cout << "| " << ANSI_RED << ANSI_BOLD  << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd." << ANSI_RESET << ANSI_BOLD
+              << "| " << std::setw(18) << "PRESENTATION"<< ANSI_RESET << "|" << std::endl;
     dessinerLdeux();
 
     std::cout << "DRONE.Solutions est une startup Camerounaise qui conçoit des drones et déploie des services via les ";
@@ -256,7 +266,8 @@ void messages(std::string id)
         std::cout << "2. Messages Recus(lus)" << std::endl;
         std::cout << "3. Envoyer un Message" << std::endl;
         std::cout << "4. Message Envoyes" << std::endl;
-        std::cout << "5. Retour Menu" << std::endl << std::endl;
+        std::cout << "5. Discussion" << std::endl;
+        std::cout << "6. Retour Menu" << std::endl << std::endl;
         int choix;
         std::cout << "> ";
         std::cin >> choix;
@@ -284,7 +295,8 @@ void messages(std::string id)
                 user.envoyer_MSG(destinataire, id, contenu, objet); break;
             }
             case 4: { user.afficher_MSG_envoyes(id); break;}
-            case 5: condition = true; break;
+            case 5: user.afficherDiscussion(id); break;
+            case 6: condition = true; break;
             
             default: condition = false; break;
 
@@ -292,7 +304,17 @@ void messages(std::string id)
     } while (condition == false);
 
 }
-
+    void discussion(std::string id_user)
+        {
+            DataBase db("entreprise_.db");
+            std::vector<Data_Message> liste = db.recupererMessages(id_user);
+            for(Data_Message& msg : liste)
+            {
+                std::cout << "[" << msg.getIDexpediteur() << "] : " << msg.getContenu() << std::endl;
+                std::cout << "Date/Heure: " << msg.getDatetime() << std::endl;
+                std::cout << "-----------------------------" << std::endl;
+            }
+        }
 // void messages(std::string id)
 // {
     

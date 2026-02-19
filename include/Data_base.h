@@ -112,7 +112,8 @@ class DataBase
         void afficher_MSG_envoyes(std::string id_user)const;
         void message_RNL(std::string id_user);
         std::vector<Data_Message> recupererMessages(std::string id_user);
-        void afficherDiscussion(std::string id_user)const;
+        std::string afficherDiscussion(std::string id_user, std::string id_destinataire)const;
+        std::string selectionnerExpediteur(std::string id_user);
 
     private:
         sqlite3 *m_db;

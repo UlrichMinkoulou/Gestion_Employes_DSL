@@ -825,9 +825,9 @@ void DataBase::ajouterEmploye()
          sqlite3_bind_int(stmt, 5, 1);
 
         if(sqlite3_step(stmt) == SQLITE_DONE)
-            cout << ANSI_GREEN << "\nMessage envoye avec succes !!" << ANSI_RESET << endl;
+            cout << ANSI_BOLD << ANSI_GREEN << "\nMessage envoye avec succes !!" << ANSI_RESET << endl;
         else 
-            cerr << ANSI_RED << "\nErreur d'envoi : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+            cerr << ANSI_BOLD << ANSI_RED << "\nErreur d'envoi : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
         
         sqlite3_finalize(stmt);
 
@@ -956,14 +956,15 @@ void DataBase::ajouterEmploye()
                          << "|" << endl;
                 }
 
+                    sqlite3_finalize(stmt);
+
                     DataBase message("entreprise_.db");
                     message.lire_MSG_recus(id_);
-            }
-            else
+            }else
             {
                 cerr << ANSI_BOLD << ANSI_RED << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
-            sqlite3_finalize(stmt);
+
 
     }
 
@@ -1121,15 +1122,10 @@ void DataBase::ajouterEmploye()
         }
 
 //Discussion entre deux utilisateurs
-        void DataBase::afficherDiscussion(string id_user)const
+        std::string DataBase::afficherDiscussion(string id_user, string id_correspondant)const
         {
-            string id_correspondant;
-
-            cout << "Selectionnez la discussion (Identifiant): ";
-             cin >> id_correspondant;
-
             sqlite3_stmt* stmt;
-            string sql = "SELECT ID_EXPEDITEUR, CONTENU_MESSAGE, DATE_TIME FROM MESSAGE WHERE (ID_DESTINATAIRE = ? AND ID_EXPEDITEUR = ?) OR (ID_DESTINATAIRE = ? AND ID_EXPEDITEUR = ?) ORDER BY DATE_TIME;";
+            string sql = "SELECT ID_EXPEDITEUR, OBJET, CONTENU_MESSAGE, DATE_TIME FROM MESSAGE WHERE (ID_DESTINATAIRE = ? AND ID_EXPEDITEUR = ?) OR (ID_DESTINATAIRE = ? AND ID_EXPEDITEUR = ?) ORDER BY DATE_TIME;";
 
             if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
             {
@@ -1141,28 +1137,67 @@ void DataBase::ajouterEmploye()
                 while(sqlite3_step(stmt) == SQLITE_ROW)
                 {
                     string expediteur = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
-                    string contenu = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
-                    string date_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+                    string objet = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+                    string contenu = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+                    string date_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
                     //string message = ANSI_BLUE + ANSI_BOLD +  expediteur +  ANSI_RESET + ANSI_CYAN + ANSI_BOLD  + " " + contenu + " - " + ANSI_RESET + ANSI_YELLOW + date_time + ANSI_RESET;
                     //std::cout << message << std::endl;
 
                         if(expediteur == id_user)
                         {
-                            cout << ANSI_BLUE << ANSI_BOLD << "[Moi]: " << ANSI_RESET << contenu << " " << ANSI_YELLOW << date_time << ANSI_RESET << endl;
+                            cout << ANSI_MAGENTA<< ANSI_BOLD << "                    [Moi]" << "[" << objet << "]" << std::endl << ANSI_RESET << "                    "  << contenu << ANSI_YELLOW << " " << date_time << ANSI_RESET << endl;
                         }
                         else
                         {
-                            cout << ANSI_GREEN << ANSI_BOLD << "[" << expediteur << "]: " << ANSI_RESET << contenu << " " << ANSI_YELLOW << date_time << ANSI_RESET << endl;
+                            cout << ANSI_GREEN << ANSI_BOLD << "[" << expediteur << "]" << "[" << objet << "]" << ANSI_RESET << std::endl << contenu << " " << ANSI_YELLOW << date_time << ANSI_RESET << endl;
                         }
                 }
+
+                sqlite3_finalize(stmt);
+                return id_correspondant;
             }
             else
             {
                 cerr << ANSI_BOLD << ANSI_RED << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                return "";
             }  
-            sqlite3_finalize(stmt);
+            
         }
 
+//Selectionner les expediteurs d'un destinataire
+    std::string DataBase::selectionnerExpediteur(string id_user)
+    {
+        string sql = "SELECT DISTINCT ID_EXPEDITEUR FROM MESSAGE WHERE ID_DESTINATAIRE = ?;"; //on precise avec distinct pour eviter les doublons
+        sqlite3_stmt* stmt;
+
+        if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+        {
+            sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
+
+            std::cout << "\nDiscussions ==========" << std::endl << std::endl;
+            while(sqlite3_step(stmt) == SQLITE_ROW)
+            {
+                string expediteur = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+                cout << "            - " << expediteur << endl;
+            }
+
+            sqlite3_finalize(stmt);
+            
+            string id_correspondant;
+            cout << std::endl << "Selectionnez la discussion (Identifiant): ";
+             cin >> id_correspondant;
+
+            return id_correspondant;
+        }
+        else
+        {
+            cerr << ANSI_BOLD << ANSI_RED << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+            return "";
+        }
+
+
+
+    }
 
     void afficherLigneEmploye(sqlite3_stmt *stmt_)
     {

@@ -257,16 +257,16 @@ void messages(std::string id)
     {
         /* code */
         
+        std::cout << std::endl << std::endl << "---------------------------------------- Messagerie " << std::endl << std::endl;
             DataBase user("entreprise_.db");
             user.message_RNL(id);
             std::cout << std::endl;
             
-        std::cout << "---------Messagerie--------- " << std::endl << std::endl;
-        std::cout << "1. Messages Recus(non lus)" << std::endl;
-        std::cout << "2. Messages Recus(lus)" << std::endl;
-        std::cout << "3. Envoyer un Message" << std::endl;
-        std::cout << "4. Message Envoyes" << std::endl;
-        std::cout << "5. Discussion" << std::endl;
+        std::cout << "1. Discussion" << std::endl;
+        std::cout << "2. Messages Recus(non lus)" << std::endl;
+        std::cout << "3. Messages Recus(lus)" << std::endl;
+        std::cout << "4. Nouveau Message" << std::endl;
+        std::cout << "5. Messages Envoyes" << std::endl;
         std::cout << "6. Retour Menu" << std::endl << std::endl;
         int choix;
         std::cout << "> ";
@@ -274,9 +274,11 @@ void messages(std::string id)
 
         switch (choix)
         {
-            case 1: { user.afficher_MSG_non_lus(id); break;} 
-            case 2: { user.afficher_MSG_lus(id);     break;}
-            case 3: 
+            case 2: { user.afficher_MSG_non_lus(id); break;} 
+
+            case 3: { user.afficher_MSG_lus(id);     break;}
+
+            case 4: 
             {
                 std::string destinataire, contenu, objet;
 
@@ -294,8 +296,46 @@ void messages(std::string id)
 
                 user.envoyer_MSG(destinataire, id, contenu, objet); break;
             }
-            case 4: { user.afficher_MSG_envoyes(id); break;}
-            case 5: user.afficherDiscussion(id); break;
+
+            case 5: { user.afficher_MSG_envoyes(id); break;}
+
+            case 1: 
+            {
+                    std::string id_destinataire = user.selectionnerExpediteur(id);
+                    id_destinataire = user.afficherDiscussion(id, id_destinataire); 
+                    bool condition_discussion = false;
+
+                    do
+                    {
+                            std::cout << "\n1. Ajouter une reponse" << std::endl;
+                            std::cout << "2. Retour au menu" << std::endl;
+                            int choix_discussion; 
+                            std::cout << std::endl << "> ";
+                            std::cin >> choix_discussion;
+                            
+                        switch (choix_discussion)
+                        {
+                            case 1:
+                                {
+                                    std::string contenu, objet;
+                                    std::cout << "Message : ";
+                                    std::cin.ignore(1000, '\n');
+                                    std::getline(std::cin, contenu);
+
+                                    std::cout << "Objet : ";
+                                    std::getline(std::cin, objet);
+                                    
+                                    user.envoyer_MSG(id_destinataire, id, contenu, objet); 
+                                    DataBase message("entreprise_.db");
+                                    message.lire_MSG_recus(id_destinataire = user.afficherDiscussion(id, id_destinataire));  break;
+                                }
+                                
+                            case 2: condition_discussion = true; break;
+                        }
+                    }while (condition_discussion == false);
+              break;  
+            } 
+            
             case 6: condition = true; break;
             
             default: condition = false; break;

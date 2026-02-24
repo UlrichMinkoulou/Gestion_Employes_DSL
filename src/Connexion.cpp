@@ -185,7 +185,12 @@ bool viewAdmin(std::string IdAdmin)
                             case 2: std::cout << std::endl << std::endl << "--- Ajout employe ---" << std::endl; bd_user.ajouterEmploye(); break;
                             case 3: std::cout << std::endl << std::endl << "--- Maj employe ---" << std::endl;bd_user.changerInfoEmploye(); break;
                             case 4: std::cout << std::endl << std::endl << "--- Activer/Desactiver employe ---" << std::endl;bd_user.activerdesactiverEmployer(); break;
-                            case 5: bd_user.imprimer_fiche_paie(id_);  break;
+                            case 5: 
+                            {
+                                std::cout << "Entrez l'identifiant de l'employe : ";
+                                 std::cin >> id_;
+                                bd_user.imprimer_fiche_paie(id_);  break;
+                            }
                             case 6: std::cout << std::endl << std::endl << "--- Recherche employe ---" << std::endl;bd_user.rechercherUnEmploye(); break;
                             case 7: rester_Menu_employe = false; break;
 

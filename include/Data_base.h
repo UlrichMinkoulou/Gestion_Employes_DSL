@@ -6,6 +6,13 @@
 #include <sqlite3.h>
 #include <vector>
 
+
+
+// #define CANVAS_ITY_IMPLEMENTATION
+#include "canvas_ity.hpp"
+
+
+
 struct  DataConnxion
     {
         std::string id_;
@@ -96,7 +103,7 @@ class DataBase
         void afficherEmploye();
         void afficherUser(std::string idUser);
         bool connexionEmploye(std::string id_);
-        void imprimer_fiche_paie(std::string id_);
+        void imprimer_fiche_paie(std::string id_emp);
         void rechercherUnEmploye_id(std::string id_);
         void mofifierInfoConnexionEmploye(std::string id_);
         DataConnxion getData(){return m_data;}
@@ -128,5 +135,8 @@ void afficherLigneEmploye(sqlite3_stmt *stmt);
 void dessinnerLignes();
 std::string getPassword();
 std::string affichageMessageRecusNonLus(std::string text);
+void dessinerQRCode(canvas_ity::canvas& cv, std::string texte, float x, float y, float tailleCarre);
+std::vector<unsigned char> chargerPolice(std::string chemin);
+// void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, float cibleL, float cibleH);
 
 #endif

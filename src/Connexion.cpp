@@ -113,7 +113,10 @@ bool viewUser(std::string IdUser)
                 {
                     case 1: User.mofifierInfoConnexionEmploye(User.getData().id_); break;
                     case 2: messages(User.getData().id_); clearCLI(); break;
-                    case 3: User.imprimer_fiche_paie(User.getData().id_); break;
+                    case 3: 
+                    {
+                        User.imprimer_fiche_paie(User.getData().id_); break;
+                    }
                     case 4: resultat = false; break;
                     
                     default:
@@ -187,9 +190,18 @@ bool viewAdmin(std::string IdAdmin)
                             case 4: std::cout << std::endl << std::endl << "--- Activer/Desactiver employe ---" << std::endl;bd_user.activerdesactiverEmployer(); break;
                             case 5: 
                             {
+                                std::cout << std::endl << std::endl << "--- Imprimer fiche de paie ---" << std::endl;
                                 std::cout << "Entrez l'identifiant de l'employe : ";
                                  std::cin >> id_;
-                                bd_user.imprimer_fiche_paie(id_);  break;
+                                if(bd_user.verif_if(id_))
+                                {
+                                    bd_user.imprimer_fiche_paie(id_);  
+                                }
+                                else
+                                {
+                                    std::cout << ANSI_BOLD << ANSI_RED <<"[ERREUR]" << ANSI_RESET << "Identifiant incorrect ou employe inactif." << std::endl;
+                                }
+                                break;
                             }
                             case 6: std::cout << std::endl << std::endl << "--- Recherche employe ---" << std::endl;bd_user.rechercherUnEmploye(); break;
                             case 7: rester_Menu_employe = false; break;

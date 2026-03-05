@@ -49,7 +49,7 @@ void pageAcceuil()
             case 3: std::cout<< "Informations non Dispanible !" << std::endl;  break;
             case 4: std::cout<< "Informations non Dispanible !" << std::endl;  break;
             case 5: std::cout<< "Informations non Dispanible !" << std::endl;  break;
-            case 6: resultat = login(); clearCLI(); break;
+            case 6: resultat = login();  break; //clearCLI(); a remettre plus tard pour eviter les bugs d'affichage
             
             
             default: resultat = true;
@@ -78,7 +78,7 @@ bool login()
     else if (identifiant_[0] == 'E')
         resultat = viewUser(identifiant_);
     else
-        std::cout << "Erreur d'Identifiant." << std::endl;
+        std::cout << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur d'Identifiant." << std::endl;
 
     return false;
 

@@ -901,6 +901,9 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                     std::string type_contrat = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 7));
                     std::string date_embauche = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
                     std::string sit_mat = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
+                    int etat = sqlite3_column_int(stmt, 12);
+                    std::string dateNaissance = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+                    std::string dateTime = __DATE__; //Date de generation de la fiche de paie
 
 
                         std::string ville = "Paris";
@@ -911,9 +914,15 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                         std::string position_gestion = "ACTIVITE";
                         std::string position_solde = "ACTIVITE NORMALEMENT";
                         std::string banc = "SG FRANCE";
-                        int nocpt = 2004320986;
+                        int nocpt = 2004320986;  //On doit modifier la valeur de facon externe pour chaque employe
                         int nmbEnfant = 0;
                         canvas_ity::canvas cv(largeur, hauteur);
+
+                        if(etat ==0){
+                            position_gestion = "INACTIF";
+                            position_solde = "INACTIF";
+                            salaire_brut = 0.0;
+                        }
 
 
                     std::vector<unsigned char> font_data = chargerPolice("/home/ulrich/Downloads/Roboto-Regular.ttf");
@@ -954,7 +963,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                         cv.fill_text(employe.c_str(), 50, 220);
                         cv.fill_text(annee.c_str(), 50, 240);
                         cv.fill_text(mois.c_str(), 50, 260);
-                        cv.fill_text("date edition: ", 500, 220);
+                        cv.fill_text(("date edition: " + dateTime).c_str(), 500, 220);
                         cv.fill_text(("Nom : " + nom).c_str(), 50, 310);
                         cv.fill_text(("Prénom : " + prenom).c_str(), 50, 330);
                         cv.fill_text(("Poste : " + poste).c_str(), 50, 350);
@@ -966,7 +975,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                         cv.fill_text(("nombres enfants: " + std::to_string(nmbEnfant)).c_str(), 500, 370);
 
                         cv.fill_text(("Position solde: " + position_solde).c_str(), 50, 420);
-                        cv.fill_text(("Nombre enfants: " + position_gestion).c_str(), 50, 450);
+                        cv.fill_text(("Position gestion: " + position_gestion).c_str(), 50, 450);
+                        cv.fill_text(("No Identif: 5404" + dateNaissance).c_str(), 500, 450);
                         cv.fill_text(("Banque: " + banc).c_str(), 50, 480);
                         cv.fill_text(("no cpt: 0001" + std::to_string(nocpt)).c_str(), 500, 480);
 
@@ -1034,7 +1044,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                         cv.get_image_data(pixels.data(), largeur, hauteur, largeur * 4, 0, 0);
 
                         // 3. Ecrire le fichier PNG sur le disque
-                        std::string nomFichier = "Fiche_Paie_" + id_emp + ".png";
+                        std::string nomFichier = "Fiche_Paie_" + id_emp + "_" + dateTime + ".png";
                         
                         // Paramètres : Nom, Largeur, Hauteur, Canaux (4 pour RGBA), Pixels, Pas (Largeur * 4)
                         int succes = stbi_write_png(nomFichier.c_str(), largeur, hauteur, 4, pixels.data(), largeur * 4);

@@ -53,7 +53,7 @@ DataBase::DataBase(char const* nomFichier)
                         "ID TEXT NOT NULL PRIMARY KEY,"
                         "NOM TEXT NOT NULL,"
                         "PRENOM TEXT NOT NULL,"
-                        "AGE INTEGER,"
+                        "DATE_NAIS TEXT NOT NULL,"
                         "DATE_ADHE TEXT NOT NULL,"
                         "SITUATION_MAT TEXT NOT NULL,"
                         "POSTE TEXT NOT NULL,"
@@ -92,7 +92,7 @@ void DataBase::ajouterEmploye()
         
         Employe e;
             
-        string sqlInsert = "INSERT INTO EMPLOYE (ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, EMAIL, MDP, ETAT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        string sqlInsert = "INSERT INTO EMPLOYE (ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, EMAIL, MDP, ETAT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         sqlite3_stmt *stmt;
 
         if(sqlite3_prepare_v2(m_db, sqlInsert.c_str(), -1, &stmt, NULL) != SQLITE_OK)
@@ -105,7 +105,7 @@ void DataBase::ajouterEmploye()
         sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 2, e.getNom().c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 3, e.getPrenom().c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_bind_int(stmt, 4, e.getAge());
+        sqlite3_bind_text(stmt, 4, e.setDateNaissance().c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 5, e.getDate_adhesion().c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 6, e.getSituation_matrimonial().c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 7, e.getPoste().c_str(), -1, SQLITE_TRANSIENT);
@@ -137,7 +137,7 @@ void DataBase::ajouterEmploye()
     cout << "| " << left << setw(8) << "Id"
          << "| " << setw(10) << "NOM"
          << "| " << setw(10) << "PRENOM"
-         << "| " << setw(4) << "AGE"        
+         << "| " << setw(10) << "DATE_NAIS"        
          << "| " << setw(10) << "DATE_ADHE"
          << "| " << setw(14) << "SITUATION_MAT"
          << "| " << setw(10) << "POSTE"        
@@ -151,7 +151,7 @@ void DataBase::ajouterEmploye()
     dessinnerLignes();
 
 
-    string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE;";
+    string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE;";
     sqlite3_stmt *stmt;
 
     sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL);
@@ -175,7 +175,7 @@ void DataBase::ajouterEmploye()
    cout << "| " << left << setw(8) << "Id"
          << "| " << setw(10) << "NOM"
          << "| " << setw(10) << "PRENOM"
-         << "| " << setw(4) << "AGE"        
+         << "| " << setw(10) << "DATE_NAIS"        
          << "| " << setw(10) << "DATE_ADHE"
          << "| " << setw(14) << "SITUATION_MAT"
          << "| " << setw(10) << "POSTE"        
@@ -189,7 +189,7 @@ void DataBase::ajouterEmploye()
     dessinnerLignes();
 
 
-    string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID =?;";
+    string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID =?;";
     sqlite3_stmt *stmt;
 
     if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
@@ -211,7 +211,7 @@ void DataBase::ajouterEmploye()
         cout << "Entrez le nom (ou une partie du nom) a rechercher : "; cin >> recherche;
         recherche = "%" + recherche + "%"; // format pour le LIkE SQL
         sqlite3_stmt *stmt;
-        string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE NOM LIKE ?;";
+        string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE NOM LIKE ?;";
         if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
         {
             sqlite3_bind_text(stmt, 1, recherche.c_str(), -1, SQLITE_TRANSIENT);
@@ -238,7 +238,7 @@ void DataBase::ajouterEmploye()
 
         // recherche = "%" + recherche + "%"; // format pour le LIkE SQL
         sqlite3_stmt *stmt;
-        string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
+        string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
         if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
         {
             sqlite3_bind_text(stmt, 1, identifiant.c_str(), -1, SQLITE_TRANSIENT);
@@ -266,7 +266,7 @@ void DataBase::ajouterEmploye()
 
         // recherche = "%" + recherche + "%"; // format pour le LIkE SQL
         sqlite3_stmt *stmt;
-        string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
+        string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
         if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
         {
             sqlite3_bind_text(stmt, 1, identifiant.c_str(), -1, SQLITE_TRANSIENT);
@@ -357,7 +357,7 @@ void DataBase::ajouterEmploye()
     std::cout << "1. Tout" << std::endl;
     std::cout << "2. Nom " << std::endl;
     std::cout << "3. Prenom " << std::endl;
-    std::cout << "4. Age " << std::endl;
+    std::cout << "4. Date de naissance " << std::endl;
     std::cout << "5. Date d'adhesion " << std::endl;
     std::cout << "6. Situation Matrimonial " << std::endl;
     std::cout << "7. Poste " << std::endl;
@@ -373,14 +373,14 @@ void DataBase::ajouterEmploye()
     {
         case 1: 
                 {
-                    string sql = "UPDATE EMPLOYE SET NOM=?, PRENOM=?, AGE=?, DATE_ADHE=?, SITUATION_MAT=?, POSTE=?, TYPECONTRAT=?, SALAIRE=?, CATEGORIE=?, MDP=?, EMAIL=?, ETAT=?  WHERE ID=?;";
+                    string sql = "UPDATE EMPLOYE SET NOM=?, PRENOM=?, DATE_NAIS=?, DATE_ADHE=?, SITUATION_MAT=?, POSTE=?, TYPECONTRAT=?, SALAIRE=?, CATEGORIE=?, MDP=?, EMAIL=?, ETAT=?  WHERE ID=?;";
                     sqlite3_stmt *stmt;
                     sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
 
                     sqlite3_bind_text(stmt, 13, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
                     sqlite3_bind_text(stmt, 1, e.getNom().c_str(), -1, SQLITE_TRANSIENT);
                     sqlite3_bind_text(stmt, 2, e.getPrenom().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_int(stmt, 3, e.getAge());
+                    sqlite3_bind_text(stmt, 3, e.setDateNaissance().c_str(), -1, SQLITE_TRANSIENT);
                     sqlite3_bind_text(stmt, 4, e.getDate_adhesion().c_str(), -1, SQLITE_TRANSIENT);
                     sqlite3_bind_text(stmt, 5, e.getSituation_matrimonial().c_str(), -1, SQLITE_TRANSIENT);
                     sqlite3_bind_text(stmt, 6, e.getPoste().c_str(), -1, SQLITE_TRANSIENT);
@@ -460,11 +460,11 @@ void DataBase::ajouterEmploye()
 
         case 4: 
                 {
-                    string sql = "UPDATE EMPLOYE SET AGE=?  WHERE ID=?;";
+                    string sql = "UPDATE EMPLOYE SET DATE_NAIS=?  WHERE ID=?;";
                     sqlite3_stmt *stmt;
                     sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
 
-                    sqlite3_bind_int(stmt, 1, e.getAge());
+                    sqlite3_bind_text(stmt, 1, e.setDateNaissance().c_str(), -1, SQLITE_TRANSIENT);
                     sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
 
     
@@ -751,7 +751,7 @@ void DataBase::ajouterEmploye()
             std::cout << "votre mot de passe : " << mot_de_passe << std::endl;
 
 
-            std::string sql_recherche = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ? AND MDP = ?;";
+            std::string sql_recherche = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ? AND MDP = ?;";
             sqlite3_stmt *stmt;
 
             if(sqlite3_prepare_v2(m_db, sql_recherche.c_str(), -1, &stmt, NULL) == SQLITE_OK)
@@ -884,7 +884,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
 
            sqlite3_stmt* stmt;
-           string sql = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
+           string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
 
             if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
             {
@@ -1513,7 +1513,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
         cout << "| " << left << setw(8) << (const char*)sqlite3_column_text(stmt_, 0)
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 1)
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 2)
-             << "| " << setw(4) << sqlite3_column_int(stmt_, 3)
+             << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 3)
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 4)
              << "| " << setw(14) << (const char*)sqlite3_column_text(stmt_, 5)             
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 6)
@@ -1535,7 +1535,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
          << "+" 
          << setw(12)         
          << "+"
-         << setw(6)         
+         << setw(12)         
          << "+"
          << setw(12)
          << "+"        

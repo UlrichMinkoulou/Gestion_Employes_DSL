@@ -10,7 +10,7 @@ using namespace std;
 
 Employe::Employe(std::string nom, std::string prenom,
                 std::string dateAdhesion_e, std::string situaMatrimonial, std::string poste, std::string typeContrat,
-                std::string Mot_de_passe, std::string email, std::string categorie, int age, float salaire)
+                std::string Mot_de_passe, std::string email, std::string categorie, int age, float salaire, std::string date_naissance)
                 {
                     m_nom = nom;
                     m_prenom = prenom;
@@ -26,6 +26,7 @@ Employe::Employe(std::string nom, std::string prenom,
                     m_age = age;
                     m_salaire = salaire;
                     m_actif = true;
+                    m_date_naissance = date_naissance;
                 }
 
 Employe::Employe()
@@ -90,6 +91,7 @@ Employe::Employe()
         {
             int jour, mois, annee;
             //jour
+            std::cout << "---Date Adhesion " << "(Format : jj.mm.aaaa)" << std::endl;
              cout << "> Entrez le jour (1 - 30) : ";
              while(!(cin >> jour) || (jour < 1 || jour > 31))
              {
@@ -124,6 +126,47 @@ Employe::Employe()
             m_date_adhesion_entreprise = jr.str() + "." + ms.str() + "." + an.str();
 
             return m_date_adhesion_entreprise;
+        }
+
+        std::string Employe::setDateNaissance()
+        {
+            int jour, mois, annee;
+            //jour
+            std::cout << "---Date de naissance " << "(Format : jj.mm.aaaa)" << std::endl;
+             cout << "> Entrez le jour (1 - 30) : ";
+             while(!(cin >> jour) || (jour < 1 || jour > 31))
+             {
+                cout << "> Entrez le jour (1 - 30) : ";
+                cin.clear();
+                cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+             }
+
+             //mois
+             cout << "> Entrez le mois (1 - 12) : ";
+             while(!(cin >> mois) || (mois < 1 || mois > 12))
+             {
+                cout << "> Entrez le mois (1 - 12) : ";
+                cin.clear();
+                cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+             }
+
+             //annee
+             cout << "> Entrez l'annee (1940 - 2100) : ";
+             while(!(cin >> annee) || (annee < 1940 || annee > 2100))
+             {
+                cout << "> Entrez l'annee (1940 - 2100) : ";
+                cin.clear();
+                cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+             }
+
+            stringstream jr, ms, an;
+            jr << jour;
+            ms << mois;
+            an << annee;
+            
+            m_date_naissance = jr.str() + "." + ms.str() + "." + an.str();
+
+            return m_date_naissance;
         }
 
         std::string Employe:: getSituation_matrimonial() 

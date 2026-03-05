@@ -11,6 +11,7 @@ class Employe
         std::string m_date_entre;
         std::string m_date_sortie;
         std::string m_date_adhesion_entreprise;
+        std::string m_date_naissance;
         std::string m_situation_matrimonial;
         std::string m_poste;
         std::string m_type_contrat;
@@ -27,7 +28,7 @@ class Employe
     public:
         Employe(std::string nom, std::string prenom,
                 std::string dateAdhesion_e, std::string situaMatrimonial, std::string poste, std::string typeContrat,
-                std::string Mot_de_passe, std::string email, std::string categorie, int age, float salaire);
+                std::string Mot_de_passe, std::string email, std::string categorie, int age, float salaire, std::string date_naissance);
         Employe();
         void afficherInformations()const;
         void imprimerFichePaie()const;
@@ -48,6 +49,8 @@ class Employe
         std::string getId();
         int activer();
         int desactiver();
+
+        std::string setDateNaissance();
 
 };
 

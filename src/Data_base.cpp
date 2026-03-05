@@ -741,57 +741,68 @@ void DataBase::ajouterEmploye()
     bool DataBase::connexionEmploye(std::string id_)
     {
 
-    std::time_t start = std::time(nullptr);
-    std::string mot_de_passe; char ch;
-    
-    m_data.id_ = id_;
+            std::time_t start = std::time(nullptr);
+            std::string mot_de_passe; char ch;
+            
+            m_data.id_ = id_;
 
-    std::cout << "> Mot de passe : " << std::flush;
-    mot_de_passe = getPassword();
-    std::cout << "votre mot de passe : " << mot_de_passe << std::endl;
+            std::cout << "> Mot de passe : " << std::flush;
+            mot_de_passe = getPassword();
+            std::cout << "votre mot de passe : " << mot_de_passe << std::endl;
 
 
-    std::string sql_recherche = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ? AND MDP = ?;";
-    sqlite3_stmt *stmt;
+            std::string sql_recherche = "SELECT ID, NOM, PRENOM, AGE, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ? AND MDP = ?;";
+            sqlite3_stmt *stmt;
 
-    if(sqlite3_prepare_v2(m_db, sql_recherche.c_str(), -1, &stmt, NULL) == SQLITE_OK)
-    {
-        sqlite3_bind_text(stmt, 1, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_bind_text(stmt, 2, mot_de_passe.c_str(), -1, SQLITE_TRANSIENT);
-        m_data.res = true;
-
-        if(sqlite3_step(stmt) == SQLITE_ROW)
-        {
-             const unsigned char *user_name = sqlite3_column_text(stmt, 1);
-             std::cout << ANSI_BOLD << ANSI_GREEN << "Bienvenu " << (user_name ? reinterpret_cast<const char*>(user_name) : "NULL") << ANSI_RESET << std::endl;
-            m_data.name =  reinterpret_cast<const char*>(user_name); //faire le caste
-
-            std::cout << "Chargement de la page";
-            for(int i = 0; i < 8; ++i)
+            if(sqlite3_prepare_v2(m_db, sql_recherche.c_str(), -1, &stmt, NULL) == SQLITE_OK)
             {
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                std::cout << "." << std::flush;
-            } 
+                sqlite3_bind_text(stmt, 1, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+                sqlite3_bind_text(stmt, 2, mot_de_passe.c_str(), -1, SQLITE_TRANSIENT);
+                m_data.res = true;
 
-            system("clear");
-        }
-         else
-         {
-            m_data.res = false;
-            std::cout << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Id ou mot de passe Incorrect !"  << std::endl;
-         }
+ 
+                
+                if(sqlite3_step(stmt) == SQLITE_ROW)
+                {
+                    int etat = reinterpret_cast<int>(sqlite3_column_int(stmt, 12)); //Récupère la valeur de la colonne ETAT
 
-    } 
-      else 
-        {
-            std::cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << std::endl;
-        }
-    
-    sqlite3_finalize(stmt);
+                        std::cout << "Valeur de etat : " << etat << std::endl;
 
-    return m_data.res;
+                        if(etat ==0) {
+                                m_data.res = false;
+                                std::cout << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Compte inactif, veillez contacter l'administrateur !\n\n"  << std::endl;
+                                sqlite3_finalize(stmt);
+                                
+                                return m_data.res;               
+                            }
+                                const unsigned char *user_name = sqlite3_column_text(stmt, 1);
+                                std::cout << ANSI_BOLD << ANSI_GREEN << "Bienvenu " << (user_name ? reinterpret_cast<const char*>(user_name) : "NULL") << ANSI_RESET << std::endl;
+                                m_data.name =  reinterpret_cast<const char*>(user_name); //faire le caste
+                    
+                                std::cout << "Chargement de la page";
+                                for(int i = 0; i < 8; ++i)
+                                {
+                                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                                    std::cout << "." << std::flush;
+                                } 
+                                
+                                system("clear");               
+                    } else
+                        {
+                            m_data.res = false;
+                            std::cout << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Id ou mot de passe Incorrect !"  << std::endl;
+                        }
 
-    }
+                } 
+                else 
+                    {
+                        std::cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << std::endl;
+                    }
+                
+                sqlite3_finalize(stmt);
+
+                return m_data.res;
+            }
 
 // #include "qrcode.h" // Assure-toi d'avoir inclus la lib
 
@@ -1065,7 +1076,6 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
         int choix; bool valide;
         do
         {
-
             cout << "\n1. Activer le compte." << endl;
             cout << "2. Desactiver le compte." << endl;
             cout << "> ";

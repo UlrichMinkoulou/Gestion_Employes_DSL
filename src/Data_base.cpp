@@ -140,13 +140,13 @@ void DataBase::ajouterEmploye()
          << "| " << setw(10) << "DATE_NAIS"        
          << "| " << setw(10) << "DATE_ADHE"
          << "| " << setw(14) << "SITUATION_MAT"
-         << "| " << setw(10) << "POSTE"        
-         << "| " << setw(12) << "TYPECONTRAT"
-         << "| " << setw(8) << "SALAIRE"        
-         << "| " << setw(10) << "CATEGORIE"
+         << "| " << setw(18) << "POSTE"        
+         << "| " << setw(3) << "TC"
+         << "| " << setw(12) << "SALAIRE"        
+         << "| " << setw(1) << "C"
          << "| " << setw(14) << "MDP"
-         << "| " << setw(18) << "EMAIL"
-         << "| " << setw(18) << "ETAT" << "|" << endl;
+         << "| " << setw(25) << "EMAIL"
+         << "| " << setw(1) << "E" << "|" << endl;
 
     dessinnerLignes();
 
@@ -178,13 +178,13 @@ void DataBase::ajouterEmploye()
          << "| " << setw(10) << "DATE_NAIS"        
          << "| " << setw(10) << "DATE_ADHE"
          << "| " << setw(14) << "SITUATION_MAT"
-         << "| " << setw(10) << "POSTE"        
-         << "| " << setw(12) << "TYPECONTRAT"
-         << "| " << setw(8) << "SALAIRE"        
-         << "| " << setw(10) << "CATEGORIE"
+         << "| " << setw(18) << "POSTE"        
+         << "| " << setw(3) << "TC"
+         << "| " << setw(12) << "SALAIRE"        
+         << "| " << setw(1) << "C"
          << "| " << setw(14) << "MDP"
-         << "| " << setw(18) << "EMAIL"
-         << "| " << setw(18) << "ETAT" << "|" << endl;
+         << "| " << setw(25) << "EMAIL"
+         << "| " << setw(1) << "E" << "|" << endl;
 
     dessinnerLignes();
 
@@ -1526,13 +1526,13 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 3)
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 4)
              << "| " << setw(14) << (const char*)sqlite3_column_text(stmt_, 5)             
-             << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 6)
-             << "| " << setw(12) << (const char*)sqlite3_column_text(stmt_, 7)
-             << "| " << setw(8) << sqlite3_column_double(stmt_, 8)
-             << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 9)
+             << "| " << setw(18) << (const char*)sqlite3_column_text(stmt_, 6)
+             << "| " << setw(3) << (const char*)sqlite3_column_text(stmt_, 7)
+             << "| " << setw(12) << sqlite3_column_double(stmt_, 8)
+             << "| " << setw(1) << (const char*)sqlite3_column_text(stmt_, 9)
              << "| " << setw(14) << (const char*)sqlite3_column_text(stmt_, 10)
-             << "| " << setw(18) << (const char*)sqlite3_column_text(stmt_, 11) 
-             << "| " << setw(18) << (const char*)sqlite3_column_text(stmt_, 12) << "|" << endl; 
+             << "| " << setw(25) << (const char*)sqlite3_column_text(stmt_, 11) 
+             << "| " << setw(1) << (const char*)sqlite3_column_text(stmt_, 12) << "|" << endl; 
     }
 
     void dessinnerLignes()
@@ -1551,19 +1551,19 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
          << "+"        
          << setw(16)
          << "+" 
-         << setw(12)         
+         << setw(20)         
          << "+"
-         << setw(14)         
+         << setw(5)         
          << "+"
-         << setw(10)
+         << setw(14)
          << "+"       
-         << setw(12)
+         << setw(3)
          << "+" 
          << setw(16)         
          << "+"
-         << setw(20)         
+         << setw(27)         
          << "+"         
-         << setw(20)         
+         << setw(3)         
          << "+"
          << setfill(' ')
          << endl;

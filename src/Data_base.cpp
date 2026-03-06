@@ -88,6 +88,7 @@ DataBase::~DataBase()
 
 void DataBase::ajouterEmploye()
     {
+        std::cout << std::endl << std::endl << "-------------------- Ajout employe" << std::endl << std::endl;
         string id_user = generateurID(m_db, "EDSL", 'e');
         
         Employe e;
@@ -144,7 +145,7 @@ void DataBase::ajouterEmploye()
          << "| " << setw(3) << "TC"
          << "| " << setw(12) << "SALAIRE"        
          << "| " << setw(1) << "C"
-         << "| " << setw(14) << "MDP"
+        //  << "| " << setw(14) << "MDP"
          << "| " << setw(25) << "EMAIL"
          << "| " << setw(1) << "E" << "|" << endl;
 
@@ -182,7 +183,7 @@ void DataBase::ajouterEmploye()
          << "| " << setw(3) << "TC"
          << "| " << setw(12) << "SALAIRE"        
          << "| " << setw(1) << "C"
-         << "| " << setw(14) << "MDP"
+        //  << "| " << setw(14) << "MDP"
          << "| " << setw(25) << "EMAIL"
          << "| " << setw(1) << "E" << "|" << endl;
 
@@ -342,7 +343,7 @@ void DataBase::ajouterEmploye()
 //Modification des infos Employe cote admin
     void DataBase::changerInfoEmploye()
     {
-    std::cout << "----Mofification des infos de connexion----" << std::endl << std::endl;
+    std::cout << std::endl << std::endl << "-------------------- Mise a jour employe" << std::endl;
 
     Employe e;
     cout << "----Entrez l'identifiant : ";
@@ -366,7 +367,14 @@ void DataBase::ajouterEmploye()
     std::cout << "10. Mot de passe " << std::endl;
     std::cout << "11. Email " << std::endl;
     std::cout << "> ";
-     std::cin >> choix;
+
+            //gestion des erreurs de saisie pour le choix de l'information a modifier
+                while(!(std::cin >> choix) || (choix < 1 || choix > 11))
+                            {
+                                std::cout << "> choix (1-11): ";
+                                std::cin.clear();
+                                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                            }
 
 
     switch (choix)
@@ -590,12 +598,13 @@ void DataBase::ajouterEmploye()
 
         case 9: 
                 {
-                    string sql = "UPDATE EMPLOYE SET SALAIRE=?  WHERE ID=?;";
+                    string sql = "UPDATE EMPLOYE SET SALAIRE=?, CATEGORIE=?  WHERE ID=?;";
                     sqlite3_stmt *stmt;
                     sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
 
                     sqlite3_bind_double(stmt, 1, e.getSalaire());
-                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 2, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 3, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
 
     
                     if(sqlite3_step(stmt) == SQLITE_DONE) 
@@ -640,7 +649,7 @@ void DataBase::ajouterEmploye()
                     break;
                 }
                 
-        case 117: 
+        case 11: 
                 {
                     string sql = "UPDATE EMPLOYE SET EMAIL=?  WHERE ID=?;";
                     sqlite3_stmt *stmt;
@@ -1046,6 +1055,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
     void DataBase::activerdesactiverEmployer()
     {
+        std::cout << std::endl << std::endl << "--------------------Activer/Desactiver employe" << std::endl << std::endl;
         cout << "----Entrez l'identifiant : ";
          cin >> m_data.id_;
 
@@ -1504,7 +1514,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
              << "| " << setw(3) << (const char*)sqlite3_column_text(stmt_, 7)
              << "| " << setw(12) << sqlite3_column_double(stmt_, 8)
              << "| " << setw(1) << (const char*)sqlite3_column_text(stmt_, 9)
-             << "| " << setw(14) << (const char*)sqlite3_column_text(stmt_, 10)
+            //  << "| " << setw(14) << (const char*)sqlite3_column_text(stmt_, 10)
              << "| " << setw(25) << (const char*)sqlite3_column_text(stmt_, 11) 
              << "| " << setw(1) << (const char*)sqlite3_column_text(stmt_, 12) << "|" << endl; 
     }
@@ -1533,8 +1543,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
          << "+"       
          << setw(3)
          << "+" 
-         << setw(16)         
-         << "+"
+        //  << setw(16)         
+        //  << "+"
          << setw(27)         
          << "+"         
          << setw(3)         

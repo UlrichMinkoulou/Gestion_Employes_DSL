@@ -180,7 +180,14 @@ Employe::Employe()
                 cout << "2. Marie(e)" << endl;
                 cout << "3. Divorce" << endl;
                 cout << "> ";
-                 cin >> choix;
+
+                //gestion des erreurs de saisie pour le choix de la situation matrimonial
+                while(!(std::cin >> choix) || (choix < 1 || choix > 3))
+                            {
+                                std::cout << "> choix (1-3): ";
+                                std::cin.clear();
+                                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                            }
                 
                 switch (choix)
                 {
@@ -215,7 +222,15 @@ Employe::Employe()
                 cout << "8. Agent de sec" << endl;
                 cout << "9. Garagiste" << endl;
                 cout << "> ";
-                 cin >> choix;
+                
+                 //gestion des erreurs de saisie pour le choix du poste
+                            while(!(std::cin >> choix) || (choix < 1 || choix > 9))
+                            {
+                                std::cout << "> choix (1-9): ";
+                                std::cin.clear();
+                                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                            }
+                 
                 
                 switch (choix)
                 {
@@ -249,7 +264,14 @@ Employe::Employe()
                 cout << "1. CDD (Contrat a Duree Determine)" << endl;
                 cout << "2. CDI (Contrat a Duree Indetermine)" << endl;
                 cout << "> " ;
-                 cin >> choix;
+
+                //gestion des erreurs de saisie pour le choix du type de contrat
+                            while(!(std::cin >> choix) || (choix < 1 || choix > 2))
+                            {
+                                std::cout << "> choix (1-2): ";
+                                std::cin.clear();
+                                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                            }
                 
                 switch (choix)
                 {
@@ -286,7 +308,7 @@ Employe::Employe()
             cout << "> Entrez le salaire : ";
             while (!(cin >> m_salaire) || (m_salaire < 1000 || m_salaire > 20000))
             {
-                cout << "> Entrez le salaire : ";
+                cout << "> Entrez le salaire (1000-20000) : ";
                 cin.clear();
                 cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
             }

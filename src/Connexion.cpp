@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <limits>
+
 
 const std::string ANSI_RESET = "\033[0m";
 const std::string ANSI_RED = "\033[31m";
@@ -107,7 +109,13 @@ bool viewUser(std::string IdUser)
                 std::cout << "4. Se Deconnecter" << std::endl << std::endl;
                 int choix;
                 std::cout << "> ";
-                std::cin >> choix;
+                //gestion des erreurs de saisie pour le choix du menu user
+                while(!(std::cin >> choix) || (choix < 1 || choix > 4))
+                {
+                    std::cout << "> choix (1-4): ";
+                    std::cin.clear();   
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
 
                 switch (choix)
                 {
@@ -159,7 +167,14 @@ bool viewAdmin(std::string IdAdmin)
             std::cout << "3. Modifier mes INFOs de CONNEXION" << std::endl;
             std::cout << "4. Se Deconnecter" << std::endl << std::endl;
             std::cout << "> ";
-            std::cin >> choix;
+
+            //gestion des erreurs de saisie pour le choix du menu admin
+                            while(!(std::cin >> choix) || (choix < 1 || choix > 4))
+                            {
+                                std::cout << "> choix (1-4): ";
+                                std::cin.clear();
+                                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                            }
 
             DataBase bd_user("entreprise_.db");
 
@@ -180,14 +195,21 @@ bool viewAdmin(std::string IdAdmin)
                             std::cout << "6. Recherche d'un Employe" << std::endl;
                             std::cout << "7. Retour Menu Admin" << std::endl << std::endl;
                             std::cout << "> ";  
-                            std::cin >> choice;
+
+                            //gestion des erreurs de saisie pour le choix du menu employe
+                            while(!(std::cin >> choice) || (choice < 1 || choice > 7))
+                            {
+                                std::cout << "> choix (1-7): ";
+                                std::cin.clear();
+                                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                            }
                             
                             switch (choice)
                             {
                             case 1: bd_user.afficherEmploye(); break;
-                            case 2: std::cout << std::endl << std::endl << "--- Ajout employe ---" << std::endl; bd_user.ajouterEmploye(); break;
-                            case 3: std::cout << std::endl << std::endl << "--- Maj employe ---" << std::endl;bd_user.changerInfoEmploye(); break;
-                            case 4: std::cout << std::endl << std::endl << "--- Activer/Desactiver employe ---" << std::endl;bd_user.activerdesactiverEmployer(); break;
+                            case 2: bd_user.ajouterEmploye(); break;
+                            case 3: bd_user.changerInfoEmploye(); break;
+                            case 4: bd_user.activerdesactiverEmployer(); break;
                             case 5: 
                             {
                                 std::cout << std::endl << std::endl << "--- Imprimer fiche de paie ---" << std::endl;
@@ -287,7 +309,13 @@ void messages(std::string id)
         std::cout << "6. Retour Menu" << std::endl << std::endl;
         int choix;
         std::cout << "> ";
-        std::cin >> choix;
+            //gestion des erreurs de saisie pour le choix du menu de messagerie
+                            while(!(std::cin >> choix) || (choix < 1 || choix > 6))
+                            {
+                                std::cout << "> choix (1-6): ";
+                                std::cin.clear();
+                                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                            }
 
         switch (choix)
         {
@@ -328,7 +356,14 @@ void messages(std::string id)
                             std::cout << "2. Retour au menu" << std::endl;
                             int choix_discussion; 
                             std::cout << std::endl << "> ";
-                            std::cin >> choix_discussion;
+
+                            //gestion des erreurs de saisie pour le choix de la discussion
+                                while(!(std::cin >> choix_discussion) || (choix_discussion < 1 || choix_discussion > 2))
+                                {
+                                    std::cout << "> choix (1-2): ";
+                                    std::cin.clear();
+                                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                                }
                             
                         switch (choix_discussion)
                         {

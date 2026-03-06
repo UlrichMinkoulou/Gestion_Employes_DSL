@@ -389,7 +389,7 @@ Employe::Employe()
                                   }
 
             // return m_mot_de_passe;
-            return password;
+            return hashed_password;  //Retourne le mot de passe chiffré, mais je verifie d'abord dans la BD
          }
 
 

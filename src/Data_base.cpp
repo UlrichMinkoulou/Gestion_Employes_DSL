@@ -614,33 +614,7 @@ void DataBase::ajouterEmploye()
                     break;
                 }
 
-        case 10: 
-                {
-                    string sql = "UPDATE EMPLOYE SET CATEGORIE=?  WHERE ID=?;";
-                    sqlite3_stmt *stmt;
-                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
-
-                    sqlite3_bind_text(stmt, 1, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-
-    
-                    if(sqlite3_step(stmt) == SQLITE_DONE) 
-                        {
-                            if(sqlite3_changes(m_db) > 0)
-                                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
-                            else    
-                                cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
-                        }
-                    else
-                        {
-                            cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
-                        }
-
-                    sqlite3_finalize(stmt);
-                    break;
-                }
-
-        case 11:
+        case 10:
                 {
                     string sql = "UPDATE EMPLOYE SET MDP=?  WHERE ID=?;";
                     sqlite3_stmt *stmt;
@@ -666,7 +640,7 @@ void DataBase::ajouterEmploye()
                     break;
                 }
                 
-        case 12: 
+        case 117: 
                 {
                     string sql = "UPDATE EMPLOYE SET EMAIL=?  WHERE ID=?;";
                     sqlite3_stmt *stmt;

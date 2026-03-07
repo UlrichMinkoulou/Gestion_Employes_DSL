@@ -53,7 +53,7 @@ class Employe
         std::string setDateNaissance();
 
 };
-
+std::string crypterMotDePasse(const std::string& mot_de_passe);
 bool estUnEmailValide(const std::string& mail);
 bool estUnNomValide(const std::string& nom);
 struct ResultatValidation;

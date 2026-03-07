@@ -384,6 +384,25 @@ Employe::Employe()
             return resultat;
         }
 
+        //Fonction de chiffrement du mot de passe
+        std::string crypterMotDePasse(const std::string& password)
+        {
+            char hashed_password[crypto_pwhash_STRBYTES];
+            if (crypto_pwhash_str(hashed_password, password.c_str(), 
+                                  password.length(),
+                                  crypto_pwhash_OPSLIMIT_INTERACTIVE,
+                                  crypto_pwhash_MEMLIMIT_INTERACTIVE) != 0)
+                                  {
+                                    //a definir
+                                    throw std::runtime_error("Erreur lors du chiffrement du mot de passe !");
+                                  }
+                                  else
+                                  {
+                                    cout << "Le mot de passe chiffree : " << hashed_password << endl;
+                                  }
+            return std::string(hashed_password); 
+        }
+
         std::string Employe::getMot_de_passe() 
          {
             cout << "> Entrez le Mot de passe : ";
@@ -400,18 +419,10 @@ Employe::Employe()
                 res = verifierMotDePasse(password);
              }
 
-            char hashed_password[crypto_pwhash_STRBYTES];
-            if (crypto_pwhash_str(hashed_password, password.c_str(), 
-                                  password.length(),
-                                  crypto_pwhash_OPSLIMIT_INTERACTIVE,
-                                  crypto_pwhash_MEMLIMIT_INTERACTIVE) == 0)
-                                  {
-                                    //a definir
-                                    cout << "Le mot de passe chiffree : " << hashed_password << endl;
-                                  }
 
+             std::string password1 = crypterMotDePasse(password);
             // return m_mot_de_passe;
-            return hashed_password;  //Retourne le mot de passe chiffré, mais je verifie d'abord dans la BD
+            return password1;  //Retourne le mot de passe chiffré, mais je verifie d'abord dans la BD
          }
 
 

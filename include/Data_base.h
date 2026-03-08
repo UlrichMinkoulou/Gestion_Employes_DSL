@@ -125,7 +125,7 @@ class DataBase
         std::string afficherDiscussion(std::string id_user, std::string id_destinataire)const;
         std::string selectionnerExpediteur(std::string id_user);
 
-        void verifierMDPdansBD(std::string id_, std::string mot_de_passe);
+        bool verifierMDPdansBD(std::string id_, std::string mot_de_passe);
 
     private:
         sqlite3 *m_db;

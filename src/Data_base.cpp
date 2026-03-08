@@ -724,7 +724,7 @@ void DataBase::ajouterEmploye()
         return password;
     }
 
-    void DataBase::verifierMDPdansBD(std::string id_, std::string mot_de_passe)
+    bool DataBase::verifierMDPdansBD(std::string id_, std::string mot_de_passe)
     {
         string mdp, mdp_crypte, mdp_bd;
         // std::cout << "> Mot de passe : " << std::endl;
@@ -737,7 +737,7 @@ void DataBase::ajouterEmploye()
         if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
         {
             std::cerr << ANSI_BOLD << ANSI_GREEN << "\n[INFO]" << ANSI_RESET << "Erreur SQL :" << sqlite3_errmsg(m_db) << std::endl;
-            return;
+            return false;
         }
             sqlite3_bind_text(stmt, 1, id_.c_str(), -1, SQLITE_TRANSIENT);
         
@@ -750,18 +750,24 @@ void DataBase::ajouterEmploye()
                 if(crypto_pwhash_str_verify(mdp_bd.c_str(), mot_de_passe.c_str(), mot_de_passe.size()) == 0)
                 {
                     std::cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mot de passe correct !" << std::endl;
+                
+                    sqlite3_finalize(stmt);
+                    return true;
                 }
                 else
                 {
                     std::cout << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET << "Mot de passe incorrect !" << std::endl;
+                    sqlite3_finalize(stmt);
+                    return false;
                 }
             }
             else
             {
                 std::cout << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET << "Aucun utilisateur trouvé avec cet ID !" << std::endl;
+                sqlite3_finalize(stmt);
+                return false;
             }
 
-            sqlite3_finalize(stmt);
 
     }
 
@@ -769,17 +775,21 @@ void DataBase::ajouterEmploye()
     {
 
             std::time_t start = std::time(nullptr);
-            std::string mot_de_passe; char ch;
+            std::string mot_de_passe; char ch; 
             
             m_data.id_ = id_;
-
+            
             std::cout << "> Mot de passe : " << std::flush;
             mot_de_passe = getPassword();
             string mdp_crypte = crypterMotDePasse(mot_de_passe);
             std::cout << "votre mot de passe : " << mdp_crypte << std::endl;
+            
+            m_data.res = verifierMDPdansBD(id_, mot_de_passe);
 
+            if(m_data.res == true)
+            {
 
-            std::string sql_recherche = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ? AND MDP = ?;";
+            std::string sql_recherche = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
             sqlite3_stmt *stmt;
 
             if(sqlite3_prepare_v2(m_db, sql_recherche.c_str(), -1, &stmt, NULL) != SQLITE_OK)
@@ -788,8 +798,7 @@ void DataBase::ajouterEmploye()
                 return false;
             }
                 sqlite3_bind_text(stmt, 1, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-                sqlite3_bind_text(stmt, 2, mdp_crypte.c_str(), -1, SQLITE_TRANSIENT);
-                m_data.res = true;
+                //m_data.res = true;
 
  
                 
@@ -823,9 +832,10 @@ void DataBase::ajouterEmploye()
                                 m_data.res = false;
                                 std::cout << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Id ou mot de passe Incorrect !"  << std::endl;
                             }
-
-                    
-                    sqlite3_finalize(stmt);
+                            
+                            
+                            sqlite3_finalize(stmt);
+                        }
 
                     return m_data.res;
     }

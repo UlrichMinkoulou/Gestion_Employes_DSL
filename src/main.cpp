@@ -12,11 +12,12 @@
 int main(void) 
 {
 
-    // DataBase base_de_donne("entreprise_.db");
-    // Admin_db bd_admin("dataBase_admin.db");
+    DataBase base_de_donne("entreprise_.db");
+    Admin_db bd_admin("dataBase_admin.db");
 
     // base_de_donne.ajouterEmploye();
-    // base_de_donne.afficherEmploye();
+    base_de_donne.afficherEmploye();
+    base_de_donne.verifierMDPdansBD("EDSL0001", "#Po23");
     // bd_admin.afficherAdmin();
     // base_de_donne.activerdesactiverEmployer();
 

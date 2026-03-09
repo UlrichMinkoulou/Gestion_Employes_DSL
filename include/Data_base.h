@@ -138,6 +138,7 @@ class DataBase
 
 void afficherLigneEmploye(sqlite3_stmt *stmt);
 void dessinnerLignes();
+void dessinnerLignesMSG();
 std::string getPassword();
 std::string affichageMessageRecusNonLus(std::string text);
 void dessinerQRCode(canvas_ity::canvas& cv, std::string texte, float x, float y, float tailleCarre);

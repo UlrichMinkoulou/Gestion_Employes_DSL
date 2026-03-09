@@ -1181,9 +1181,9 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
          sqlite3_bind_int(stmt, 5, 1);
 
         if(sqlite3_step(stmt) == SQLITE_DONE)
-            cout << ANSI_BOLD << ANSI_GREEN << "[SUCCES]" << ANSI_RESET << "Message envoye avec succes !!" << endl;
+            cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Message envoye avec succes !!" << endl;
         else 
-            cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur d'envoi : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+            cerr << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET << "Erreur d'envoi : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
         
         sqlite3_finalize(stmt);
 
@@ -1192,15 +1192,15 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
     void DataBase::afficher_MSG()const
     {
            cout << "\n --- MESSAGES ENVOYES --- " << endl;
-           dessinnerLignes();
+           dessinnerLignesMSG();
            cout << "| " << left << setw(8) << "Id_Msg"
-                << "| " << setw(10) << "Destinataire"
-                << "| " << setw(10) << "Expediteur"
-                << "| " << setw(10) << "Objet"
-                << "| " << setw(10) << "Contenu"
-                << "| " << setw(10) << "Date/Heure"
+                << "| " << setw(10) << "DEST."
+                << "| " << setw(10) << "EXP."
+                << "| " << setw(28) << "OBJET"
+                << "| " << setw(28) << "CONTENU"
+                << "| " << setw(20) << "Date/Heure"
                 << "| " << setw(4) << "Lu" << "|" << endl; 
-            dessinnerLignes();
+            dessinnerLignesMSG();
 
             sqlite3_stmt* stmt;
             string sql = "SELECT ID_MSG, ID_DESTINATAIRE, ID_EXPEDITEUR, OBJET, CONTENU_MESSAGE, DATE_TIME, LU FROM MESSAGE";
@@ -1213,12 +1213,13 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                     cout << "| " << left << setw(8) << sqlite3_column_int(stmt, 0)
                          << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 1)
                          << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 2)
-                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 3)
-                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 4)
-                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 5)
+                         << "| " << setw(28) << (const char*)sqlite3_column_text(stmt, 3)
+                         << "| " << setw(28) << (const char*)sqlite3_column_text(stmt, 4)
+                         << "| " << setw(20) << (const char*)sqlite3_column_text(stmt, 5)
                          << "| " << setw(4) << sqlite3_column_int(stmt, 6) 
                          << "|" << endl;
                 }
+                dessinnerLignesMSG();
             }
             else
             {
@@ -1229,14 +1230,14 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
     void DataBase::afficher_MSG_recus(string id_)const
     {
         cout << "\n --- MESSAGES RECUS --- " << endl;
-           dessinnerLignes();
+           dessinnerLignesMSG();
            cout << "| " << left << setw(8) << "Id_Msg"
-                << "| " << setw(10) << "Expediteur"
-                << "| " << setw(10) << "Objet"
-                << "| " << setw(10) << "Contenu"
-                << "| " << setw(10) << "Date/Heure"
+                << "| " << setw(10) << "EXP."
+                << "| " << setw(28) << "OBJET"
+                << "| " << setw(28) << "CONTENU"
+                << "| " << setw(20) << "Date/Heure"
                 << "| " << setw(4) << "Lu" << "|" << endl; 
-            dessinnerLignes();
+            dessinnerLignesMSG();
 
             sqlite3_stmt* stmt;
             string sql = "SELECT ID_MSG, ID_EXPEDITEUR, OBJET, CONTENU_MESSAGE, DATE_TIME, LU FROM MESSAGE WHERE ID_DESTINATAIRE = ?;";
@@ -1248,12 +1249,14 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 {
                     cout << "| " << left << setw(8) << sqlite3_column_int(stmt, 0)
                          << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 1)
-                         << "| " << setw(10) << (const char*)   sqlite3_column_text(stmt, 2)
-                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 3)
-                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 4)
+                         << "| " << setw(28) << (const char*)   sqlite3_column_text(stmt, 2)
+                         << "| " << setw(28) << (const char*)sqlite3_column_text(stmt, 3)
+                         << "| " << setw(20) << (const char*)sqlite3_column_text(stmt, 4)
                          << "| " << setw(4) << sqlite3_column_int(stmt, 5)
                          << "|" << endl;
                 }
+
+                dessinnerLignesMSG();
             }
             else
             {
@@ -1286,14 +1289,14 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
         void DataBase::afficher_MSG_non_lus(string id_)const
     {
         cout << "\n --- MESSAGES NON LUS --- " << endl; 
-           dessinnerLignes();
+           dessinnerLignesMSG();
            cout << "| " << left << setw(8) << "Id_Msg"
-                << "| " << setw(10) << "Expediteur"
-                << "| " << setw(10) << "Objet"
-                << "| " << setw(10) << "Contenu"
-                << "| " << setw(10) << "Date/Heure" 
+                << "| " << setw(10) << "EXP."
+                << "| " << setw(28) << "OBJET"
+                << "| " << setw(28) << "CONTENU"
+                << "| " << setw(20) << "Date/Heure" 
                 << "|" << endl; 
-            dessinnerLignes();
+            dessinnerLignesMSG();
 
             sqlite3_stmt* stmt;
             string sql = "SELECT ID_MSG, ID_EXPEDITEUR, OBJET, CONTENU_MESSAGE, DATE_TIME FROM MESSAGE WHERE ID_DESTINATAIRE = ? AND LU = 1;";
@@ -1305,12 +1308,13 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 {
                     cout << "| " << left << setw(8) << sqlite3_column_int(stmt, 0)
                          << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 1)
-                         << "| " << setw(10) << (const char*)   sqlite3_column_text(stmt, 2)
-                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 3)
-                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 4)
+                         << "| " << setw(28) << (const char*)   sqlite3_column_text(stmt, 2)
+                         << "| " << setw(28) << (const char*)sqlite3_column_text(stmt, 3)
+                         << "| " << setw(20) << (const char*)sqlite3_column_text(stmt, 4)
                          //<< "| " << setw(4) << sqlite3_column_int(stmt, 5)
                          << "|" << endl;
                 }
+                    dessinnerLignesMSG();
 
                     sqlite3_finalize(stmt);
 
@@ -1330,10 +1334,10 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             cout << "\n --- MESSAGES LUS --- " << endl; 
            dessinnerLignes();
            cout << "| " << left << setw(8) << "Id_Msg"
-                << "| " << setw(10) << "Expediteur"
-                << "| " << setw(10) << "Objet"
-                << "| " << setw(10) << "Contenu"
-                << "| " << setw(10) << "Date/Heure" 
+                << "| " << setw(10) << "EXP."
+                << "| " << setw(28) << "OBJET"
+                << "| " << setw(28) << "CONTENU"
+                << "| " << setw(20) << "Date/Heure" 
                 << "|" << endl; 
             dessinnerLignes();
 
@@ -1347,12 +1351,13 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 {
                     cout << "| " << left << setw(8) << sqlite3_column_int(stmt, 0)
                          << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 1)
-                         << "| " << setw(10) << (const char*)   sqlite3_column_text(stmt, 2)
-                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 3)
-                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 4)
+                         << "| " << setw(28) << (const char*)   sqlite3_column_text(stmt, 2)
+                         << "| " << setw(28) << (const char*)sqlite3_column_text(stmt, 3)
+                         << "| " << setw(20) << (const char*)sqlite3_column_text(stmt, 4)
                          //<< "| " << setw(4) << sqlite3_column_int(stmt, 5)
                          << "|" << endl;
                 }
+                dessinnerLignesMSG();
             }
             else
             {
@@ -1365,14 +1370,14 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
         void DataBase::afficher_MSG_envoyes(std::string id_user)const
         {
             cout << "\n --- MESSAGES ENVOYES --- " << endl; 
-           dessinnerLignes();
+           dessinnerLignesMSG();
            cout << "| " << left << setw(8) << "Id_Msg"
-                << "| " << setw(10) << "Destinataire"
-                << "| " << setw(10) << "Objet"
-                << "| " << setw(10) << "Contenu"
-                << "| " << setw(10) << "Date/Heure" 
+                << "| " << setw(10) << "DEST."
+                << "| " << setw(28) << "OBJET"
+                << "| " << setw(28) << "CONTENU"
+                << "| " << setw(20) << "Date/Heure" 
                 << "|" << endl; 
-            dessinnerLignes();
+            dessinnerLignesMSG();
 
             sqlite3_stmt* stmt;
             string sql = "SELECT ID_MSG, ID_DESTINATAIRE, OBJET, CONTENU_MESSAGE, DATE_TIME FROM MESSAGE WHERE ID_EXPEDITEUR = ?;";
@@ -1382,14 +1387,25 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
                 while(sqlite3_step(stmt) == SQLITE_ROW)
                 {
+                    const char* destinataire = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+                    const char* objet = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+                    const char* contenu = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+                    const char* date_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+
+                    string msg = contenu ? contenu : "";
+                    if(msg.length() > 25) {                 //pour des raisons d'affichage, on limite le contenu a 25 caracteres.
+                        msg = msg.substr(0, 25) + "...";    
+                    }
+
                     cout << "| " << left << setw(8) << sqlite3_column_int(stmt, 0)
-                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 1)
-                         << "| " << setw(10) << (const char*)   sqlite3_column_text(stmt, 2)
-                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 3)
-                         << "| " << setw(10) << (const char*)sqlite3_column_text(stmt, 4)
+                         << "| " << setw(10) << destinataire
+                         << "| " << setw(28) << (objet ? objet : "Sans objet")
+                         << "| " << setw(28) << msg
+                         << "| " << setw(20) << date_time
                          //<< "| " << setw(4) << sqlite3_column_int(stmt, 5)
                          << "|" << endl;
                 }
+                dessinnerLignesMSG();
             }
             else
             {
@@ -1574,6 +1590,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
     void dessinnerLignes()
     {
+
     cout << "+"
          << setfill('-')
          << setw(10)
@@ -1604,4 +1621,16 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
          << "+"
          << setfill(' ')
          << endl;
+    }
+
+
+    void dessinnerLignesMSG()
+    {
+    cout << "+" << setfill('-')
+         << setw(10) << "+" 
+         << setw(12) << "+" 
+         << setw(30) << "+"
+         << setw(30) << "+"
+         << setw(22) << "+"        
+         << setfill(' ') << endl;
     }

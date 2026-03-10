@@ -1332,14 +1332,14 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
         void DataBase:: afficher_MSG_lus(std::string id_user)const
         {
             cout << "\n --- MESSAGES LUS --- " << endl; 
-           dessinnerLignes();
+           dessinnerLignesMSG();
            cout << "| " << left << setw(8) << "Id_Msg"
                 << "| " << setw(10) << "EXP."
                 << "| " << setw(28) << "OBJET"
                 << "| " << setw(28) << "CONTENU"
                 << "| " << setw(20) << "Date/Heure" 
                 << "|" << endl; 
-            dessinnerLignes();
+            dessinnerLignesMSG();
 
             sqlite3_stmt* stmt;
             string sql = "SELECT ID_MSG, ID_EXPEDITEUR, OBJET, CONTENU_MESSAGE, DATE_TIME FROM MESSAGE WHERE ID_DESTINATAIRE = ? AND LU = 0;";
@@ -1404,8 +1404,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                          << "| " << setw(20) << date_time
                          //<< "| " << setw(4) << sqlite3_column_int(stmt, 5)
                          << "|" << endl;
+                         dessinnerLignesMSG();
                 }
-                dessinnerLignesMSG();
             }
             else
             {
@@ -1539,7 +1539,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 //Selectionner les expediteurs d'un destinataire
     std::string DataBase::selectionnerExpediteur(string id_user)
     {
-        string sql = "SELECT DISTINCT ID_EXPEDITEUR FROM MESSAGE WHERE ID_DESTINATAIRE = ?;"; //on precise avec distinct pour eviter les doublons
+        string sql = "SELECT DISTINCT ID_EXPEDITEUR, ID_DESTINATAIRE FROM MESSAGE WHERE ID_DESTINATAIRE = ?;"; //on precise avec distinct pour eviter les doublons
         sqlite3_stmt* stmt;
 
         if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
@@ -1547,10 +1547,12 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
 
             std::cout << "\nDiscussions ==========" << std::endl << std::endl;
+            cout << "Expediteur            " << "Destinataire           " << endl;
             while(sqlite3_step(stmt) == SQLITE_ROW)
             {
                 string expediteur = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
-                cout << "            - " << expediteur << endl;
+                string destinataire = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+                cout << "            - " << expediteur << "           - " << destinataire << endl;
             }
 
             sqlite3_finalize(stmt);
@@ -1570,6 +1572,70 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
 
     }
+
+    //Lecture des messages plus active
+    void DataBase::LireContenuMessage(std::string id_user)
+    {
+
+        string nom;
+        string sql = "SELECT NOM FROM EMPLOYE WHERE ID = ?;";
+        sqlite3_stmt* stmt;
+
+        if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+        {
+            sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
+
+            if(sqlite3_step(stmt) == SQLITE_ROW)
+            {
+                nom = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+            }
+            else
+            {
+                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Aucun employe trouve avec cet ID." << endl;
+                sqlite3_finalize(stmt);
+                return;
+            }
+         sqlite3_finalize(stmt);
+        }
+
+        string sql_msg = "SELECT ID_EXPEDITEUR, OBJET, CONTENU_MESSAGE, DATE_TIME FROM MESSAGE WHERE ID_DESTINATAIRE = ?";
+
+        if(sqlite3_prepare_v2(m_db, sql_msg.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+        {
+            sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
+
+            system("clear");
+
+            while(sqlite3_step(stmt) == SQLITE_ROW)
+            {
+                string expediteur = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+                string objet = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+                string contenu = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+                string date_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+            
+            
+                std::cout << "\033[1;34m" << "============================================================" << "\033[0m" << std::endl;
+                std::cout << "\033[1m" << " DE      : " << "\033[0m" << expediteur << std::endl;
+                std::cout << "\033[1m" << " DATE    : " << "\033[0m" << date_time << std::endl;
+                std::cout << "\033[1m" << " OBJET   : " << "\033[1;32m" << objet << "\033[0m" << std::endl;
+                std::cout << "\033[1;34m" << "------------------------------------------------------------" << "\033[0m" << std::endl;
+                std::cout << "\n" << contenu << "\n\n";
+                std::cout << "\033[1;34m" << "============================================================" << "\033[0m" << std::endl;
+                
+                std::cout << "\n[Appuyez sur ENTRÉE pour revenir à la liste]" << std::endl;
+                std::cin.ignore();
+                std::cin.get(); 
+            }
+            sqlite3_finalize(stmt);
+
+            // this->lire_MSG_recus(id_user); // Marquer les messages comme lus après les afficher
+       }else
+        {
+            cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
+        }
+        sqlite3_finalize(stmt);
+}
+
 
     void afficherLigneEmploye(sqlite3_stmt *stmt_)
     {

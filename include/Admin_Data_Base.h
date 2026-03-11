@@ -16,9 +16,10 @@ class Admin_db : public Employe
     void afficherAdmin();
     void modifierAdmin(std::string id_);
     void afficherUserAdmin(std::string id_);
+    std::string selectName(std::string id_);
     std::string getETat();
     DataConnxion getAdminData(){return m_data_con;}
-
+    bool verifieridAdminexist(std::string id_);
     private:
     sqlite3* m_bd;
     bool m_etat_compte;

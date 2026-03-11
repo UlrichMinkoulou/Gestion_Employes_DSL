@@ -16,12 +16,24 @@ void clearCLI()
      system("clear");
 }
 
+const std::string ANSI_RESET = "\033[0m";
+const std::string ANSI_RED = "\033[31m";
+const std::string ANSI_BOLD = "\033[1m";
+const std::string ANSI_GREEN = "\033[32m";
+const std::string ANSI_BLUE = "\033[34m";
+const std::string ANSI_YELLOW = "\033[33m";
+const std::string ANSI_MAGENTA = "\033[35m";
+const std::string ANSI_CYAN = "\033[36m";
+const std::string ANSI_WHITE = "\033[37m";
+const std::string ANSI_BLACK = "\033[30m";
+
+
 Admin_db::Admin_db(const char* fileName)
 {
     if(sqlite3_open(fileName, &m_bd) != SQLITE_OK)
-        std::cerr << "Erreur d'ouverture de la BD : " << sqlite3_errmsg(m_bd) << std::endl;
+        std::cerr << ANSI_RED << ANSI_BOLD << "\n[ERREUR]" << ANSI_RESET << "Erreur d'ouverture de la BD : " << sqlite3_errmsg(m_bd) << std::endl;
     else
-    std::cout << "Base de donnees ouverte avec succes !" << std::endl;
+    std::cout << ANSI_GREEN << ANSI_BOLD << "\n[SUCCES]" << ANSI_RESET <<  "Base de donnees ouverte avec succes !" << std::endl;
     
     char * msg_err;
     std::string sqlCreate = "CREATE TABLE IF NOT EXISTS ADMIN ("
@@ -181,6 +193,30 @@ void Admin_db::modifierAdmin(std::string id_employe)
             sqlite3_finalize(stmt);
         }
 
+std::string Admin_db:: selectName(std::string id_)
+{
+    std::string sql = "SELECT NOM FROM ADMIN WHERE ID = ?;";
+    sqlite3_stmt* stmt;
+    std::string name;
+
+    if(sqlite3_prepare_v2(m_bd, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+    {
+        sqlite3_bind_text(stmt, 1, id_.c_str(), -1, SQLITE_TRANSIENT);
+        if(sqlite3_step(stmt) == SQLITE_ROW)
+        {
+            const unsigned char* user_name = sqlite3_column_text(stmt, 0);
+            name = reinterpret_cast<const char*>(user_name);
+        }
+    }
+    else    {
+        std::cerr << "Erreur de preparation : " << sqlite3_errmsg(m_bd) << std::endl;
+        return "";
+    }
+    sqlite3_finalize(stmt);
+    return name;
+}
+
+
 void afficherLigneAdmin(sqlite3_stmt* stmt)
     {
         std::cout << "| " << std::left << std::setw(8) << (const char*)sqlite3_column_text(stmt, 0)
@@ -235,4 +271,30 @@ std::string generateurID(sqlite3* bd, std::string c, char m)
         ss << c << std::setfill('0') << std::setw(4) << nouveauNumero;
 
         return ss.str();
+    }
+
+    
+    bool Admin_db::verifieridAdminexist(std::string id_)
+    {
+         std::string sql = "SELECT ID FROM ADMIN WHERE ID = ?;";
+          sqlite3_stmt* stmt;
+
+            if(sqlite3_prepare_v2(m_bd, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
+                {
+                    std::cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_bd) << std::endl;
+                    return false;
+                }
+            
+                sqlite3_bind_text(stmt, 1, id_.c_str(), -1, SQLITE_TRANSIENT);
+
+                if(sqlite3_step(stmt) == SQLITE_ROW)
+                {
+                    sqlite3_finalize(stmt);
+                    return true; // ID existe
+                }
+                else
+                {
+                    sqlite3_finalize(stmt);
+                    return false; // ID n'existe pas
+                }
     }

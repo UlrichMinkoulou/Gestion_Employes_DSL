@@ -124,8 +124,7 @@ class DataBase
         std::vector<Data_Message> recupererMessages(std::string id_user);
         std::string afficherDiscussion(std::string id_user, std::string id_destinataire)const;
         std::string selectionnerExpediteur(std::string id_user);
-
-        void LireContenuMessage(std::string id_user);
+        bool verifieridexist(std::string id_);
 
         bool verifierMDPdansBD(std::string id_, std::string mot_de_passe);
 

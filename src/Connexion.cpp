@@ -302,11 +302,11 @@ void messages(std::string id)
             std::cout << std::endl;
             
         std::cout << "1. Discussion" << std::endl;
-        std::cout << "2. Messages Recus(non lus)" << std::endl;
-        std::cout << "3. Messages Recus(lus)" << std::endl;
-        std::cout << "4. Nouveau Message" << std::endl;
-        std::cout << "5. Messages Envoyes" << std::endl;
-        std::cout << "6. Retour Menu" << std::endl << std::endl;
+        // std::cout << "2. Messages Recus(non lus)" << std::endl;
+        std::cout << "2. Messages Recus(lus)" << std::endl;
+        std::cout << "3. Nouveau Message" << std::endl;
+        std::cout << "4. Messages Envoyes" << std::endl;
+        std::cout << "5. Retour Menu" << std::endl << std::endl;
         int choix;
         std::cout << "> ";
             //gestion des erreurs de saisie pour le choix du menu de messagerie
@@ -319,11 +319,11 @@ void messages(std::string id)
 
         switch (choix)
         {
-            case 2: { user.afficher_MSG_non_lus(id); break;} 
+            // case 2: { user.afficher_MSG_non_lus(id); break;} 
 
-            case 3: { user.afficher_MSG_lus(id);     break;}
+            case 2: { user.afficher_MSG_lus(id);     break;}
 
-            case 4: 
+            case 3: 
             {
                 std::string destinataire, contenu, objet;
 
@@ -342,25 +342,27 @@ void messages(std::string id)
                 user.envoyer_MSG(destinataire, id, contenu, objet); break;
             }
 
-            case 5: { user.afficher_MSG_envoyes(id); break;}
+            case 4: { user.afficher_MSG_envoyes(id); break;}
 
             case 1: 
             {
-                    std::string id_destinataire = user.selectionnerExpediteur(id);
-                    id_destinataire = user.afficherDiscussion(id, id_destinataire); 
+                    std::string id_expediteur = user.selectionnerExpediteur(id);
+                    id_expediteur = user.afficherDiscussion(id, id_expediteur); 
                     bool condition_discussion = false;
+                    // user.LireContenuMessage(id_destinataire);
 
                     do
                     {
                             std::cout << "\n1. Ajouter une reponse" << std::endl;
-                            std::cout << "2. Retour au menu" << std::endl;
+                            std::cout << "2. Marquer comme lu" << std::endl;
+                            std::cout << "3. Retour au menu" << std::endl;
                             int choix_discussion; 
                             std::cout << std::endl << "> ";
 
                             //gestion des erreurs de saisie pour le choix de la discussion
-                                while(!(std::cin >> choix_discussion) || (choix_discussion < 1 || choix_discussion > 2))
+                                while(!(std::cin >> choix_discussion) || (choix_discussion < 1 || choix_discussion > 3))
                                 {
-                                    std::cout << "> choix (1-2): ";
+                                    std::cout << "> choix (1-3): ";
                                     std::cin.clear();
                                     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                                 }
@@ -377,18 +379,20 @@ void messages(std::string id)
                                     std::cout << "Objet : ";
                                     std::getline(std::cin, objet);
                                     
-                                    user.envoyer_MSG(id_destinataire, id, contenu, objet); 
+                                    user.envoyer_MSG(id_expediteur, id, contenu, objet); 
                                     DataBase message("entreprise_.db");
-                                    message.lire_MSG_recus(id_destinataire = user.afficherDiscussion(id, id_destinataire));  break;
+                                    message.afficherDiscussion(id, id_expediteur); 
+                                    break;
                                 }
                                 
-                            case 2: condition_discussion = true; break;
+                            case 2: user.lire_MSG_recus(id_expediteur); break;
+                            case 3: condition_discussion = true; break;
                         }
                     }while (condition_discussion == false);
               break;  
             } 
             
-            case 6: condition = true; break;
+            case 5: condition = true; break;
             
             default: condition = false; break;
 

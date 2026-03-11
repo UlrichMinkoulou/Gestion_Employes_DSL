@@ -318,12 +318,12 @@ void DataBase::ajouterEmploye()
         }while (verifier == false);
 
 
-        // string password_crypte = crypterMotDePasse(new_password);
+        string password_crypte = crypterMotDePasse(new_password);
 
         string sql = "UPDATE EMPLOYE SET MDP=? WHERE ID=?;";
         sqlite3_stmt *stmt;
         sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL);
-        sqlite3_bind_text(stmt, 1, new_password.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 1, password_crypte.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 2, id_.c_str(), -1, SQLITE_TRANSIENT);
 
         if(sqlite3_step(stmt) == SQLITE_DONE) 

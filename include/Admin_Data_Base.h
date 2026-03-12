@@ -25,6 +25,8 @@ class Admin_db : public Employe
     bool m_etat_compte;
     DataConnxion m_data_con;
 
+    bool verifierMDPdansBD(std::string id_, std::string mot_de_passe);
+
 
 };
 

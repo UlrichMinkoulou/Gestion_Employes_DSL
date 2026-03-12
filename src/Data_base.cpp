@@ -174,19 +174,19 @@ void DataBase::ajouterEmploye()
     {
 
     dessinnerLignes();
-   cout << "| " << left << setw(8) << "Id"
-         << "| " << setw(10) << "NOM"
-         << "| " << setw(10) << "PRENOM"
-         << "| " << setw(10) << "DATE_NAIS"        
-         << "| " << setw(10) << "DATE_ADHE"
-         << "| " << setw(14) << "SITUATION_MAT"
-         << "| " << setw(18) << "POSTE"        
-         << "| " << setw(3) << "TC"
-         << "| " << setw(12) << "SALAIRE"        
-         << "| " << setw(1) << "C"
-        //  << "| " << setw(14) << "MDP"
-         << "| " << setw(25) << "EMAIL"
-         << "| " << setw(1) << "E" << "|" << endl;
+   cout << "| " << left << setw(8+1) << "Id"
+         << "| " << setw(10-1) << "NOM"
+         << "| " << setw(10-1) << "PRENOM"
+         << "| " << setw(10-1) << "DATE_NAIS"        
+         << "| " << setw(10-1) << "DATE_ADHE"
+         << "| " << setw(14-1) << "SITUATION_MAT"
+         << "| " << setw(18-1) << "POSTE"        
+         << "| " << setw(3-1) << "TC"
+         << "| " << setw(12-1) << "SALAIRE"        
+         << "| " << setw(1-1) << "C"
+        //  << "| " << setw(14+1) << "MDP"
+         << "| " << setw(25-1) << "EMAIL"
+         << "| " << setw(1-1) << "E" << " |" << endl;
 
     dessinnerLignes();
 
@@ -789,44 +789,44 @@ void DataBase::ajouterEmploye()
             if(m_data.res == true)
             {
 
-            std::string sql_recherche = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
-            sqlite3_stmt *stmt;
+                        std::string sql_recherche = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
+                        sqlite3_stmt *stmt;
 
-            if(sqlite3_prepare_v2(m_db, sql_recherche.c_str(), -1, &stmt, NULL) != SQLITE_OK)
-            {
-                std::cerr << ANSI_BOLD << ANSI_GREEN << "\n[INFO]" << ANSI_RESET << "Erreur SQL :" << sqlite3_errmsg(m_db) << std::endl;
-                return false;
-            }
-                sqlite3_bind_text(stmt, 1, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-                //m_data.res = true;
+                        if(sqlite3_prepare_v2(m_db, sql_recherche.c_str(), -1, &stmt, NULL) != SQLITE_OK)
+                        {
+                            std::cerr << ANSI_BOLD << ANSI_GREEN << "\n[INFO]" << ANSI_RESET << "Erreur SQL :" << sqlite3_errmsg(m_db) << std::endl;
+                            return false;
+                        }
+                            sqlite3_bind_text(stmt, 1, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+                            //m_data.res = true;
 
- 
-                
-                if(sqlite3_step(stmt) == SQLITE_ROW)
-                {
-                    int etat = (sqlite3_column_int(stmt, 12)); //Récupère la valeur de la colonne ETAT
+        
+                        
+                        if(sqlite3_step(stmt) == SQLITE_ROW)
+                        {
+                            int etat = (sqlite3_column_int(stmt, 12)); //Récupère la valeur de la colonne ETAT
 
-                        std::cout << "Valeur de etat : " << etat << std::endl;
+                                std::cout << "Valeur de etat : " << etat << std::endl;
 
-                        if(etat ==0) {
-                                m_data.res = false;
-                                std::cout << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Compte inactif, veillez contacter l'administrateur !\n\n"  << std::endl;
-                                sqlite3_finalize(stmt);
-                                
-                                return m_data.res;               
-                            }
-                                const unsigned char *user_name = sqlite3_column_text(stmt, 1);
-                                std::cout << ANSI_BOLD << ANSI_GREEN << "Bienvenu " << (user_name ? reinterpret_cast<const char*>(user_name) : "NULL") << ANSI_RESET << std::endl;
-                                m_data.name =  reinterpret_cast<const char*>(user_name); //faire le caste
-                    
-                                std::cout << "Chargement de la page";
-                                for(int i = 0; i < 8; ++i)
-                                {
-                                    std::this_thread::sleep_for(std::chrono::seconds(1));
-                                    std::cout << "." << std::flush;
-                                } 
-                                
-                                system("clear");               
+                                if(etat ==0) {
+                                        m_data.res = false;
+                                        std::cout << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Compte inactif, veillez contacter l'administrateur !\n\n"  << std::endl;
+                                        sqlite3_finalize(stmt);
+                                        
+                                        return m_data.res;               
+                                    }
+                                        const unsigned char *user_name = sqlite3_column_text(stmt, 1);
+                                        std::cout << ANSI_BOLD << ANSI_GREEN << "Bienvenu " << (user_name ? reinterpret_cast<const char*>(user_name) : "NULL") << ANSI_RESET << std::endl;
+                                        m_data.name =  reinterpret_cast<const char*>(user_name); //faire le caste
+                            
+                                        std::cout << "Chargement de la page";
+                                        for(int i = 0; i < 8; ++i)
+                                        {
+                                            std::this_thread::sleep_for(std::chrono::seconds(1));
+                                            std::cout << "." << std::flush;
+                                        } 
+                                        
+                                        system("clear");               
                         } else
                             {
                                 m_data.res = false;
@@ -835,7 +835,7 @@ void DataBase::ajouterEmploye()
                             
                             
                             sqlite3_finalize(stmt);
-                        }
+                }
 
                     return m_data.res;
     }
@@ -1708,22 +1708,21 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 2)
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 3)
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 4)
-             << "| " << setw(14) << (const char*)sqlite3_column_text(stmt_, 5)             
+             << "| " << setw(13) << (const char*)sqlite3_column_text(stmt_, 5)             
              << "| " << setw(18) << (const char*)sqlite3_column_text(stmt_, 6)
              << "| " << setw(3) << (const char*)sqlite3_column_text(stmt_, 7)
-             << "| " << setw(12) << sqlite3_column_double(stmt_, 8)
-             << "| " << setw(1) << (const char*)sqlite3_column_text(stmt_, 9)
+             << "| " << setw(10) << sqlite3_column_double(stmt_, 8)
+             << "| " << setw(2) << (const char*)sqlite3_column_text(stmt_, 9)
             //  << "| " << setw(14) << (const char*)sqlite3_column_text(stmt_, 10)
              << "| " << setw(25) << (const char*)sqlite3_column_text(stmt_, 11) 
-             << "| " << setw(1) << (const char*)sqlite3_column_text(stmt_, 12) << "|" << endl; 
+             << "| " << setw(2) << (const char*)sqlite3_column_text(stmt_, 12) << "|" << endl; 
     }
 
     void dessinnerLignes()
     {
 
-    cout << "+"
-         << setfill('-')
-         << setw(10)
+    cout << "+"  << setfill('-');
+    cout << setw(10)
          << "+" 
          << setw(12)
          << "+" 
@@ -1733,21 +1732,21 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
          << "+"
          << setw(12)
          << "+"        
-         << setw(16)
+         << setw(15)
          << "+" 
          << setw(20)         
          << "+"
          << setw(5)         
          << "+"
-         << setw(14)
+         << setw(12)
          << "+"       
-         << setw(3)
+         << setw(4)
          << "+" 
         //  << setw(16)         
         //  << "+"
          << setw(27)         
          << "+"         
-         << setw(3)         
+         << setw(4)         
          << "+"
          << setfill(' ')
          << endl;

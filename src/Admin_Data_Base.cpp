@@ -1,6 +1,7 @@
 #include "Admin_Data_Base.h"
 #include "Data_base.h"
 #include "Administrateur.h"
+#include "Employe.h"
 #include <string>
 #include <iomanip>
 #include <iostream>
@@ -10,6 +11,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <sstream>
+#include "sodium.h"
 
 void clearCLI()
 {
@@ -121,6 +123,48 @@ void Admin_db::afficherUserAdmin(std::string identifiant)
         }
 }
 
+bool Admin_db::verifierMDPdansBD(std::string id_, std::string mot_de_passe)
+{
+    std::string mdp_bd;
+    std::string sql = "SELECT MDP FROM ADMIN WHERE ID = ?;";
+    sqlite3_stmt* stmt;
+
+    if(sqlite3_prepare_v2(m_bd, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
+        {
+            std::cerr << ANSI_RED << ANSI_BOLD << "[ERREUR]" << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_bd) << std::endl;
+            return false;
+        }
+
+        sqlite3_bind_text(stmt, 1, id_.c_str(), -1, SQLITE_TRANSIENT);
+        if(sqlite3_step(stmt) == SQLITE_ROW)
+        {
+            mdp_bd = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+
+            if(crypto_pwhash_str_verify(mdp_bd.c_str(), mot_de_passe.c_str(),  mot_de_passe.length()) == 0)
+            {
+                std::cout << ANSI_GREEN << ANSI_BOLD << "\n[SUCCES]" << ANSI_RESET << "Mot de passe correct !" << std::endl;
+
+                sqlite3_finalize(stmt);
+                return true; // ID existe et mot de passe correct
+            }
+            else
+            {
+                std::cout << ANSI_RED << ANSI_BOLD << "\n[ERREUR]" << ANSI_RESET << "Mot de passe incorrect !" << std::endl;
+
+                sqlite3_finalize(stmt);
+                return false; // ID existe mais mot de passe incorrect
+            }   
+        }
+        else{
+                std::cout << ANSI_RED << ANSI_BOLD << "\n[ERREUR]" << ANSI_RESET << "Aucun utilisateur trouvé avec cet ID !" << std::endl;
+               
+                sqlite3_finalize(stmt);
+                return false; // ID n'existe pas
+            }
+
+}
+
+
 bool Admin_db::connexionAdmin(std::string id_)
 {
     std::time_t start = std::time(nullptr);
@@ -131,45 +175,55 @@ bool Admin_db::connexionAdmin(std::string id_)
     
     std::cout << "> Mot de passe : " << std::flush;
     mdp = getPassword();
-    std::cout << "votre mot de passe : " << mdp << std::endl;
-    
-    std::string sql_search = "SELECT ID, NOM, ETAT, MDP FROM ADMIN WHERE ID = ? AND MDP = ?;";
-    sqlite3_stmt* stmt;
-    
-    if(sqlite3_prepare_v2(m_bd, sql_search.c_str(), -1, &stmt, NULL) == SQLITE_OK)
-    {
-            sqlite3_bind_text(stmt, 1, m_data_con.id_.c_str(), -1, SQLITE_TRANSIENT);
-            sqlite3_bind_text(stmt, 2, mdp.c_str(), -1, SQLITE_TRANSIENT);
-            m_data_con.res = true;
-            if(sqlite3_step(stmt) == SQLITE_ROW)
-            {
-                    const unsigned char* user_name = sqlite3_column_text(stmt,1);
-                    std::cout << "Bienvenu " << (user_name ? reinterpret_cast<const char*>(user_name) : "NULL") << std::endl;
-                    m_data_con.name = reinterpret_cast<const char*>(user_name);
-                    
-                    std::cout << "Chargement de la page";
-                    for(int i = 0; i < 8; ++i)
-                    {
-                        std::this_thread::sleep_for(std::chrono::seconds(1));
-                        std::cout << "." << std::flush;
-                    } 
+    std::string mdp_crvptee = crypterMotDePasse(mdp);
+    std::cout << "votre mot de passe : " << mdp_crvptee << std::endl;
 
-                    clearCLI();
-                } else
-                    {
-                        m_data_con.res = false;
-                        std::cout << "Id ou mot de passe Incorrect !" << std::endl;
-                    }
+    m_data_con.res = verifierMDPdansBD(id_, mdp);
+    
 
-                }else
+        if(m_data_con.res == true)
+        {
+
+                std::string sql_search = "SELECT ID, NOM, ETAT, MDP FROM ADMIN WHERE ID = ?;";
+                sqlite3_stmt* stmt;
+        
+                if(sqlite3_prepare_v2(m_bd, sql_search.c_str(), -1, &stmt, NULL) != SQLITE_OK)
                 {
-                    std::cerr << "Erreur de preparation : " << sqlite3_errmsg(m_bd) << std::endl;
-            }
-            sqlite3_finalize(stmt);
-            return m_data_con.res;
-        }
+                    std::cerr << ANSI_RED << ANSI_BOLD << "\n[ERREUR]" << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_bd) << std::endl;
+                    return false;
+                }
 
-void Admin_db::modifierAdmin(std::string id_employe)
+                sqlite3_bind_text(stmt, 1, m_data_con.id_.c_str(), -1, SQLITE_TRANSIENT);
+                // sqlite3_bind_text(stmt, 2, mdp.c_str(), -1, SQLITE_TRANSIENT);
+                // m_data_con.res = true;
+
+                if(sqlite3_step(stmt) == SQLITE_ROW)
+                {
+                        const unsigned char* user_name = sqlite3_column_text(stmt,1);
+                        std::cout << "Bienvenu " << (user_name ? reinterpret_cast<const char*>(user_name) : "NULL") << std::endl;
+                        m_data_con.name = reinterpret_cast<const char*>(user_name);
+                        
+                        std::cout << "Chargement de la page";
+                        for(int i = 0; i < 8; ++i)
+                        {
+                            std::this_thread::sleep_for(std::chrono::seconds(1));
+                            std::cout << "." << std::flush;
+                        } 
+
+                        clearCLI();
+                } else
+                        {
+                            m_data_con.res = false;
+                            std::cout << ANSI_RED << ANSI_BOLD << "\n[ERREUR]" << ANSI_RESET << "Id ou mot de passe Incorrect !" << std::endl;
+                        }
+
+                sqlite3_finalize(stmt);
+        }
+                    
+            return m_data_con.res;
+    }
+
+void Admin_db::modifierAdmin(std::string id_)
         {
             Admin_db admin_User("dataBase_admin.db");
 
@@ -178,17 +232,17 @@ void Admin_db::modifierAdmin(std::string id_employe)
             sqlite3_stmt* stmt;
             sqlite3_prepare_v2(m_bd, sql.c_str(), -1, &stmt, NULL);
             sqlite3_bind_text(stmt, 1, admin_User.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
-            sqlite3_bind_text(stmt, 2, id_employe.c_str(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 2, id_.c_str(), -1, SQLITE_TRANSIENT);
 
             if(sqlite3_step(stmt) == SQLITE_DONE)
             {
                 if(sqlite3_changes(m_bd) > 0)
-                    std::cout << "Mise a jour reussie !" << std::endl;
+                    std::cout << ANSI_GREEN << ANSI_BOLD << "[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << std::endl;
                 else    
-                    std::cout << "Acun Administrateur ne possede cet identifiant " << std::endl;
+                    std::cout << ANSI_RED << ANSI_BOLD << "[ERREUR]" << ANSI_RESET << "Aucun Administrateur ne possede cet identifiant " << std::endl;
             } else
                 {
-                    std::cerr << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_bd) << std::endl;
+                    std::cerr << ANSI_RED << ANSI_BOLD << "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_bd) << std::endl;
                 }
             sqlite3_finalize(stmt);
         }

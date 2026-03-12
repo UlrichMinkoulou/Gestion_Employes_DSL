@@ -9,6 +9,7 @@ class Admin : public Employe
     public:
     Admin();
     std::string activation();
+    void desactivation();
 
     private:
         bool m_etre_employe;

@@ -182,7 +182,9 @@ bool viewAdmin(std::string IdAdmin)
             {
                 case 1: 
                 {
+
                     int choice; std::string id_;
+                    bd_user.chargerCache();
 
                     do
                         {
@@ -206,7 +208,18 @@ bool viewAdmin(std::string IdAdmin)
                             
                             switch (choice)
                             {
-                            case 1: bd_user.afficherEmploye(); break;
+                            case 1: 
+                            {
+                                std::cout << "Depuis la BD" << std::endl;
+                                bd_user.afficherEmploye(); 
+                                std::cout << "Depuis la la RAM" << std::endl;
+                                // const Empl data
+                                for(const EmployeData& emp : bd_user.getCache())
+                                    {
+                                        std::cout << emp.m_identifiant_Employe << " | " << emp.m_nom << " | " << std::endl;
+                                    }
+                                break;
+                            }
                             case 2: bd_user.ajouterEmploye(); break;
                             case 3: bd_user.changerInfoEmploye(); break;
                             case 4: bd_user.activerdesactiverEmployer(); break;
@@ -452,6 +465,3 @@ void dessinerLdeux()
          << std::setfill(' ')
          << std::endl;
 }
-
-
-

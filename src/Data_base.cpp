@@ -1,3 +1,6 @@
+//Ici on passe a la phase d'optimisation de tout notre code. #1 
+#include <memory>   //library qui permet de fournir les Smart Pointers, pour gerer automatiquement la duree de vie des objets en memoire pour eviter les fuites de memoire 
+
 #include "Data_base.h"
 #include "Admin_Data_Base.h"
 #include <string>
@@ -14,6 +17,8 @@
 #include <sodium.h>
 
 
+
+
 // --- LIBRAIRIES DESSIN ET ECRITURE ---
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -24,10 +29,12 @@
 #define CANVAS_ITY_IMPLEMENTATION
 #include "canvas_ity.hpp"
 
+//Ici, devant utiliser une fonction ecrite en C, on utilise extern "C" pour mentionner cela.
 extern "C" {
     #include "qrcode.h"
 }
 
+// Code couleur, gestion des Erreurs et couleurs specifiques
 const std::string ANSI_RESET = "\033[0m";
 const std::string ANSI_RED = "\033[31m";
 const std::string ANSI_BOLD = "\033[1m";
@@ -81,6 +88,7 @@ DataBase::DataBase(char const* nomFichier)
 
 }
 
+//Destructeur, dans ce destructeur on inclut la destruction de l'instance sqlite3 creee dans le constructeur
 DataBase::~DataBase()
 {
     sqlite3_close(m_db);
@@ -133,76 +141,74 @@ void DataBase::ajouterEmploye()
     void DataBase:: afficherEmploye()
     {
         cout << "\n --- LISTES DES EMPLOYES --- " << endl;
+
+        dessinnerLignes();
+            //En-tete
+        cout << "| " << left << setw(8) << "Id"
+            << "| " << setw(10) << "NOM"
+            << "| " << setw(10) << "PRENOM"
+            << "| " << setw(10) << "DATE_NAIS"        
+            << "| " << setw(10) << "DATE_ADHE"
+            << "| " << setw(14) << "SITUATION_MAT"
+            << "| " << setw(18) << "POSTE"        
+            << "| " << setw(3) << "TC"
+            << "| " << setw(12) << "SALAIRE"        
+            << "| " << setw(1) << "C"
+            //  << "| " << setw(14) << "MDP"
+            << "| " << setw(25) << "EMAIL"
+            << "| " << setw(1) << "E" << "|" << endl;
         dessinnerLignes();
 
-        //En-tete
-    cout << "| " << left << setw(8) << "Id"
-         << "| " << setw(10) << "NOM"
-         << "| " << setw(10) << "PRENOM"
-         << "| " << setw(10) << "DATE_NAIS"        
-         << "| " << setw(10) << "DATE_ADHE"
-         << "| " << setw(14) << "SITUATION_MAT"
-         << "| " << setw(18) << "POSTE"        
-         << "| " << setw(3) << "TC"
-         << "| " << setw(12) << "SALAIRE"        
-         << "| " << setw(1) << "C"
-        //  << "| " << setw(14) << "MDP"
-         << "| " << setw(25) << "EMAIL"
-         << "| " << setw(1) << "E" << "|" << endl;
 
-    dessinnerLignes();
+        string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE;";
+        sqlite3_stmt *stmt;
 
+        sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL);
+        while(sqlite3_step(stmt) == SQLITE_ROW) afficherLigneEmploye(stmt);
+        dessinnerLignes();
+        
+        sqlite3_finalize(stmt);
 
-    string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE;";
-    sqlite3_stmt *stmt;
+        }
 
-    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL);
-    while(sqlite3_step(stmt) == SQLITE_ROW) afficherLigneEmploye(stmt);
-    dessinnerLignes();
+        bool desactiverEmployer(sqlite3* m_db, sqlite3_stmt *stmt)
+        {
+
+            return true;
+        }
+
     
-    sqlite3_finalize(stmt);
-
-    }
-
-    bool desactiverEmployer(sqlite3* m_db, sqlite3_stmt *stmt)
-    {
-
-        return true;
-    }
-
     void DataBase::afficherUser(std::string identifiant)
     {
 
-    dessinnerLignes();
-   cout << "| " << left << setw(8+1) << "Id"
-         << "| " << setw(10-1) << "NOM"
-         << "| " << setw(10-1) << "PRENOM"
-         << "| " << setw(10-1) << "DATE_NAIS"        
-         << "| " << setw(10-1) << "DATE_ADHE"
-         << "| " << setw(14-1) << "SITUATION_MAT"
-         << "| " << setw(18-1) << "POSTE"        
-         << "| " << setw(3-1) << "TC"
-         << "| " << setw(12-1) << "SALAIRE"        
-         << "| " << setw(1-1) << "C"
-        //  << "| " << setw(14+1) << "MDP"
-         << "| " << setw(25-1) << "EMAIL"
-         << "| " << setw(1-1) << "E" << " |" << endl;
-
-    dessinnerLignes();
-
-
-    string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID =?;";
-    sqlite3_stmt *stmt;
-
-    if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
-    {
-        sqlite3_bind_text(stmt, 1, identifiant.c_str(), -1, SQLITE_TRANSIENT);
-        while(sqlite3_step(stmt) == SQLITE_ROW) afficherLigneEmploye(stmt);
         dessinnerLignes();
-        sqlite3_finalize(stmt);
-    }
-    
+        cout << "| " << left << setw(8+1) << "Id"
+                << "| " << setw(10-1) << "NOM"
+                << "| " << setw(10-1) << "PRENOM"
+                << "| " << setw(10-1) << "DATE_NAIS"        
+                << "| " << setw(10-1) << "DATE_ADHE"
+                << "| " << setw(14-1) << "SITUATION_MAT"
+                << "| " << setw(18-1) << "POSTE"        
+                << "| " << setw(3-1) << "TC"
+                << "| " << setw(12-1) << "SALAIRE"        
+                << "| " << setw(1-1) << "C"
+                //  << "| " << setw(14+1) << "MDP"
+                << "| " << setw(25-1) << "EMAIL"
+                << "| " << setw(1-1) << "E" << " |" << endl;
+            dessinnerLignes();
 
+
+            string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID =?;";
+            sqlite3_stmt *stmt;
+
+            if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+            {
+                sqlite3_bind_text(stmt, 1, identifiant.c_str(), -1, SQLITE_TRANSIENT);
+                while(sqlite3_step(stmt) == SQLITE_ROW) afficherLigneEmploye(stmt);
+                dessinnerLignes();
+                sqlite3_finalize(stmt);
+            }
+    
     }
 
 
@@ -261,6 +267,7 @@ void DataBase::ajouterEmploye()
         sqlite3_finalize(stmt);
     }
     
+    //fonction qui verifie la presence d'un ID dans la base de donnnes
     bool DataBase::verif_if(string identifiant)
     {
 
@@ -342,344 +349,344 @@ void DataBase::ajouterEmploye()
     }
 
 
-//Modification des infos Employe cote admin
+//Modification des infos Employe cote admin pour employe
     void DataBase::changerInfoEmploye()
     {
-    std::cout << std::endl << std::endl << "-------------------- Mise a jour employe" << std::endl;
+            std::cout << std::endl << std::endl << "-------------------- Mise a jour employe" << std::endl;
 
-    Employe e;
-    cout << "----Entrez l'identifiant : ";
-     cin >> m_data.id_;
+            Employe e;
+            cout << "----Entrez l'identifiant : ";
+            cin >> m_data.id_;
 
-    DataBase BD("entreprise_.db");
-    BD.rechercherUnEmploye_id(m_data.id_);
+            DataBase BD("entreprise_.db");
+            BD.rechercherUnEmploye_id(m_data.id_);
 
-    int choix;
+            int choix;
 
-    std::cout << "---- Quelles Informations souhaitez-vous changer?" << std::endl;
-    std::cout << "1. Tout" << std::endl;
-    std::cout << "2. Nom " << std::endl;
-    std::cout << "3. Prenom " << std::endl;
-    std::cout << "4. Date de naissance " << std::endl;
-    std::cout << "5. Date d'adhesion " << std::endl;
-    std::cout << "6. Situation Matrimonial " << std::endl;
-    std::cout << "7. Poste " << std::endl;
-    std::cout << "8. Type de contrat " << std::endl;
-    std::cout << "9. Salaire " << std::endl;
-    std::cout << "10. Mot de passe " << std::endl;
-    std::cout << "11. Email " << std::endl;
-    std::cout << "> ";
+            std::cout << "---- Quelles Informations souhaitez-vous changer?" << std::endl;
+            std::cout << "1. Tout" << std::endl;
+            std::cout << "2. Nom " << std::endl;
+            std::cout << "3. Prenom " << std::endl;
+            std::cout << "4. Date de naissance " << std::endl;
+            std::cout << "5. Date d'adhesion " << std::endl;
+            std::cout << "6. Situation Matrimonial " << std::endl;
+            std::cout << "7. Poste " << std::endl;
+            std::cout << "8. Type de contrat " << std::endl;
+            std::cout << "9. Salaire " << std::endl;
+            std::cout << "10. Mot de passe " << std::endl;
+            std::cout << "11. Email " << std::endl;
+            std::cout << "> ";
 
-            //gestion des erreurs de saisie pour le choix de l'information a modifier
-                while(!(std::cin >> choix) || (choix < 1 || choix > 11))
-                            {
-                                std::cout << "> choix (1-11): ";
-                                std::cin.clear();
-                                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                            }
+                    //gestion des erreurs de saisie pour le choix de l'information a modifier
+                        while(!(std::cin >> choix) || (choix < 1 || choix > 11))
+                                    {
+                                        std::cout << "> choix (1-11): ";
+                                        std::cin.clear();
+                                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                                    }
 
 
-    switch (choix)
-    {
-        case 1: 
-                {
-                    string sql = "UPDATE EMPLOYE SET NOM=?, PRENOM=?, DATE_NAIS=?, DATE_ADHE=?, SITUATION_MAT=?, POSTE=?, TYPECONTRAT=?, SALAIRE=?, CATEGORIE=?, MDP=?, EMAIL=?, ETAT=?  WHERE ID=?;";
-                    sqlite3_stmt *stmt;
-                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
-
-                    sqlite3_bind_text(stmt, 13, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 1, e.getNom().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 2, e.getPrenom().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 3, e.setDateNaissance().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 4, e.getDate_adhesion().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 5, e.getSituation_matrimonial().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 6, e.getPoste().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 7, e.getType_contrat().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_double(stmt, 8, e.getSalaire());
-                    sqlite3_bind_text(stmt, 9, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 10, e.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 11, e.getEmail().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_int(stmt, 12, e.activer());
-
-    
-                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+            switch (choix)
+            {
+                case 1: 
                         {
-                            if(sqlite3_changes(m_db) > 0)
-                                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
-                            else    
-                                cout << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
-                        }
-                    else
-                        {
-                            cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
-                        }
+                            string sql = "UPDATE EMPLOYE SET NOM=?, PRENOM=?, DATE_NAIS=?, DATE_ADHE=?, SITUATION_MAT=?, POSTE=?, TYPECONTRAT=?, SALAIRE=?, CATEGORIE=?, MDP=?, EMAIL=?, ETAT=?  WHERE ID=?;";
+                            sqlite3_stmt *stmt;
+                            sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
 
-                    sqlite3_finalize(stmt);
-                    break;}
+                            sqlite3_bind_text(stmt, 13, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 1, e.getNom().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 2, e.getPrenom().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 3, e.setDateNaissance().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 4, e.getDate_adhesion().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 5, e.getSituation_matrimonial().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 6, e.getPoste().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 7, e.getType_contrat().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_double(stmt, 8, e.getSalaire());
+                            sqlite3_bind_text(stmt, 9, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 10, e.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 11, e.getEmail().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_int(stmt, 12, e.activer());
 
-        case 2: {
-                    string sql = "UPDATE EMPLOYE SET NOM=?  WHERE ID=?;";
-                    sqlite3_stmt *stmt;
-                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+            
+                            if(sqlite3_step(stmt) == SQLITE_DONE) 
+                                {
+                                    if(sqlite3_changes(m_db) > 0)
+                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                    else    
+                                        cout << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                }
+                            else
+                                {
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
+                                }
 
-                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 1, e.getNom().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_finalize(stmt);
+                            break;}
 
-    
-                    if(sqlite3_step(stmt) == SQLITE_DONE) 
-                        {
-                            if(sqlite3_changes(m_db) > 0)
-                                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
-                            else    
-                                cout << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
-                        }
-                    else
-                        {
-                            cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
-                        }
+                case 2: {
+                            string sql = "UPDATE EMPLOYE SET NOM=?  WHERE ID=?;";
+                            sqlite3_stmt *stmt;
+                            sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
 
-                    sqlite3_finalize(stmt);
-                    break;
-                }
+                            sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 1, e.getNom().c_str(), -1, SQLITE_TRANSIENT);
 
-        case 3: 
-                {
-                    string sql = "UPDATE EMPLOYE SET PRENOM=?  WHERE ID=?;";
-                    sqlite3_stmt *stmt;
-                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+            
+                            if(sqlite3_step(stmt) == SQLITE_DONE) 
+                                {
+                                    if(sqlite3_changes(m_db) > 0)
+                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                    else    
+                                        cout << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                }
+                            else
+                                {
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
+                                }
 
-                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 1, e.getPrenom().c_str(), -1, SQLITE_TRANSIENT);
-
-    
-                    if(sqlite3_step(stmt) == SQLITE_DONE) 
-                        {
-                            if(sqlite3_changes(m_db) > 0)
-                                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
-                            else    
-                                cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
-                        }
-                    else
-                        {
-                            cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            sqlite3_finalize(stmt);
+                            break;
                         }
 
-                    sqlite3_finalize(stmt);
-                    break;
-                }
-
-        case 4: 
-                {
-                    string sql = "UPDATE EMPLOYE SET DATE_NAIS=?  WHERE ID=?;";
-                    sqlite3_stmt *stmt;
-                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
-
-                    sqlite3_bind_text(stmt, 1, e.setDateNaissance().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-
-    
-                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                case 3: 
                         {
-                            if(sqlite3_changes(m_db) > 0)
-                                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
-                            else    
-                                cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
-                        }
-                    else
-                        {
-                            cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
-                        }
+                            string sql = "UPDATE EMPLOYE SET PRENOM=?  WHERE ID=?;";
+                            sqlite3_stmt *stmt;
+                            sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
 
-                    sqlite3_finalize(stmt);
-                    break;
-                }
+                            sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 1, e.getPrenom().c_str(), -1, SQLITE_TRANSIENT);
 
-        case 5: 
-                {
-                    string sql = "UPDATE EMPLOYE SET DATE_ADHE=?  WHERE ID=?;";
-                    sqlite3_stmt *stmt;
-                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+            
+                            if(sqlite3_step(stmt) == SQLITE_DONE) 
+                                {
+                                    if(sqlite3_changes(m_db) > 0)
+                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                    else    
+                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                }
+                            else
+                                {
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                }
 
-                    sqlite3_bind_text(stmt, 1, e.getDate_adhesion().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-
-    
-                    if(sqlite3_step(stmt) == SQLITE_DONE) 
-                        {
-                            if(sqlite3_changes(m_db) > 0)
-                                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
-                            else    
-                                cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
-                        }
-                    else
-                        {
-                            cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            sqlite3_finalize(stmt);
+                            break;
                         }
 
-                    sqlite3_finalize(stmt);
-                    break;
-                }
-
-        case 6:
-                {
-                    string sql = "UPDATE EMPLOYE SET SITUATION_MAT=?  WHERE ID=?;";
-                    sqlite3_stmt *stmt;
-                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
-
-                    sqlite3_bind_text(stmt, 1, e.getSituation_matrimonial().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-
-    
-                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                case 4: 
                         {
-                            if(sqlite3_changes(m_db) > 0)
-                                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
-                            else    
-                                cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
-                        }
-                    else
-                        {
-                            cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
-                        }
+                            string sql = "UPDATE EMPLOYE SET DATE_NAIS=?  WHERE ID=?;";
+                            sqlite3_stmt *stmt;
+                            sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
 
-                    sqlite3_finalize(stmt);
-                    break;
-                }
+                            sqlite3_bind_text(stmt, 1, e.setDateNaissance().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
 
-        case 7:
-                {
-                    string sql = "UPDATE EMPLOYE SET POSTE=?  WHERE ID=?;";
-                    sqlite3_stmt *stmt;
-                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+            
+                            if(sqlite3_step(stmt) == SQLITE_DONE) 
+                                {
+                                    if(sqlite3_changes(m_db) > 0)
+                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                    else    
+                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                }
+                            else
+                                {
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                }
 
-                    sqlite3_bind_text(stmt, 1, e.getPoste().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-
-    
-                    if(sqlite3_step(stmt) == SQLITE_DONE) 
-                        {
-                            if(sqlite3_changes(m_db) > 0)
-                                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
-                            else    
-                                cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
-                        }
-                    else
-                        {
-                            cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            sqlite3_finalize(stmt);
+                            break;
                         }
 
-                    sqlite3_finalize(stmt);
-                    break;
-                }
-
-        case 8: 
-                {
-                    string sql = "UPDATE EMPLOYE SET TYPECONTRAT=?  WHERE ID=?;";
-                    sqlite3_stmt *stmt;
-                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
-
-                    sqlite3_bind_text(stmt, 1, e.getType_contrat().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-
-    
-                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                case 5: 
                         {
-                            if(sqlite3_changes(m_db) > 0)
-                                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
-                            else    
-                                cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
-                        }
-                    else
-                        {
-                            cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
-                        }
+                            string sql = "UPDATE EMPLOYE SET DATE_ADHE=?  WHERE ID=?;";
+                            sqlite3_stmt *stmt;
+                            sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
 
-                    sqlite3_finalize(stmt);
-                    break;
-                }
+                            sqlite3_bind_text(stmt, 1, e.getDate_adhesion().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
 
-        case 9: 
-                {
-                    string sql = "UPDATE EMPLOYE SET SALAIRE=?, CATEGORIE=?  WHERE ID=?;";
-                    sqlite3_stmt *stmt;
-                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+            
+                            if(sqlite3_step(stmt) == SQLITE_DONE) 
+                                {
+                                    if(sqlite3_changes(m_db) > 0)
+                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                    else    
+                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                }
+                            else
+                                {
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                }
 
-                    sqlite3_bind_double(stmt, 1, e.getSalaire());
-                    sqlite3_bind_text(stmt, 2, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 3, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-
-    
-                    if(sqlite3_step(stmt) == SQLITE_DONE) 
-                        {
-                            if(sqlite3_changes(m_db) > 0)
-                                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
-                            else    
-                                cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
-                        }
-                    else
-                        {
-                            cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            sqlite3_finalize(stmt);
+                            break;
                         }
 
-                    sqlite3_finalize(stmt);
-                    break;
-                }
-
-        case 10:
-                {
-                    string sql = "UPDATE EMPLOYE SET MDP=?  WHERE ID=?;";
-                    sqlite3_stmt *stmt;
-                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
-
-                    sqlite3_bind_text(stmt, 1, e.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
-
-    
-                    if(sqlite3_step(stmt) == SQLITE_DONE) 
+                case 6:
                         {
-                            if(sqlite3_changes(m_db) > 0)
-                                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
-                            else    
-                                cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
-                        }
-                    else
-                        {
-                            cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
-                        }
+                            string sql = "UPDATE EMPLOYE SET SITUATION_MAT=?  WHERE ID=?;";
+                            sqlite3_stmt *stmt;
+                            sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
 
-                    sqlite3_finalize(stmt);
-                    break;
-                }
-                
-        case 11: 
-                {
-                    string sql = "UPDATE EMPLOYE SET EMAIL=?  WHERE ID=?;";
-                    sqlite3_stmt *stmt;
-                    sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+                            sqlite3_bind_text(stmt, 1, e.getSituation_matrimonial().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
 
-                    sqlite3_bind_text(stmt, 1, e.getEmail().c_str(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+            
+                            if(sqlite3_step(stmt) == SQLITE_DONE) 
+                                {
+                                    if(sqlite3_changes(m_db) > 0)
+                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                    else    
+                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                }
+                            else
+                                {
+                                    cerr << ANSI_BOLD << ANSI_RED << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
+                                }
 
-    
-                    if(sqlite3_step(stmt) == SQLITE_DONE) 
-                        {
-                            if(sqlite3_changes(m_db) > 0)
-                                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
-                            else    
-                                cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
-                        }
-                    else
-                        {
-                            cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                            sqlite3_finalize(stmt);
+                            break;
                         }
 
-                    sqlite3_finalize(stmt);
-                    break;
-                }
-    
-    default:
-        break;
-    }
+                case 7:
+                        {
+                            string sql = "UPDATE EMPLOYE SET POSTE=?  WHERE ID=?;";
+                            sqlite3_stmt *stmt;
+                            sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                            sqlite3_bind_text(stmt, 1, e.getPoste().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+            
+                            if(sqlite3_step(stmt) == SQLITE_DONE) 
+                                {
+                                    if(sqlite3_changes(m_db) > 0)
+                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                    else    
+                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                }
+                            else
+                                {
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                }
+
+                            sqlite3_finalize(stmt);
+                            break;
+                        }
+
+                case 8: 
+                        {
+                            string sql = "UPDATE EMPLOYE SET TYPECONTRAT=?  WHERE ID=?;";
+                            sqlite3_stmt *stmt;
+                            sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                            sqlite3_bind_text(stmt, 1, e.getType_contrat().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+            
+                            if(sqlite3_step(stmt) == SQLITE_DONE) 
+                                {
+                                    if(sqlite3_changes(m_db) > 0)
+                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                    else    
+                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                }
+                            else
+                                {
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                }
+
+                            sqlite3_finalize(stmt);
+                            break;
+                        }
+
+                case 9: 
+                        {
+                            string sql = "UPDATE EMPLOYE SET SALAIRE=?, CATEGORIE=?  WHERE ID=?;";
+                            sqlite3_stmt *stmt;
+                            sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                            sqlite3_bind_double(stmt, 1, e.getSalaire());
+                            sqlite3_bind_text(stmt, 2, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 3, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+            
+                            if(sqlite3_step(stmt) == SQLITE_DONE) 
+                                {
+                                    if(sqlite3_changes(m_db) > 0)
+                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                    else    
+                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                }
+                            else
+                                {
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                }
+
+                            sqlite3_finalize(stmt);
+                            break;
+                        }
+
+                case 10:
+                        {
+                            string sql = "UPDATE EMPLOYE SET MDP=?  WHERE ID=?;";
+                            sqlite3_stmt *stmt;
+                            sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                            sqlite3_bind_text(stmt, 1, e.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+            
+                            if(sqlite3_step(stmt) == SQLITE_DONE) 
+                                {
+                                    if(sqlite3_changes(m_db) > 0)
+                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                    else    
+                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                }
+                            else
+                                {
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                }
+
+                            sqlite3_finalize(stmt);
+                            break;
+                        }
+                        
+                case 11: 
+                        {
+                            string sql = "UPDATE EMPLOYE SET EMAIL=?  WHERE ID=?;";
+                            sqlite3_stmt *stmt;
+                            sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                            sqlite3_bind_text(stmt, 1, e.getEmail().c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 2, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+
+            
+                            if(sqlite3_step(stmt) == SQLITE_DONE) 
+                                {
+                                    if(sqlite3_changes(m_db) > 0)
+                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                    else    
+                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                }
+                            else
+                                {
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                }
+
+                            sqlite3_finalize(stmt);
+                            break;
+                        }
+            
+            default:
+                break;
+            }
 
 
 
@@ -688,42 +695,43 @@ void DataBase::ajouterEmploye()
 //Fonction pour lire un caractere sans echo dans le terminal
     std::string getPassword()
     {
-        std::string password;
+            std::string password;
 
-        struct termios oldt, newt;
-        
+            struct termios oldt, newt;
+            
 
-        tcgetattr(STDIN_FILENO, &oldt); //Sauvegarde la configuration actuelle
-        newt = oldt;
-        newt.c_lflag &= ~(ICANON | ECHO); //Desactive le mode canonique et l'echo
-        tcsetattr(STDIN_FILENO,TCSANOW, &newt);
-        
-        char ch;
-        while(true)
-        {
-            ch = getchar();
-            if(ch == '\n' || ch == '\r')
+            tcgetattr(STDIN_FILENO, &oldt); //Sauvegarde la configuration actuelle
+            newt = oldt;
+            newt.c_lflag &= ~(ICANON | ECHO); //Desactive le mode canonique et l'echo
+            tcsetattr(STDIN_FILENO,TCSANOW, &newt);
+            
+            char ch;
+            while(true)
             {
-                break;
-            }else if (ch == 127 || ch == 8){
-                if(!password.empty()){
-                    password.pop_back();
+                ch = getchar();
+                if(ch == '\n' || ch == '\r')
+                {
+                    break;
+                }else if (ch == 127 || ch == 8){
+                    if(!password.empty()){
+                        password.pop_back();
 
-                    std::cout <<"\b \b" << std::flush;
+                        std::cout <<"\b \b" << std::flush;
+                    }
+                }else{
+                    password += ch;
+                    std::cout << '*' << std::flush;
                 }
-            }else{
-                password += ch;
-                std::cout << '*' << std::flush;
+
             }
 
-        }
+            
+            tcsetattr(STDIN_FILENO, TCSANOW, &oldt); //Restaure la configuration
 
-        
-        tcsetattr(STDIN_FILENO, TCSANOW, &oldt); //Restaure la configuration
-
-        return password;
+            return password;
     }
 
+//Verfification du mdp chiffre dans la BD et celui lors de la saisie
     bool DataBase::verifierMDPdansBD(std::string id_, std::string mot_de_passe)
     {
         string mdp, mdp_crypte, mdp_bd;
@@ -771,6 +779,24 @@ void DataBase::ajouterEmploye()
 
     }
 
+    //opti #1
+    /*
+    Ce qui a ete optimise ici
+
+    1. Gestion automatique des ressources: l'usage de std::unique _ptr avec sqlite3_finalize() evite les fuites de memoire.
+       Si une erreur survient su milieu de la fonction, le stmt est libere automatiquement.
+    2. Securite de types: Utilisation de stmt.get() pour passer le pointeur brut aux fonctions C de Sqlite
+
+    */
+    struct SQLiteStmtDeleter{
+        void operator()(sqlite3_stmt* stmt)const {
+            sqlite3_finalize(stmt);
+        }
+
+    };
+
+    using SqliteStmtPtr = std::unique_ptr<sqlite3_stmt, SQLiteStmtDeleter>;
+
     bool DataBase::connexionEmploye(std::string id_)
     {
 
@@ -790,39 +816,44 @@ void DataBase::ajouterEmploye()
             {
 
                         std::string sql_recherche = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
-                        sqlite3_stmt *stmt;
+                        // sqlite3_stmt *stmt;
+                        sqlite3_stmt* raw_stmt = nullptr; 
 
-                        if(sqlite3_prepare_v2(m_db, sql_recherche.c_str(), -1, &stmt, NULL) != SQLITE_OK)
+                        if(sqlite3_prepare_v2(m_db, sql_recherche.c_str(), -1, &raw_stmt, nullptr) != SQLITE_OK)
                         {
                             std::cerr << ANSI_BOLD << ANSI_GREEN << "\n[INFO]" << ANSI_RESET << "Erreur SQL :" << sqlite3_errmsg(m_db) << std::endl;
                             return false;
                         }
-                            sqlite3_bind_text(stmt, 1, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+                            //transfert de la responsabilite au pointeur intelligent
+                            SqliteStmtPtr stmt(raw_stmt);
+
+                            sqlite3_bind_text(stmt.get(), 1, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
                             //m_data.res = true;
 
         
                         
-                        if(sqlite3_step(stmt) == SQLITE_ROW)
+                        if(sqlite3_step(stmt.get()) == SQLITE_ROW)
                         {
-                            int etat = (sqlite3_column_int(stmt, 12)); //Récupère la valeur de la colonne ETAT
+                            int etat = (sqlite3_column_int(stmt.get(), 12)); //Récupère la valeur de la colonne ETAT
 
                                 std::cout << "Valeur de etat : " << etat << std::endl;
 
                                 if(etat ==0) {
                                         m_data.res = false;
                                         std::cout << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Compte inactif, veillez contacter l'administrateur !\n\n"  << std::endl;
-                                        sqlite3_finalize(stmt);
+                                        // sqlite3_finalize(stmt);
                                         
                                         return m_data.res;               
                                     }
-                                        const unsigned char *user_name = sqlite3_column_text(stmt, 1);
+
+                                        const unsigned char *user_name = sqlite3_column_text(stmt.get(), 1);
                                         std::cout << ANSI_BOLD << ANSI_GREEN << "Bienvenu " << (user_name ? reinterpret_cast<const char*>(user_name) : "NULL") << ANSI_RESET << std::endl;
                                         m_data.name =  reinterpret_cast<const char*>(user_name); //faire le caste
                             
                                         std::cout << "Chargement de la page";
-                                        for(int i = 0; i < 8; ++i)
+                                        for(int i = 0; i < 4; ++i)
                                         {
-                                            std::this_thread::sleep_for(std::chrono::seconds(1));
+                                            std::this_thread::sleep_for(std::chrono::seconds(1));  // std::this_thread::sleep_for(std::chrono::milliseconds(500));
                                             std::cout << "." << std::flush;
                                         } 
                                         
@@ -834,7 +865,7 @@ void DataBase::ajouterEmploye()
                             }
                             
                             
-                            sqlite3_finalize(stmt);
+                            // sqlite3_finalize(stmt); //Plus besoin de sqlite3_finalize(), le destructeur stmt s'en occupe automatiquement!
                 }
 
                     return m_data.res;
@@ -847,7 +878,7 @@ void dessinerQRCode(canvas_ity::canvas& cv, std::string texte, float x, float y,
     QRCode qrcode;
 
 
-   const uint8_t version = 10; // Version 5 pour être large avec les noms longs
+   const uint8_t version = 10; // Version 5 pour être large avec les noms longs, finalement version 10 utilise
     
     // Le buffer doit avoir une taille précise calculée par la bibliothèque
     uint8_t modules[qrcode_getBufferSize(version)]; 
@@ -877,7 +908,7 @@ void dessinerQRCode(canvas_ity::canvas& cv, std::string texte, float x, float y,
             }
         }
 
-
+//On cherge le style de la police, et celui choisi, on le met dans un vecteur lorsque le programme tourne
 std::vector<unsigned char> chargerPolice(std::string chemin) {
     std::ifstream file(chemin, std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
@@ -919,8 +950,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
     DataBase user("entreprise_.db");
 
 
-           sqlite3_stmt* stmt;
-           string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
+    string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
+    sqlite3_stmt* stmt;
 
             if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
             {
@@ -1329,8 +1360,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             }
     }
 
-        void DataBase::lire_MSG_recus(std::string id_expediteur)
-        {
+    void DataBase::lire_MSG_recus(std::string id_expediteur)
+    {
             string sql = "UPDATE MESSAGE SET LU = 0 WHERE ID_EXPEDITEUR = ?;";
             sqlite3_stmt* stmt;
 
@@ -1348,10 +1379,10 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             
             sqlite3_finalize(stmt);
-        }
+    }
 
 
-        void DataBase::afficher_MSG_non_lus(string id_)const
+    void DataBase::afficher_MSG_non_lus(string id_)const
     {
         cout << "\n --- MESSAGES NON LUS --- " << endl; 
            dessinnerLignesMSG();
@@ -1394,8 +1425,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
     }
 
 
-        void DataBase:: afficher_MSG_lus(std::string id_user)const
-        {
+    void DataBase:: afficher_MSG_lus(std::string id_user)const
+    {
             cout << "\n --- MESSAGES LUS --- " << endl; 
            dessinnerLignesMSG();
            cout << "| " << left << setw(8) << "Id_Msg"
@@ -1441,11 +1472,11 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
             sqlite3_finalize(stmt);
-        }
+   }
 
 
-        void DataBase::afficher_MSG_envoyes(std::string id_user)const
-        {
+    void DataBase::afficher_MSG_envoyes(std::string id_user)const
+    {
             cout << "\n --- MESSAGES ENVOYES --- " << endl; 
            dessinnerLignesMSG();
            cout << "| " << left << setw(8) << "Id_Msg"
@@ -1490,10 +1521,11 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
             sqlite3_finalize(stmt);
-        }
+    }
 
-        string affichageMessageRecusNonLus(std::string texte)
-        {
+        
+    string affichageMessageRecusNonLus(std::string texte)
+    {
             stringstream ss(texte);
             string mot, resultat;
             int compteur = 0;
@@ -1515,10 +1547,10 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             }
 
             return resultat;
-        }
+    }
 
-        void DataBase:: message_RNL(std::string id_user)
-        {
+    void DataBase:: message_RNL(std::string id_user)
+    {
             sqlite3_stmt* stmt;
             string sql = "SELECT ID_EXPEDITEUR, OBJET, CONTENU_MESSAGE, DATE_TIME FROM MESSAGE WHERE ID_DESTINATAIRE = ? AND LU = 1;";
 
@@ -1540,10 +1572,10 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
             sqlite3_finalize(stmt);
-        }
+    }
 
-        std::vector<Data_Message> DataBase::recupererMessages(std::string id_user)
-        {
+    std::vector<Data_Message> DataBase::recupererMessages(std::string id_user)
+    {
             std::vector<Data_Message> messages;
             sqlite3_stmt* stmt;
             string sql = "SELECT ID_EXPEDITEUR, CONTENU_MESSAGE, DATE_TIME FROM MESSAGE WHERE ID_DESTINATAIRE = ?;";
@@ -1569,11 +1601,11 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             sqlite3_finalize(stmt);
 
             return messages;
-        }
+    }
 
 //Discussion entre deux utilisateurs
-        std::string DataBase::afficherDiscussion(string id_user, string id_correspondant)const
-        {
+    std::string DataBase::afficherDiscussion(string id_user, string id_correspondant)const
+    {
 
             // Récupérer le nom du correspondant
             string nom;
@@ -1664,11 +1696,11 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 return "";
             }  
             
-        }
+    }
 
 //Selectionner les expediteurs d'un destinataire
-    std::string DataBase::selectionnerExpediteur(string id_user)
-    {
+std::string DataBase::selectionnerExpediteur(string id_user)
+    {   
         string sql = "SELECT DISTINCT ID_EXPEDITEUR, ID_DESTINATAIRE FROM MESSAGE WHERE ID_DESTINATAIRE = ?;"; //on precise avec distinct pour eviter les doublons
         sqlite3_stmt* stmt;
 
@@ -1700,6 +1732,56 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
         }
 
     }
+
+
+//opti #2 charger cahe
+    void DataBase::chargerCache()
+    {
+        if (!m_db) {
+            std::cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << " La connexion à la base est fermée ou inexistante !" << std::endl;
+            return;
+        }
+
+        m_caheEmployes.clear(); //On vide le conteur au demarrage
+        string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE;";
+        sqlite3_stmt* stmt;
+
+        if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+        {
+        //     std::cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << "lors preparation des donnees" << sqlite3_errmsg(m_db) << std::endl;
+        //     return;
+        // }
+
+        // if(sqlite3_step(stmt) == SQLITE_DONE)
+        // {
+            while(sqlite3_step(stmt) == SQLITE_ROW)
+            {
+                EmployeData emp;
+                emp.m_identifiant_Employe = reinterpret_cast<const char*>(sqlite3_column_text(stmt,0));
+                emp.m_nom = reinterpret_cast<const char*>(sqlite3_column_text(stmt,1));
+                emp.m_prenom = reinterpret_cast<const char*>(sqlite3_column_text(stmt,2));
+                emp.m_date_naissance = reinterpret_cast<const char*>(sqlite3_column_text(stmt,3));
+                emp.m_date_adhesion_entreprise = reinterpret_cast<const char*>(sqlite3_column_text(stmt,4));
+                emp.m_situation_matrimonial= reinterpret_cast<const char*>(sqlite3_column_text(stmt,5));
+                emp.m_poste = reinterpret_cast<const char*>(sqlite3_column_text(stmt,6));
+                emp.m_type_contrat= reinterpret_cast<const char*>(sqlite3_column_text(stmt,7));
+                emp.m_salaire = sqlite3_column_double(stmt, 8);
+                emp.m_categorie = reinterpret_cast<const char*>(sqlite3_column_text(stmt,9));
+                emp.m_email = reinterpret_cast<const char*>(sqlite3_column_text(stmt,10));
+                emp.m_mot_de_passe = reinterpret_cast<const char*>(sqlite3_column_text(stmt,11));
+                // emp.m_mot_de_passe = reinterpret_cast<const char*>(sqlite3_column_text(stmt,12));
+                emp.m_etat = sqlite3_column_int(stmt, 12);
+
+                m_caheEmployes.push_back(emp);
+
+            }
+            sqlite3_finalize(stmt);
+        }else
+            {
+                std::cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << " Erreur de preparation de requete " << sqlite3_errmsg(m_db) << std::endl; 
+            }
+    }
+
 
     void afficherLigneEmploye(sqlite3_stmt *stmt_)
     {

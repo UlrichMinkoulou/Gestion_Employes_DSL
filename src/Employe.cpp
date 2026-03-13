@@ -14,8 +14,6 @@ Employe::Employe(std::string nom, std::string prenom,
                 {
                     m_nom = nom;
                     m_prenom = prenom;
-                    m_date_entre = "";
-                    m_date_sortie = "";
                     m_date_adhesion_entreprise = dateAdhesion_e;
                     m_situation_matrimonial = situaMatrimonial;
                     m_poste = poste;
@@ -84,8 +82,6 @@ Employe::Employe()
             return m_prenom;
         }
 
-        std::string Employe:: getDate_entree() const{return m_date_entre;}
-        std::string Employe:: getDate_sortie() const{return m_date_sortie;}
 
         std::string Employe:: getDate_adhesion() 
         {
@@ -319,6 +315,7 @@ Employe::Employe()
              return m_salaire;
         }
 
+
         bool Employe::getActif() const {return m_actif;}
 
 
@@ -327,6 +324,8 @@ Employe::Employe()
             bool valide;
             std::vector<std::string> erreurs;
         };
+
+        //On valide le mot de passe
 
         ResultatValidation verifierMotDePasse(string& mdp)
         {
@@ -403,6 +402,8 @@ Employe::Employe()
             return std::string(hashed_password); 
         }
 
+        //Recuperation du Mot de passe.
+
         std::string Employe::getMot_de_passe() 
          {
             cout << "> Entrez le Mot de passe : ";
@@ -464,6 +465,3 @@ Employe::Employe()
             m_etat = 0;
             return m_etat;
         }
-
-
-

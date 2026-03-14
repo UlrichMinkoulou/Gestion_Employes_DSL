@@ -97,6 +97,10 @@ class DataBase
         void activerdesactiverEmployer();
         void changerInfoEmploye();
         void afficherEmploye();
+        //caching - optimisation 
+        void afficherEmploye_caching(const std::vector<EmployeData>&  vect);
+        void rechercherUnEmploye_caching() const;
+
         void afficherUser(std::string idUser);
         bool connexionEmploye(std::string id_);
         void imprimer_fiche_paie(std::string id_emp);
@@ -149,7 +153,11 @@ class DataBase
 //Ici ce sont des fonction hors de la classe pour des fonctionnalites specifiques.
 
 void afficherLigneEmploye(sqlite3_stmt *stmt);
+void afficherEnteteEmploye();
 void dessinnerLignes();
+
+void afficherLigneEmployeCaching(const std::vector<EmployeData>&  vect);
+
 void dessinnerLignesMSG();
 std::string getPassword();
 std::string affichageMessageRecusNonLus(std::string text);

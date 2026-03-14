@@ -210,19 +210,17 @@ bool viewAdmin(std::string IdAdmin)
                             {
                             case 1: 
                             {
-                                std::cout << "Depuis la BD" << std::endl;
-                                bd_user.afficherEmploye(); 
-                                std::cout << "Depuis la la RAM" << std::endl;
+                                // std::cout << "Depuis la BD" << std::endl;
+                                // bd_user.afficherEmploye(); 
+                                // std::cout << "Depuis la la RAM" << std::endl;
+                                std::vector<EmployeData> vect = bd_user.getCache();
                                 // const Empl data
-                                for(const EmployeData& emp : bd_user.getCache())
-                                    {
-                                        std::cout << emp.m_identifiant_Employe << " | " << emp.m_nom << " | " << std::endl;
-                                    }
+                                bd_user.afficherEmploye_caching(vect);
                                 break;
                             }
-                            case 2: bd_user.ajouterEmploye(); break;
-                            case 3: bd_user.changerInfoEmploye(); break;
-                            case 4: bd_user.activerdesactiverEmployer(); break;
+                            case 2: bd_user.ajouterEmploye(); bd_user.chargerCache(); break;
+                            case 3: bd_user.changerInfoEmploye(); bd_user.chargerCache();break;
+                            case 4: bd_user.activerdesactiverEmployer(); bd_user.chargerCache();break;
                             case 5: 
                             {
                                 std::cout << std::endl << std::endl << "--- Imprimer fiche de paie ---" << std::endl;

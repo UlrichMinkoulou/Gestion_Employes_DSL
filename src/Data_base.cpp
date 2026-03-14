@@ -144,6 +144,22 @@ void DataBase::ajouterEmploye()
 
         dessinnerLignes();
             //En-tete
+
+        afficherEnteteEmploye();
+
+        string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE;";
+        sqlite3_stmt *stmt;
+
+        sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL);
+        while(sqlite3_step(stmt) == SQLITE_ROW) afficherLigneEmploye(stmt);
+        dessinnerLignes();
+        
+        sqlite3_finalize(stmt);
+
+    }
+    
+    void afficherEnteteEmploye()
+    {
         cout << "| " << left << setw(8) << "Id"
             << "| " << setw(10) << "NOM"
             << "| " << setw(10) << "PRENOM"
@@ -158,24 +174,24 @@ void DataBase::ajouterEmploye()
             << "| " << setw(25) << "EMAIL"
             << "| " << setw(1) << "E" << "|" << endl;
         dessinnerLignes();
+    }
 
-
-        string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE;";
-        sqlite3_stmt *stmt;
-
-        sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL);
-        while(sqlite3_step(stmt) == SQLITE_ROW) afficherLigneEmploye(stmt);
+    void DataBase::afficherEmploye_caching(const std::vector<EmployeData>& vect)
+    {
+        cout << "\n=======================================LISTE DES EMPLOYES" << endl;
         dessinnerLignes();
-        
-        sqlite3_finalize(stmt);
 
-        }
+        afficherEnteteEmploye();
+        afficherLigneEmployeCaching(vect);
 
-        bool desactiverEmployer(sqlite3* m_db, sqlite3_stmt *stmt)
-        {
+        dessinnerLignes();
+    }
 
-            return true;
-        }
+    bool desactiverEmployer(sqlite3* m_db, sqlite3_stmt *stmt)
+    {
+
+        return true;
+    }
 
     
     void DataBase::afficherUser(std::string identifiant)
@@ -239,6 +255,12 @@ void DataBase::ajouterEmploye()
         }
         sqlite3_finalize(stmt);
     }
+
+    void DataBase::rechercherUnEmploye_caching() const
+    {
+        
+    }
+
 
     void DataBase::rechercherUnEmploye_id (string identifiant)
     {
@@ -1799,6 +1821,29 @@ std::string DataBase::selectionnerExpediteur(string id_user)
              << "| " << setw(25) << (const char*)sqlite3_column_text(stmt_, 11) 
              << "| " << setw(2) << (const char*)sqlite3_column_text(stmt_, 12) << "|" << endl; 
     }
+    
+    void afficherLigneEmployeCaching(const std::vector<EmployeData>&  vect)
+    {
+        // DataBase user("entreprise_.db");
+        // user.chargerCache();
+        for (const EmployeData& emp : vect)
+        {
+            cout << "| " << left << setw(8) << emp.m_identifiant_Employe
+            << "| " << setw(10) << emp.m_nom
+            << "| " << setw(10) << emp.m_prenom
+            << "| " << setw(10) << emp.m_date_naissance
+            << "| " << setw(10) << emp.m_date_adhesion_entreprise
+            << "| " << setw(13) << emp.m_situation_matrimonial            
+            << "| " << setw(18) << emp.m_poste
+            << "| " << setw(3) << emp.m_type_contrat
+            << "| " << setw(10) << emp.m_salaire
+            << "| " << setw(2) << emp.m_categorie
+            //  << "| " << setw(14) << emp.m_mot_de_passe
+            << "| " << setw(25) << emp.m_mot_de_passe
+            << "| " << setw(2) << emp.m_etat << "|" << endl; 
+        }
+    }
+
 
     void dessinnerLignes()
     {

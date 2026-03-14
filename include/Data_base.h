@@ -6,13 +6,10 @@
 #include <sqlite3.h>
 #include <vector>
 
-
-
 // #define CANVAS_ITY_IMPLEMENTATION
 #include "canvas_ity.hpp"
 
-
-
+//Structure de connexion
 struct  DataConnxion
     {
         std::string id_;
@@ -21,6 +18,7 @@ struct  DataConnxion
         std::string name;
     };
 
+//Structure pour les donnees de Messages
 struct Data_Message
     {
         private:
@@ -87,8 +85,6 @@ struct Data_Message
             return date_time;
         }
 
-
-
     };
 
 class DataBase
@@ -101,6 +97,10 @@ class DataBase
         void activerdesactiverEmployer();
         void changerInfoEmploye();
         void afficherEmploye();
+        //caching - optimisation 
+        void afficherEmploye_caching(const std::vector<EmployeData>&  vect);
+        void rechercherUnEmploye_caching() const;
+
         void afficherUser(std::string idUser);
         bool connexionEmploye(std::string id_);
         void imprimer_fiche_paie(std::string id_emp);
@@ -128,17 +128,36 @@ class DataBase
 
         bool verifierMDPdansBD(std::string id_, std::string mot_de_passe);
 
+        //cahe
+        void chargerCache();
+        
+        std::vector<EmployeData> getCache()
+        {
+            return m_caheEmployes;
+        } 
+
+
     private:
         sqlite3 *m_db;
         DataConnxion m_data;
 
         Data_Message m_data_msg;
         std::vector<Data_Message> m_liste_messages; //pour stocker les messages dans un vecteur
+        
+
+        //Cache
+        std::vector<EmployeData> m_caheEmployes;
 
 };
 
+//Ici ce sont des fonction hors de la classe pour des fonctionnalites specifiques.
+
 void afficherLigneEmploye(sqlite3_stmt *stmt);
+void afficherEnteteEmploye();
 void dessinnerLignes();
+
+void afficherLigneEmployeCaching(const std::vector<EmployeData>&  vect);
+
 void dessinnerLignesMSG();
 std::string getPassword();
 std::string affichageMessageRecusNonLus(std::string text);
@@ -146,4 +165,7 @@ void dessinerQRCode(canvas_ity::canvas& cv, std::string texte, float x, float y,
 std::vector<unsigned char> chargerPolice(std::string chemin);
 // void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, float cibleL, float cibleH);
 
+
+//opti #1 on defini un "Deleter" personnalise pour que unique_ptr sache comment fermer un stmt SQLite
+struct SQLiteStmtDeleter;
 #endif

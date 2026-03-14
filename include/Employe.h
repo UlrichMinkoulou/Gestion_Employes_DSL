@@ -3,13 +3,32 @@
 
 #include <string>
 
+//opti #2 optimisation par caching (BD -> conteneur -> lecture directe)
+struct EmployeData{
+        std::string m_nom;
+        std::string m_prenom;
+        std::string m_date_adhesion_entreprise;
+        std::string m_date_naissance;
+        std::string m_situation_matrimonial;
+        std::string m_poste;
+        std::string m_type_contrat;
+        // int m_age;
+        // bool m_actif;
+        int m_etat;
+        double m_salaire;
+        // char m_mdp;
+        std::string m_mot_de_passe;
+        std::string m_email;
+        std::string m_categorie;
+        std::string m_identifiant_Employe;
+};
+
+ //Ce code nous permet de creer une classe qui est une instance d'un employe.
 class Employe
 {
     protected:
         std::string m_nom;
         std::string m_prenom;
-        std::string m_date_entre;
-        std::string m_date_sortie;
         std::string m_date_adhesion_entreprise;
         std::string m_date_naissance;
         std::string m_situation_matrimonial;
@@ -32,10 +51,10 @@ class Employe
         Employe();
         void afficherInformations()const;
         void imprimerFichePaie()const;
+
+        //Normalement ce sont des seteur... je devais ecrire setNom..., mais peut etre plus tard.
         std::string getNom() ;
         std::string getPrenom() ;
-        std::string getDate_entree() const;
-        std::string getDate_sortie() const;
         std::string getDate_adhesion();
         std::string getSituation_matrimonial();
         std::string getPoste();
@@ -53,10 +72,13 @@ class Employe
         std::string setDateNaissance();
 
 };
-std::string crypterMotDePasse(const std::string& mot_de_passe);
-bool estUnEmailValide(const std::string& mail);
-bool estUnNomValide(const std::string& nom);
+
+//Ici ce sont des fonction hors de la classe pour des fonctionnalites specifiques.
+
+std::string crypterMotDePasse(const std::string& mot_de_passe);  //Crypter le mot de passe
+bool estUnEmailValide(const std::string& mail);                  //Verifier le mail
+bool estUnNomValide(const std::string& nom);                     // structure pour la validation des donnees
 struct ResultatValidation;
-ResultatValidation verifierMotDePasse(const std::string& mdp);
+ResultatValidation verifierMotDePasse(const std::string& mdp);   //Verification du mot de passe
 
 #endif

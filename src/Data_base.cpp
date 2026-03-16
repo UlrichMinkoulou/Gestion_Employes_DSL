@@ -1163,12 +1163,15 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
         const vector<EmployeData> vect = m_caheEmployes;
         bool condition = false;
+//optimisation avec un Lamda
+        auto it = std::find_if(m_caheEmployes.begin(), m_caheEmployes.end(), [&id](const EmployeData& emp){
+            return emp.m_identifiant_Employe == id;
+        });
 
-        do{
-            for(const EmployeData emp : vect)
-            {
-                if(emp.m_identifiant_Employe == id) 
-                {
+        if(it != m_caheEmployes.end())
+        {
+            const EmployeData& emp = *it;
+
                     const std::string mois_fr[] = {
                     "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
                     "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
@@ -1344,10 +1347,9 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                             std::string cmd = "start " + nomFichier;
                             system(cmd.c_str());   
                         }
-                     }
-            }
-
-        }while(condition == false);  
+        }else {
+            std::cout << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "id introuvable dans le cache" << endl;
+        }
     }
 
 

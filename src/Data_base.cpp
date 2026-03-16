@@ -256,10 +256,6 @@ void DataBase::ajouterEmploye()
         sqlite3_finalize(stmt);
     }
 
-    void DataBase::rechercherUnEmploye_caching() const
-    {
-        
-    }
 
 
     void DataBase::rechercherUnEmploye_id (string identifiant)
@@ -968,7 +964,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
 }  
 
-    void DataBase::imprimer_fiche_paie(std::string id_){ 
+    void DataBase::imprimer_fiche_paie(std::string id_)
+    { 
     DataBase user("entreprise_.db");
 
 
@@ -1158,6 +1155,201 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
    
     }
+
+
+
+    void DataBase::imprimer_fiche_paie_caching(std::string id)
+    {
+
+        const vector<EmployeData> vect = m_caheEmployes;
+        bool condition = false;
+
+        do{
+            for(const EmployeData emp : vect)
+            {
+                if(emp.m_identifiant_Employe == id) 
+                {
+                    const std::string mois_fr[] = {
+                    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+                                                };
+                    std::time_t t = std::time(nullptr);
+                    std::tm* now = std::localtime(&t);
+
+                    std::string moi_actuel = mois_fr[now->tm_mon];
+                    ostringstream annee_str ;
+                    annee_str << now->tm_year + 1900;   
+                    string annee_ = annee_str.str();   
+
+                    condition = true;
+                    std::string nom = emp.m_nom;
+                    std::string prenom = emp.m_prenom;
+                    std::string id_emp = emp.m_identifiant_Employe;
+                    std::string poste = emp.m_poste;
+                    double salaire_brut = emp.m_salaire;
+                    std::string type_contrat = emp.m_type_contrat;
+                    std::string date_embauche = emp.m_date_adhesion_entreprise;
+                    std::string sit_mat = emp.m_situation_matrimonial;
+                    int etat = emp.m_etat;
+                    std::string dateNaissance = emp.m_date_naissance;
+                    std::string dateTime = __DATE__; //Date de generation de la fiche de paie
+
+                        std::string ville = "Paris";
+                        int largeur = 800;
+                        int hauteur = 1132;
+                        // std::string annee_ = "2026";
+                        // std::string mois_ = "04";
+                        std::string position_gestion = "ACTIVITE";
+                        std::string position_solde = "ACTIVITE NORMALEMENT";
+                        std::string banc = "SG FRANCE";
+                        int nocpt = 2004320986;  //On doit modifier la valeur de facon externe pour chaque employe
+                        int nmbEnfant = 0;
+                        canvas_ity::canvas cv(largeur, hauteur);
+
+                        if(emp.m_etat==0){
+                            position_gestion = "INACTIF";
+                            position_solde = "INACTIF";
+                            salaire_brut = 0.0;
+                        }
+
+
+                        std::vector<unsigned char> font_data = chargerPolice("/home/ulrich/Downloads/Roboto-Regular.ttf");
+                        cv.set_font(font_data.data(), (int)font_data.size(), 30.0f); // Charger une police pour le titre
+
+                            if (largeur <= 0 || hauteur <= 0 || largeur > 5000 || hauteur > 5000) {
+                            std::cerr << "Dimensions invalides !" << std::endl;
+                            return;
+                        }
+                        // --- FOND & CADRE ---
+                        // std::string nom; double brut = 6789.45; // Valeurs d'exemple, à remplacer par des données réelles
+                        cv.set_color(canvas_ity::fill_style, 255, 255, 255, 255); // Blanc
+                        cv.fill_rectangle(0, 0, largeur, hauteur);
+                        
+                        cv.set_color(canvas_ity::stroke_style, 44, 62, 80, 255); // Bleu foncé
+                        cv.set_line_width(5);
+                        cv.stroke_rectangle(10, 10, 780, 580);
+
+                        // --- ENTÊTE ---
+
+                        // On charge l'image
+                        dessinerLogo(cv, "dsl.jpeg", 50, 20, 250, 250); // Chemin du logo et position
+                        // cv.set_font(font_data.data(), (int)font_data.size(), 18.0f); // Note: il faut charger une police .ttf pour un rendu pro
+                        // cv.set_color(canvas_ity::fill_style, 44, 62, 80, 255);
+                        // cv.fill_text("BULLETIN DE PAIE", 250, 60);  
+
+                        cv.set_line_width(2);
+                        cv.move_to(50, 80);
+                        cv.line_to(750, 80);
+                        cv.stroke();
+
+                        // --- INFOS EMPLOYÉ ---
+                        std::string employe = "Matricule : " + id;
+                        std::string annee = "Annee : " + annee_;
+                        std::string mois = "Mois : " + moi_actuel;
+                        cv.set_font(font_data.data(), (int)font_data.size(), 18.0f); // Gras pour les infos
+                        cv.set_color(canvas_ity::fill_style, 0, 0, 0, 255);
+                        cv.fill_text(employe.c_str(), 50, 220);
+                        cv.fill_text(annee.c_str(), 50, 240);
+                        cv.fill_text(mois.c_str(), 50, 260);
+                        cv.fill_text(("date edition: " + dateTime).c_str(), 500, 220);
+                        cv.fill_text(("Nom : " + nom).c_str(), 50, 310);
+                        cv.fill_text(("Prénom : " + prenom).c_str(), 50, 330);
+                        cv.fill_text(("Poste : " + poste).c_str(), 50, 350);
+                        cv.fill_text(("Contrat : " + type_contrat).c_str(), 50, 370);
+                        cv.fill_text(("Ville : " + ville).c_str(), 500, 310);
+
+                        cv.fill_text(("Date d'embauche : " + date_embauche).c_str(), 500, 330);
+                        cv.fill_text(("situation mat: " + sit_mat).c_str(), 500, 350);
+                        cv.fill_text(("nombres enfants: " + std::to_string(nmbEnfant)).c_str(), 500, 370);
+
+                        cv.fill_text(("Position solde: " + position_solde).c_str(), 50, 420);
+                        cv.fill_text(("Position gestion: " + position_gestion).c_str(), 50, 450);
+                        cv.fill_text(("No Identif: 5404" + dateNaissance).c_str(), 500, 450);
+                        cv.fill_text(("Banque: " + banc).c_str(), 50, 480);
+                        cv.fill_text(("no cpt: 0001" + std::to_string(nocpt)).c_str(), 500, 480);
+
+                        // --- TABLEAU DES MONTANTS ---
+                        // Dessiner l'entête du tableau
+                        // cv.set_color(canvas_ity::fill_style, 236, 240, 241, 255); // Gris clair
+                        // cv.fill_rectangle(50, 220, 700, 40);
+                    
+                    
+                        cv.set_font(font_data.data(), (int)font_data.size(), 22.0f); // Gras pour le total
+                        cv.set_color(canvas_ity::fill_style, 0, 0, 0, 255);
+                        cv.fill_text("Code-elt", 50, 530);
+                        cv.fill_text("Désignation", 200, 530);
+                        cv.fill_text("Montant", 600, 530);
+
+                        // Calculs
+                        double cotisations = salaire_brut * 0.22;
+                        double net = salaire_brut - cotisations;
+
+                        // Lignes du tableau
+                        cv.set_font(font_data.data(), (int)font_data.size(), 18.0f); // Gras pour les infos
+                        cv.fill_text("560", 50, 560);
+                        cv.fill_text("Salaire Brut", 200, 560);
+                        cv.fill_text((std::to_string((double)salaire_brut) + " €").c_str(), 600, 560);
+
+                        // cv.set_color(canvas_ity::fill_style, 192, 57, 43, 255); // Rouge pour les retenues//
+                        cv.fill_text("561", 50, 580);
+                        cv.fill_text("Cotisations Sociales (22%)", 200, 580);
+                        cv.fill_text(("-" + std::to_string((double)cotisations) + " €").c_str(), 600, 580);
+                        // cv.fill_text("562", 50, 600 );
+
+                        cv.fill_text("563", 50, 620);
+                        cv.fill_text("Prime mois ", 200, 620);
+                        cv.fill_text("564", 50, 640);
+                        cv.fill_text("Prime mission ", 200, 640);
+                        cv.fill_text("565", 50, 660);
+                        cv.fill_text("impos revenu Pers. Physique ", 200, 660);
+
+                        // --- TOTAL NET ---
+                        cv.set_color(canvas_ity::fill_style, 0, 0, 0, 255); // Vert pour le Net
+                        // cv.fill_rectangle(50, 400, 700, 50);
+                        
+                        //cv.set_color(canvas_ity::fill_style, 255, 255, 255, 255);
+                        cv.set_font(font_data.data(), (int)font_data.size(), 22.0f); // Gras pour le total
+                        cv.fill_text("NET À PAYER", 200, 700);
+                        cv.fill_text((std::to_string((double)net) + " €").c_str(), 600, 700);
+
+                        //codeqr
+                        // cv.set_color(canvas_ity::fill_style, 255, 255, 255, 255);
+                        // cv.fill_rectangle(50 - 10, 750 - 10, 200 + 20, 200 + 20);
+                        std::string infoQr = id_emp +   nom +  std::to_string((double)net) + " €";
+                        dessinerQRCode(cv, infoQr, 50.0f, 750.0f, 4*50.0f); // Position et taille du QR code
+
+                        // --- SAUVEGARDE ---
+                        // La bibliothèque génère un tableau de pixels (RGBA)
+                        std::vector<unsigned char> image(largeur * hauteur * 4);
+                        cv.get_image_data(image.data(), largeur, hauteur, largeur * 4, 0, 0);
+                        // -------------------------------------------------------------
+
+                        // 1. Créer un buffer pour stocker les pixels (RGBA : 4 octets par pixel)
+                        std::cout << "Tentative de création d'un buffer de : " << (largeur * hauteur * 4) << " octets" << std::endl;
+                        std::vector<unsigned char> pixels(largeur * hauteur * 4);
+
+                        // 2. Transférer le dessin du canvas vers notre buffer de pixels
+                        cv.get_image_data(pixels.data(), largeur, hauteur, largeur * 4, 0, 0);
+
+                        // 3. Ecrire le fichier PNG sur le disque
+                        std::string nomFichier = "Fiche_Paie_RAM" + id_emp + "_" + dateTime + ".png";
+                        
+                        // Paramètres : Nom, Largeur, Hauteur, Canaux (4 pour RGBA), Pixels, Pas (Largeur * 4)
+                        int succes = stbi_write_png(nomFichier.c_str(), largeur, hauteur, 4, pixels.data(), largeur * 4);
+
+                        if (succes) {
+                            std::cout << "\033[32m[SUCCÈS]\033[0m Image générée : " << nomFichier << std::endl;
+                            
+                            // --- BONUS : Ouvrir l'image automatiquement (Windows) ---
+                            std::string cmd = "start " + nomFichier;
+                            system(cmd.c_str());   
+                        }
+                     }
+            }
+
+        }while(condition == false);  
+    }
+
 
     void DataBase::activerdesactiverEmployer()
     {

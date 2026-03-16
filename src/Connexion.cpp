@@ -228,7 +228,7 @@ bool viewAdmin(std::string IdAdmin)
                                  std::cin >> id_;
                                 if(bd_user.verif_if(id_))
                                 {
-                                    bd_user.imprimer_fiche_paie(id_);  
+                                    // bd_user.imprimer_fiche_paie(id_);  
                                     bd_user.imprimer_fiche_paie_caching(id_);
                                 }
                                 else

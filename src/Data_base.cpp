@@ -241,17 +241,18 @@ void DataBase::ajouterEmploye()
             sqlite3_bind_text(stmt, 1, recherche.c_str(), -1, SQLITE_TRANSIENT);
 
             cout << "\n --- RESULTAT DE LA RECHERCHE ---" <<endl;
-            dessinnerLignes();
             bool trouve = false;
-
+            
             while(sqlite3_step(stmt) == SQLITE_ROW)
             {
+                dessinnerLignes();
                 afficherLigneEmploye(stmt);
+                dessinnerLignes();
+
                 trouve = true;
             }
 
             if(!trouve) cout << ANSI_BOLD << ANSI_RED <<"\n[ERREUR]" "| Aucun Employe trouve pour ce nom. " << ANSI_RESET << setw(15) << " " << "|" << endl;
-            dessinnerLignes();
         }
         sqlite3_finalize(stmt);
     }
@@ -299,17 +300,17 @@ void DataBase::ajouterEmploye()
             sqlite3_bind_text(stmt, 1, identifiant.c_str(), -1, SQLITE_TRANSIENT);
 
             cout << "\n --- EMPLOYE ---" <<endl;
-            dessinnerLignes();
             //trouve = false;
-
+            
             while(sqlite3_step(stmt) == SQLITE_ROW)
             {
+                dessinnerLignes();
                 afficherLigneEmploye(stmt);
                 trouve = true;
+                dessinnerLignes();
             }
 
             if(!trouve) cout << ANSI_BOLD << ANSI_RED <<"[ERREUR]" << ANSI_RESET << "| Aucun Employe trouve pour cet identifiant. " << setw(15) << " " << "|" << endl;
-            dessinnerLignes();
         }
         sqlite3_finalize(stmt);
         return trouve;
@@ -1161,14 +1162,18 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
     void DataBase::imprimer_fiche_paie_caching(std::string id)
     {
 
-        const vector<EmployeData> vect = m_caheEmployes;
+        // const vector<EmployeData> vect = m_caheEmployes;
         bool condition = false;
 
-        do{
-            for(const EmployeData emp : vect)
-            {
-                if(emp.m_identifiant_Employe == id) 
-                {
+        auto it = std::find_if(m_caheEmployes.begin(), m_caheEmployes.end(), [&id](const EmployeData& emp){
+            return emp.m_identifiant_Employe == id;
+        });
+
+        if(it != m_caheEmployes.end())
+        {
+            const EmployeData& emp = *it;
+
+
                     const std::string mois_fr[] = {
                     "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
                     "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
@@ -1344,10 +1349,10 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                             std::string cmd = "start " + nomFichier;
                             system(cmd.c_str());   
                         }
-                     }
-            }
-
-        }while(condition == false);  
+                     
+        }else{
+                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Identifiant introuvable dans le cache." << endl;
+        }
     }
 
 

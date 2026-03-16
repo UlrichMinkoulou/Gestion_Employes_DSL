@@ -98,8 +98,8 @@ class DataBase
         void changerInfoEmploye();
         void afficherEmploye();
         //caching - optimisation 
+        void imprimer_fiche_paie_caching(std::string id_emp);
         void afficherEmploye_caching(const std::vector<EmployeData>&  vect);
-        void rechercherUnEmploye_caching() const;
 
         void afficherUser(std::string idUser);
         bool connexionEmploye(std::string id_);

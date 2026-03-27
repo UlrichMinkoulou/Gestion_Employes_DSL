@@ -89,6 +89,7 @@ bool login()
 bool viewUser(std::string IdUser)
 {
     DataBase User("entreprise_.db");
+    User.chargerCacheMSG();
     bool resultat = true;
 
     if ( User.connexionEmploye(IdUser) == true)
@@ -249,6 +250,7 @@ bool viewAdmin(std::string IdAdmin)
                     rester_Menu_Admin = false; 
                     break;
                 }
+                    
                 case 2: messages(admin_user.getAdminData().id_); rester_Menu_Admin = false; break;
                 case 3: admin_user.modifierAdmin(admin_user.getAdminData().id_); rester_Menu_Admin = false; break;
                 case 4: rester_Menu_Admin = true; break;
@@ -329,11 +331,20 @@ void messages(std::string id)
                                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                             }
 
+                            user.chargerCacheMSG();
         switch (choix)
         {
             // case 2: { user.afficher_MSG_non_lus(id); break;} 
 
-            case 2: { user.afficher_MSG_lus(id);     break;}
+            case 2: { 
+                //std::cout << "BD" << std::endl;
+                // user.afficher_MSG_lus(id); 
+                // std::cout << "RAM : j'affiche tous les messages" << std::endl;
+                // user.afficherTousMessages();  
+                // std::cout << "RAM : j'affiche tous les messages du destinataire " << id << std::endl;
+                user.afficher_MSG_lus_caching(id);
+
+                break;}
 
             case 3: 
             {
@@ -354,7 +365,12 @@ void messages(std::string id)
                 user.envoyer_MSG(destinataire, id, contenu, objet); break;
             }
 
-            case 4: { user.afficher_MSG_envoyes(id); break;}
+            case 4: {
+                //  user.afficher_MSG_envoyes(id); 
+                //  std::cout << "RAM" << std::endl;
+                 user.afficher_MSG_envoyes_caching(id);
+                 break;
+                    }
 
             case 1: 
             {

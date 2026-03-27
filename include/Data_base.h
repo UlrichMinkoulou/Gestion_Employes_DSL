@@ -18,6 +18,18 @@ struct  DataConnxion
         std::string name;
     };
 
+
+
+struct dtMessage
+{
+std::string idMessage;
+std::string idExpediteur;
+std::string idDestinataire;
+std::string contenu;
+std::string date_time;
+std::string objet;
+};
+
 //Structure pour les donnees de Messages
 struct Data_Message
     {
@@ -27,6 +39,7 @@ struct Data_Message
         std::string objet;
         std::string contenu;
         std::string date_time;
+        std::string id_msg;
         int lu; //variable de lecture des messages 0(non lu) et 1(lu)
 
         public:
@@ -36,6 +49,11 @@ struct Data_Message
         std::string getIDdestinataire(){
             
             return id_destinataire;
+        }
+
+        std::string getIdMessage()
+        {
+            return id_msg;
         }
 
         std::string getIDexpediteur() {
@@ -53,6 +71,10 @@ struct Data_Message
         std::string getDatetime(){
                 return date_time;
             }
+
+        int getLu(){
+            return lu;
+        }
 
         //seteurs
         std::string setIDdestinataire(std::string id_dest)
@@ -115,11 +137,25 @@ class DataBase
         void envoyer_MSG(std::string destinataire, std::string expediteur, std::string contenu, std::string objet);
         void lecture_MSG();
         void afficher_MSG()const;
+
+        //caching 
+        void afficher_MSG_caching();
+        void afficherTousMessages()const;
+
+
         void afficher_MSG_recus(std::string id_user)const;
         void lire_MSG_recus(std::string id_user);
         void afficher_MSG_non_lus(std::string id_user)const;
         void afficher_MSG_lus(std::string id_user)const;
+
+        //caching 
+        void afficher_MSG_lus_caching(std::string id_user);
+
         void afficher_MSG_envoyes(std::string id_user)const;
+
+        //Caching
+        void afficher_MSG_envoyes_caching(std::string id_user);
+
         void message_RNL(std::string id_user);
         std::vector<Data_Message> recupererMessages(std::string id_user);
         std::string afficherDiscussion(std::string id_user, std::string id_destinataire)const;
@@ -129,13 +165,18 @@ class DataBase
         bool verifierMDPdansBD(std::string id_, std::string mot_de_passe);
 
         //cahe
-        void chargerCache();
+        void chargerCache(); //Employes
+        void chargerCacheMSG(); //Message
         
         std::vector<EmployeData> getCache()
         {
             return m_caheEmployes;
         } 
 
+        std::vector<Data_Message> getCacheMSG()
+        {
+            return m_liste_messages;
+        }
 
     private:
         sqlite3 *m_db;
@@ -147,6 +188,9 @@ class DataBase
 
         //Cache
         std::vector<EmployeData> m_caheEmployes;
+        std::vector<dtMessage> m_cacheMessages;
+        std::vector<dtMessage> m_caheMessageDestinataires;
+        std::vector<dtMessage> m_caheMessageExpediteurs;
 
 };
 

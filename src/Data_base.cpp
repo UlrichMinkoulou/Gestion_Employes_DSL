@@ -1518,7 +1518,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             dessinnerLignesMSG();
 
             sqlite3_stmt* stmt;
-            string sql = "SELECT ID_MSG, ID_DESTINATAIRE, ID_EXPEDITEUR, OBJET, CONTENU_MESSAGE, DATE_TIME, LU FROM MESSAGE";
+            string sql = "SELECT ID_MSG, ID_DESTINATAIRE, ID_EXPEDITEUR, OBJET, CONTENU_MESSAGE, DATE_TIME, LU FROM MESSAGE;";
 
             if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
             {
@@ -1540,6 +1540,39 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             {
                 cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
             }
+    }
+
+    //Affichage msg caching
+    void DataBase::afficher_MSG_caching()
+    {
+                   cout << "\n --- MESSAGES ENVOYES --- " << endl;
+           dessinnerLignesMSG();
+           cout << "| " << left << setw(8) << "Id_Msg"
+                << "| " << setw(10) << "DEST."
+                << "| " << setw(10) << "EXP."
+                << "| " << setw(28) << "OBJET"
+                << "| " << setw(28) << "CONTENU"s
+                << "| " << setw(20) << "Date/Heure"
+                << "| " << setw(4) << "Lu" << "|" << endl; 
+            dessinnerLignesMSG();
+
+            DataBase msg("entreprise_.db");
+            msg.chargerCacheMSG();
+
+        for(Data_Message& dtmsg : m_liste_messages)
+        {
+                    cout << "| " << left << setw(8) << dtmsg.getIdMessage()
+                         << "| " << setw(10) << dtmsg.getIDdestinataire()
+                         << "| " << setw(10) << dtmsg.getIDexpediteur()
+                         << "| " << setw(28) << dtmsg.getObjet()
+                         << "| " << setw(28) << dtmsg.getContenu()
+                         << "| " << setw(20) << dtmsg.getDatetime()
+                        //  << "| " << setw(4) << dtmsg.get
+                         << "|" << endl;
+        }
+            
+
+
     }
 
     void DataBase::afficher_MSG_recus(string id_)const
@@ -1692,6 +1725,139 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             }  
             sqlite3_finalize(stmt);
    }
+   //Caching afficher tous les messages
+        void DataBase:: afficherTousMessages()const
+        {
+                            cout << "\n --- Tous les MESSAGES --- " << endl; 
+                            dessinnerLignesMSG();
+                            cout << "| " << left << setw(8) << "Id_Msg"
+                                << "| " << setw(10) << "EXP."
+                                << "| " << setw(28) << "OBJET"
+                                << "| " << setw(28) << "CONTENU"
+                                << "| " << setw(20) << "Date/Heure" << "|" << endl; 
+                            dessinnerLignesMSG();   
+
+                        for(const dtMessage& dtmsg: m_cacheMessages)
+                        {
+
+                        string msg = dtmsg.contenu.c_str() ? dtmsg.contenu : "sans contenu";
+                        string obj = dtmsg.objet.c_str() ? dtmsg.objet : "sans objet";
+                                
+                        if(msg.length() > 25)  msg = msg.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite le contenu a 25 caracteres.
+                        if(obj.length() > 25)  obj = obj.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite l'objet a 25 caracteres.    
+
+                        cout << "| " << left << setw(8) << dtmsg.idMessage
+                            << "| " << setw(10)  << dtmsg.idDestinataire
+                            << "| " << ANSI_BOLD << ANSI_BLUE    << setw(28)  << obj << ANSI_RESET
+                            << "| " << ANSI_BOLD << ANSI_YELLOW  << setw(28)  << msg << ANSI_RESET
+                            << "| " << setw(20)  << dtmsg.date_time
+                            //<< "| " << setw(4) << sqlite3_column_int(stmt, 5)
+                            << "|" << endl;
+                            dessinnerLignesMSG();
+                        }
+
+        }
+
+   //Caching
+        void DataBase:: afficher_MSG_lus_caching(std::string id)
+        {
+            m_caheMessageDestinataires.clear();
+
+            for(dtMessage& dtmsg:m_cacheMessages)
+            {
+                if(dtmsg.idDestinataire == id) m_caheMessageDestinataires.push_back(dtmsg);
+            }
+
+            if(!m_caheMessageDestinataires.empty())
+            {
+            
+                cout << "\n --- MESSAGES ENVOYES --- " << endl; 
+                dessinnerLignesMSG();
+                cout << "| " << left << setw(8) << "Id_Msg"
+                        << "| " << setw(10) << "EXP."
+                        << "| " << setw(28) << "OBJET"
+                        << "| " << setw(28) << "CONTENU"
+                        << "| " << setw(20) << "Date/Heure" 
+                        << "|" << endl; 
+                    dessinnerLignesMSG();  
+
+            for(const dtMessage& dtmsgdest : m_caheMessageDestinataires)
+                {
+                        string msg = dtmsgdest.contenu.c_str() ? dtmsgdest.contenu : "sans contenu";
+                        string obj = dtmsgdest.objet.c_str() ? dtmsgdest.objet : "sans objet";
+                                
+                        if(msg.length() > 25)  msg = msg.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite le contenu a 25 caracteres.
+                        if(obj.length() > 25)  obj = obj.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite l'objet a 25 caracteres.    
+
+                        cout << "| " << left << setw(8) << dtmsgdest.idMessage
+                            << "| " << setw(10)  << dtmsgdest.idExpediteur
+                            << "| " << ANSI_BOLD << ANSI_BLUE    << setw(28)  << obj << ANSI_RESET
+                            << "| " << ANSI_BOLD << ANSI_YELLOW  << setw(28)  << msg << ANSI_RESET
+                            << "| " << setw(20)  << dtmsgdest.date_time
+                            //<< "| " << setw(4) << sqlite3_column_int(stmt, 5)
+                            << "|" << endl;
+                            dessinnerLignesMSG();
+                }
+
+            }else
+                {
+                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Aucun Message de cet Id dans le cache: " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                }
+
+    }
+
+
+        //Caching
+    
+        void DataBase::afficher_MSG_envoyes_caching(std::string id_user)
+        {
+            m_caheMessageDestinataires.clear();
+
+            for(dtMessage& dtmsg:m_cacheMessages)
+            {
+                if(dtmsg.idDestinataire == id_user) m_caheMessageDestinataires.push_back(dtmsg);
+            }
+
+            if(!m_caheMessageDestinataires.empty())
+            {
+            
+                cout << "\n --- MESSAGES ENVOYES --- " << endl; 
+                dessinnerLignesMSG();
+                cout << "| " << left << setw(8) << "Id_Msg"
+                        << "| " << setw(10) << "DEST."
+                        << "| " << setw(10) << "EXP.."
+                        << "| " << setw(28) << "OBJET"
+                        << "| " << setw(28) << "CONTENU"
+                        << "| " << setw(20) << "Date/Heure" 
+                        << "|" << endl; 
+                    dessinnerLignesMSG();  
+
+            for(const dtMessage& dtmsgdest : m_caheMessageDestinataires)
+                {
+                        string msg = dtmsgdest.contenu.c_str() ? dtmsgdest.contenu : "sans contenu";
+                        string obj = dtmsgdest.objet.c_str() ? dtmsgdest.objet : "sans objet";
+                                
+                        if(msg.length() > 25)  msg = msg.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite le contenu a 25 caracteres.
+                        if(obj.length() > 25)  obj = obj.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite l'objet a 25 caracteres.    
+
+                        cout << "| " << left << setw(8) << dtmsgdest.idMessage
+                            << "| " << setw(10)  << dtmsgdest.idDestinataire
+                            << "| " << setw(10)  << dtmsgdest.idExpediteur
+                            << "| " << ANSI_BOLD << ANSI_BLUE    << setw(28)  << obj << ANSI_RESET
+                            << "| " << ANSI_BOLD << ANSI_YELLOW  << setw(28)  << msg << ANSI_RESET
+                            << "| " << setw(20)  << dtmsgdest.date_time
+                            //<< "| " << setw(4) << sqlite3_column_int(stmt, 5)
+                            << "|" << endl;
+                            dessinnerLignesMSG();
+                }
+
+            }else
+                {
+                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Aucun Message de cet Id dans le cache: " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                }
+        }
+    
+
 
 
     void DataBase::afficher_MSG_envoyes(std::string id_user)const
@@ -1953,7 +2119,7 @@ std::string DataBase::selectionnerExpediteur(string id_user)
     }
 
 
-//opti #2 charger cahe
+//opti #2 charger cahe Employes
     void DataBase::chargerCache()
     {
         if (!m_db) {
@@ -2001,6 +2167,37 @@ std::string DataBase::selectionnerExpediteur(string id_user)
             }
     }
 
+    //charger cache de tous les messages
+    void DataBase::chargerCacheMSG()
+    {
+        m_liste_messages.clear(); //On vide  le vector
+
+        string sql = "SELECT ID_MSG, ID_DESTINATAIRE, ID_EXPEDITEUR, OBJET, CONTENU_MESSAGE, DATE_TIME, LU FROM MESSAGE";
+        sqlite3_stmt* stmt;
+
+        if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+        {
+            while(sqlite3_step(stmt) == SQLITE_ROW)
+            {
+                // Data_Message dt_msg;
+                dtMessage dt_msg;
+                dt_msg.idMessage = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+                dt_msg.idDestinataire= reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+                dt_msg.idExpediteur = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+                dt_msg.objet = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+                dt_msg.contenu = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+                dt_msg.date_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
+
+                m_cacheMessages.push_back(dt_msg);
+            }
+
+            sqlite3_finalize(stmt);
+        }else
+            {
+                std::cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << " Erreur de preparation de requete " << sqlite3_errmsg(m_db) << std::endl; 
+
+            }
+    }
 
     void afficherLigneEmploye(sqlite3_stmt *stmt_)
     {

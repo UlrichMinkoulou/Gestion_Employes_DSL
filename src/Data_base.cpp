@@ -52,9 +52,9 @@ using namespace std;
 DataBase::DataBase(char const* nomFichier)
 {
     if(sqlite3_open(nomFichier, &m_db) != SQLITE_OK)
-        std::cerr << ANSI_RED << ANSI_BOLD << "\n[ERREUR]" << ANSI_RESET << "Erreur d'ouverture de la BD : " << sqlite3_errmsg(m_db) << endl;
+        std::cerr << ANSI_RED << ANSI_BOLD << "[FAIL]     " << ANSI_RESET << "Erreur d'ouverture de la BD : " << sqlite3_errmsg(m_db) << endl;
     else 
-        std::cout << ANSI_GREEN << ANSI_BOLD << "\n[SUCCES]" << ANSI_RESET << "Base de donnees ouverte avec succes !" << endl;
+         std::cout << ANSI_GREEN << ANSI_BOLD; // << "[PASS]     " << ANSI_RESET << "Base de donnees ouverte avec PASS !" << endl;
 
     char * msg_err;
     string sqlCreate =  "CREATE TABLE IF NOT EXISTS EMPLOYE ("
@@ -107,7 +107,7 @@ void DataBase::ajouterEmploye()
 
         if(sqlite3_prepare_v2(m_db, sqlInsert.c_str(), -1, &stmt, NULL) != SQLITE_OK)
         {
-            cerr << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl; 
+            cerr << ANSI_BOLD << ANSI_RED << "[FAIL]     " << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl; 
             return;
         }
 
@@ -127,9 +127,9 @@ void DataBase::ajouterEmploye()
         sqlite3_bind_int(stmt, 13, e.activer());
             
         if(sqlite3_step(stmt) == SQLITE_DONE)
-            cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Employe ajoute avec succes !! " <<endl;
+            cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     " << ANSI_RESET << "Employe ajoute avec PASS !! " <<endl;
         else
-            cerr << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET  << "Erreur  lors de l'insertion : " << sqlite3_errmsg(m_db) << endl;
+            cerr << ANSI_BOLD << ANSI_RED << "[FAIL]     " << ANSI_RESET  << "Erreur  lors de l'insertion : " << sqlite3_errmsg(m_db) << endl;
             
         sqlite3_finalize(stmt);
     
@@ -161,24 +161,25 @@ void DataBase::ajouterEmploye()
     void afficherEnteteEmploye()
     {
         cout << "| " << left << setw(8) << "Id"
-            << "| " << setw(10) << "NOM"
+            << " | " << setw(10) << "NOM"
             << "| " << setw(10) << "PRENOM"
             << "| " << setw(10) << "DATE_NAIS"        
             << "| " << setw(10) << "DATE_ADHE"
-            << "| " << setw(14) << "SITUATION_MAT"
+            << "| " << setw(13) << "SIT_MAT"
             << "| " << setw(18) << "POSTE"        
             << "| " << setw(3) << "TC"
-            << "| " << setw(12) << "SALAIRE"        
+            << "| " << setw(10) << "SALAIRE"        
             << "| " << setw(1) << "C"
             //  << "| " << setw(14) << "MDP"
             << "| " << setw(25) << "EMAIL"
-            << "| " << setw(1) << "E" << "|" << endl;
+            << "| " << setw(1+1) << "E" << "|" << endl;
         dessinnerLignes();
     }
 
+    //Optimisation de l'affichage de la liste des employes en utilisant le cache
     void DataBase::afficherEmploye_caching(const std::vector<EmployeData>& vect)
     {
-        cout << "\n=======================================LISTE DES EMPLOYES" << endl;
+        cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "LISTE DES EMPLOYES" << ANSI_RESET<< endl;
         dessinnerLignes();
 
         afficherEnteteEmploye();
@@ -198,19 +199,19 @@ void DataBase::ajouterEmploye()
     {
 
         dessinnerLignes();
-        cout << "| " << left << setw(8+1) << "Id"
-                << "| " << setw(10-1) << "NOM"
-                << "| " << setw(10-1) << "PRENOM"
-                << "| " << setw(10-1) << "DATE_NAIS"        
-                << "| " << setw(10-1) << "DATE_ADHE"
-                << "| " << setw(14-1) << "SITUATION_MAT"
-                << "| " << setw(18-1) << "POSTE"        
-                << "| " << setw(3-1) << "TC"
-                << "| " << setw(12-1) << "SALAIRE"        
-                << "| " << setw(1-1) << "C"
+        cout << "| " << left << setw(8) << "Id"
+                << " | " << setw(10) << "NOM"
+                << "| " << setw(10) << "PRENOM"
+                << "| " << setw(10) << "DATE_NAIS"        
+                << "| " << setw(10) << "DATE_ADHE"
+                << "| " << setw(13) << "SIT_MAT"
+                << "| " << setw(18) << "POSTE"        
+                << "| " << setw(3) << "TC"
+                << "| " << setw(10) << "SALAIRE"        
+                << "| " << setw(2) << "C"
                 //  << "| " << setw(14+1) << "MDP"
-                << "| " << setw(25-1) << "EMAIL"
-                << "| " << setw(1-1) << "E" << " |" << endl;
+                << "| " << setw(25) << "EMAIL"
+                << "| " << setw(2) << "E" << "|" << endl;
             dessinnerLignes();
 
 
@@ -252,7 +253,7 @@ void DataBase::ajouterEmploye()
                 trouve = true;
             }
 
-            if(!trouve) cout << ANSI_BOLD << ANSI_RED <<"\n[ERREUR]" "| Aucun Employe trouve pour ce nom. " << ANSI_RESET << setw(15) << " " << "|" << endl;
+            if(!trouve) cout << ANSI_BOLD << ANSI_RED <<"[FAIL]   " "| Aucun Employe trouve pour ce nom. " << ANSI_RESET << setw(15) << " " << "|" << endl;
         }
         sqlite3_finalize(stmt);
     }
@@ -280,7 +281,7 @@ void DataBase::ajouterEmploye()
                 trouve = true;
             }
 
-            if(!trouve) cout << ANSI_BOLD << ANSI_RED <<"\n[ERREUR]" << ANSI_RESET << "| Aucun Employe trouve pour cet identifiant. " << setw(15) << " " << "|" << endl;
+            if(!trouve) cout << ANSI_BOLD << ANSI_RED <<"[FAIL]   " << ANSI_RESET << "| Aucun Employe trouve pour cet identifiant. " << setw(15) << " " << "|" << endl;
             dessinnerLignes();
         }
         sqlite3_finalize(stmt);
@@ -310,7 +311,7 @@ void DataBase::ajouterEmploye()
                 dessinnerLignes();
             }
 
-            if(!trouve) cout << ANSI_BOLD << ANSI_RED <<"[ERREUR]" << ANSI_RESET << "| Aucun Employe trouve pour cet identifiant. " << setw(15) << " " << "|" << endl;
+            if(!trouve) cout << ANSI_BOLD << ANSI_RED <<"[FAIL]  " << ANSI_RESET << "| Aucun Employe trouve pour cet identifiant. " << setw(15) << " " << "|" << endl;
         }
         sqlite3_finalize(stmt);
         return trouve;
@@ -320,7 +321,8 @@ void DataBase::ajouterEmploye()
 
     void DataBase::mofifierInfoConnexionEmploye(std::string id_)
     {
-        std::cout << "----Mofification des infos de connexion----" << std::endl << std::endl;
+        cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "MODIFICATION DES INFOS DE CONNEXION" << ANSI_RESET<< endl;
+        // std::cout << "----Mofification des infos de connexion----" << std::endl << std::endl;
         std::string new_password, confirmPassword;
 
         bool verifier = true;
@@ -333,7 +335,7 @@ void DataBase::ajouterEmploye()
 
             if (new_password != confirmPassword)
             {
-                std::cout << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET  << "Les mots de passe ne correspondent pas. Veuillez reessayer."  << std::endl;
+                std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET  << "Les mots de passe ne correspondent pas. Veuillez reessayer."  << std::endl;
                 verifier = false;
             }
             else
@@ -355,13 +357,13 @@ void DataBase::ajouterEmploye()
         if(sqlite3_step(stmt) == SQLITE_DONE) 
             {
                 if(sqlite3_changes(m_db) > 0)
-                    cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour du mot de passe reussie !" << endl;
+                    cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour du mot de passe reussie !" << endl;
                 else    
-                    cout << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET << "Aucun Employe trouve avec cet Id !" << endl;
+                    cout << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET << "Aucun Employe trouve avec cet Id !" << endl;
             }
         else
             {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour du mot de passe : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour du mot de passe : " << sqlite3_errmsg(m_db) << endl;
             }
 
         sqlite3_finalize(stmt);
@@ -371,7 +373,8 @@ void DataBase::ajouterEmploye()
 //Modification des infos Employe cote admin pour employe
     void DataBase::changerInfoEmploye()
     {
-            std::cout << std::endl << std::endl << "-------------------- Mise a jour employe" << std::endl;
+        cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "MISE A JOUR EMPLOYES" << ANSI_RESET<< endl;
+            // std::cout << std::endl << std::endl << "-------------------- Mise a jour employe" << std::endl;
 
             Employe e;
             cout << "----Entrez l'identifiant : ";
@@ -431,13 +434,13 @@ void DataBase::ajouterEmploye()
                             if(sqlite3_step(stmt) == SQLITE_DONE) 
                                 {
                                     if(sqlite3_changes(m_db) > 0)
-                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                        cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour reussie !" << endl;
                                     else    
-                                        cout << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                        cout << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                                 }
                             else
                                 {
-                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                                 }
 
                             sqlite3_finalize(stmt);
@@ -455,13 +458,13 @@ void DataBase::ajouterEmploye()
                             if(sqlite3_step(stmt) == SQLITE_DONE) 
                                 {
                                     if(sqlite3_changes(m_db) > 0)
-                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                        cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour reussie !" << endl;
                                     else    
-                                        cout << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                        cout << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                                 }
                             else
                                 {
-                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
                                 }
 
                             sqlite3_finalize(stmt);
@@ -481,13 +484,13 @@ void DataBase::ajouterEmploye()
                             if(sqlite3_step(stmt) == SQLITE_DONE) 
                                 {
                                     if(sqlite3_changes(m_db) > 0)
-                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                        cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour reussie !" << endl;
                                     else    
-                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                        cout << ANSI_BOLD << ANSI_RED<< "[FAIL]   " << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                                 }
                             else
                                 {
-                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
                                 }
 
                             sqlite3_finalize(stmt);
@@ -507,13 +510,13 @@ void DataBase::ajouterEmploye()
                             if(sqlite3_step(stmt) == SQLITE_DONE) 
                                 {
                                     if(sqlite3_changes(m_db) > 0)
-                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                        cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour reussie !" << endl;
                                     else    
-                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                        cout << ANSI_BOLD << ANSI_RED<< "[FAIL]   " << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                                 }
                             else
                                 {
-                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
                                 }
 
                             sqlite3_finalize(stmt);
@@ -533,13 +536,13 @@ void DataBase::ajouterEmploye()
                             if(sqlite3_step(stmt) == SQLITE_DONE) 
                                 {
                                     if(sqlite3_changes(m_db) > 0)
-                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                        cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour reussie !" << endl;
                                     else    
-                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                        cout << ANSI_BOLD << ANSI_RED<< "[FAIL]   " << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                                 }
                             else
                                 {
-                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
                                 }
 
                             sqlite3_finalize(stmt);
@@ -559,9 +562,9 @@ void DataBase::ajouterEmploye()
                             if(sqlite3_step(stmt) == SQLITE_DONE) 
                                 {
                                     if(sqlite3_changes(m_db) > 0)
-                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                        cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour reussie !" << endl;
                                     else    
-                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                        cout << ANSI_BOLD << ANSI_RED<< "[FAIL]   " << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                                 }
                             else
                                 {
@@ -585,13 +588,13 @@ void DataBase::ajouterEmploye()
                             if(sqlite3_step(stmt) == SQLITE_DONE) 
                                 {
                                     if(sqlite3_changes(m_db) > 0)
-                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                        cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour reussie !" << endl;
                                     else    
-                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                        cout << ANSI_BOLD << ANSI_RED<< "[FAIL]   " << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                                 }
                             else
                                 {
-                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
                                 }
 
                             sqlite3_finalize(stmt);
@@ -611,13 +614,13 @@ void DataBase::ajouterEmploye()
                             if(sqlite3_step(stmt) == SQLITE_DONE) 
                                 {
                                     if(sqlite3_changes(m_db) > 0)
-                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                        cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour reussie !" << endl;
                                     else    
-                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                        cout << ANSI_BOLD << ANSI_RED<< "[FAIL]   " << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                                 }
                             else
                                 {
-                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
                                 }
 
                             sqlite3_finalize(stmt);
@@ -638,13 +641,13 @@ void DataBase::ajouterEmploye()
                             if(sqlite3_step(stmt) == SQLITE_DONE) 
                                 {
                                     if(sqlite3_changes(m_db) > 0)
-                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                        cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour reussie !" << endl;
                                     else    
-                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                        cout << ANSI_BOLD << ANSI_RED<< "[FAIL]   " << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                                 }
                             else
                                 {
-                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
                                 }
 
                             sqlite3_finalize(stmt);
@@ -664,13 +667,13 @@ void DataBase::ajouterEmploye()
                             if(sqlite3_step(stmt) == SQLITE_DONE) 
                                 {
                                     if(sqlite3_changes(m_db) > 0)
-                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                        cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour reussie !" << endl;
                                     else    
-                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                        cout << ANSI_BOLD << ANSI_RED<< "[FAIL]   " << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                                 }
                             else
                                 {
-                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
                                 }
 
                             sqlite3_finalize(stmt);
@@ -690,13 +693,13 @@ void DataBase::ajouterEmploye()
                             if(sqlite3_step(stmt) == SQLITE_DONE) 
                                 {
                                     if(sqlite3_changes(m_db) > 0)
-                                        cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << endl;
+                                        cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour reussie !" << endl;
                                     else    
-                                        cout << ANSI_BOLD << ANSI_RED<< "\n[ERREUR]" << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                        cout << ANSI_BOLD << ANSI_RED<< "[FAIL]   " << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
                                 }
                             else
                                 {
-                                    cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << endl;
                                 }
 
                             sqlite3_finalize(stmt);
@@ -776,21 +779,21 @@ void DataBase::ajouterEmploye()
 
                 if(crypto_pwhash_str_verify(mdp_bd.c_str(), mot_de_passe.c_str(), mot_de_passe.size()) == 0)
                 {
-                    std::cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Mot de passe correct !" << std::endl;
+                    std::cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mot de passe correct !" << std::endl;
                 
                     sqlite3_finalize(stmt);
                     return true;
                 }
                 else
                 {
-                    std::cout << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET << "Mot de passe incorrect !" << std::endl;
+                    std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET << "Mot de passe incorrect !" << std::endl;
                     sqlite3_finalize(stmt);
                     return false;
                 }
             }
             else
             {
-                std::cout << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET << "Aucun utilisateur trouvé avec cet ID !" << std::endl;
+                std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET << "Aucun utilisateur trouvé avec cet ID !" << std::endl;
                 sqlite3_finalize(stmt);
                 return false;
             }
@@ -859,28 +862,36 @@ void DataBase::ajouterEmploye()
 
                                 if(etat ==0) {
                                         m_data.res = false;
-                                        std::cout << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Compte inactif, veillez contacter l'administrateur !\n\n"  << std::endl;
+                                        std::cout << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Compte inactif, veillez contacter l'administrateur !\n\n"  << std::endl;
                                         // sqlite3_finalize(stmt);
                                         
                                         return m_data.res;               
                                     }
 
-                                        const unsigned char *user_name = sqlite3_column_text(stmt.get(), 1);
-                                        std::cout << ANSI_BOLD << ANSI_GREEN << "Bienvenu " << (user_name ? reinterpret_cast<const char*>(user_name) : "NULL") << ANSI_RESET << std::endl;
-                                        m_data.name =  reinterpret_cast<const char*>(user_name); //faire le caste
-                            
-                                        std::cout << "Chargement de la page";
-                                        for(int i = 0; i < 4; ++i)
+                                        const unsigned char *user_name = sqlite3_column_text(stmt.get(), 1); //ici il peut y avoir probleme si la valeur est NULL, raison pour laquelle on verifie avec la ligne qui suit
+                                        if(user_name != nullptr)
                                         {
-                                            std::this_thread::sleep_for(std::chrono::seconds(1));  // std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                                            std::cout << "." << std::flush;
-                                        } 
-                                        
-                                        system("clear");               
+
+                                            std::cout << ANSI_BOLD << ANSI_GREEN << "Bienvenu " << (user_name ? reinterpret_cast<const char*>(user_name) : "NULL") << ANSI_RESET << std::endl;
+                                            m_data.name =  reinterpret_cast<const char*>(user_name); //faire le caste
+                                
+                                            std::cout << "Chargement de la page";
+                                            for(int i = 0; i < 4; ++i)
+                                            {
+                                                std::this_thread::sleep_for(std::chrono::seconds(1));  // std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                                                std::cout << "." << std::flush;
+                                            } 
+                                            
+                                            system("clear");               
+                                        }else
+                                            {
+                                                m_data.name = "User"; //Valeur par defaut si le nom est NULL
+                                            }
+
                         } else
                             {
                                 m_data.res = false;
-                                std::cout << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << "Id ou mot de passe Incorrect !"  << std::endl;
+                                std::cout << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Id ou mot de passe Incorrect !"  << std::endl;
                             }
                             
                             
@@ -907,7 +918,7 @@ void dessinerQRCode(canvas_ity::canvas& cv, std::string texte, float x, float y,
     int8_t result = qrcode_initText(&qrcode, modules, version, ECC_MEDIUM, texte.c_str());
 
         if (result != 0) {
-            std::cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << " : Texte trop long pour la version du QR Code !" << std::endl;
+            std::cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << " : Texte trop long pour la version du QR Code !" << std::endl;
             return;
         }
 
@@ -931,7 +942,7 @@ void dessinerQRCode(canvas_ity::canvas& cv, std::string texte, float x, float y,
 std::vector<unsigned char> chargerPolice(std::string chemin) {
     std::ifstream file(chemin, std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
-        std::cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << ": Impossible d'ouvrir le fichier .ttf !" << std::endl;
+        std::cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << ": Impossible d'ouvrir le fichier .ttf !" << std::endl;
         return {}; // Renvoie un vector vide
     }
     std::streamsize size = file.tellg();
@@ -960,7 +971,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
         // 4. Libérer la mémoire STB
         stbi_image_free(données);
     } else {
-        std::cerr << ANSI_BOLD << ANSI_RED<< "[ERREUR]" << ANSI_RESET << ": Impossible de charger le logo " << chemin << std::endl;
+        std::cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << ": Impossible de charger le logo " << chemin << std::endl;
     }
 
 }  
@@ -1134,23 +1145,23 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                         std::string nomFichier = "Fiche_Paie_" + id_emp + "_" + dateTime + ".png";
                         
                         // Paramètres : Nom, Largeur, Hauteur, Canaux (4 pour RGBA), Pixels, Pas (Largeur * 4)
-                        int succes = stbi_write_png(nomFichier.c_str(), largeur, hauteur, 4, pixels.data(), largeur * 4);
+                        int PASS = stbi_write_png(nomFichier.c_str(), largeur, hauteur, 4, pixels.data(), largeur * 4);
 
-                        if (succes) {
+                        if (PASS) {
                             std::cout << "\033[32m[SUCCÈS]\033[0m Image générée : " << nomFichier << std::endl;
                             
                             // --- BONUS : Ouvrir l'image automatiquement (Windows) ---
                             std::string cmd = "start " + nomFichier;
                             system(cmd.c_str());
                         } else {
-                            std::cerr << "\033[31m[ERREUR]\033[0m Impossible d'écrire le fichier PNG." << std::endl;
+                            std::cerr << "\033[31m[FAIL]  \033[0m Impossible d'écrire le fichier PNG." << std::endl;
                         }
                 }
              sqlite3_finalize(stmt);
             }
             else
             {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
             }  
 
 
@@ -1340,9 +1351,9 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                         std::string nomFichier = "Fiche_Paie_RAM" + id_emp + "_" + dateTime + ".png";
                         
                         // Paramètres : Nom, Largeur, Hauteur, Canaux (4 pour RGBA), Pixels, Pas (Largeur * 4)
-                        int succes = stbi_write_png(nomFichier.c_str(), largeur, hauteur, 4, pixels.data(), largeur * 4);
+                        int PASS = stbi_write_png(nomFichier.c_str(), largeur, hauteur, 4, pixels.data(), largeur * 4);
 
-                        if (succes) {
+                        if (PASS) {
                             std::cout << "\033[32m[SUCCÈS]\033[0m Image générée : " << nomFichier << std::endl;
                             
                             // --- BONUS : Ouvrir l'image automatiquement (Windows) ---
@@ -1351,14 +1362,15 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                         }
                      
         }else{
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Identifiant introuvable dans le cache." << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Identifiant introuvable dans le cache." << endl;
         }
     }
 
 
     void DataBase::activerdesactiverEmployer()
     {
-        std::cout << std::endl << std::endl << "--------------------Activer/Desactiver employe" << std::endl << std::endl;
+        cout << "\n\n=======================================" << ANSI_BLUE << ANSI_BOLD << "ACTIVER/DESACTIVER EMPLOYE" << ANSI_RESET<< endl << endl;
+        // std::cout << std::endl << std::endl << "--------------------Activer/Desactiver employe" << std::endl << std::endl;
         cout << "----Entrez l'identifiant : ";
          cin >> m_data.id_;
 
@@ -1383,7 +1395,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 case 1: etat = 1; valide = true; break;
                 case 2: etat = 0; valide = true; break;
                 
-                default: cout << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Valeur incorrect !" << endl; valide = false;
+                default: cout << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Valeur incorrect !" << endl; valide = false;
                 break;
             }
         }while (valide == false);
@@ -1397,13 +1409,13 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
         if(sqlite3_step(stmt) == SQLITE_DONE) 
             {
                 if(sqlite3_changes(m_db) > 0)
-                    cout << ANSI_BOLD << ANSI_GREEN << "[SUCCES]" << ANSI_RESET << "Mise a jour d'etat reussie !" << endl;
+                    cout << ANSI_BOLD << ANSI_GREEN << "[PASS]  " << ANSI_RESET << "Mise a jour d'etat reussie !" << endl;
                 else    
-                    cout << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                    cout << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
             }
         else
             {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour de l'etat : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour de l'etat : " << sqlite3_errmsg(m_db) << endl;
             }
 
         sqlite3_finalize(stmt);
@@ -1418,7 +1430,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
             if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
                 {
-                    cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl;
+                    cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl;
                     return false;
                 }
             
@@ -1449,10 +1461,10 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             valide = verifieridexist(destinataire);
             if(valide == true)
             {
-                cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Id Destinataire Employe valide !" << endl;
+                cout << ANSI_BOLD << ANSI_GREEN << "[PASS]   "<< ANSI_RESET << "Id Destinataire Employe valide !" << endl;
             }
             else{
-                    cerr << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET << "Id Destinataire Employe invalide !" << endl;
+                    cerr << ANSI_BOLD << ANSI_RED << "[FAIL]     " << ANSI_RESET << "Id Destinataire Employe invalide !" << endl;
                     std::cout << "\n[Appuyer sur une touche pour continuer...]" << std::endl;
                     std::cin.ignore();
                     std::cin.get();
@@ -1464,10 +1476,10 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 valide = admin.verifieridAdminexist(destinataire);
                 if(valide == true)
                 {
-                    cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Id Destinataire Administrateur valide !" << endl;
+                    cout << ANSI_BOLD << ANSI_GREEN << "[PASS]   "<< ANSI_RESET << "Id Destinataire Administrateur valide !" << endl;
                 }
                 else{
-                    cerr << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET << "Id Destinataire Administrateur invalide !" << endl;
+                    cerr << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET << "Id Destinataire Administrateur invalide !" << endl;
                     std::cout << "\n[Appuyer sur une touche pour continuer...]" << std::endl;
                     std::cin.ignore();
                     std::cin.get();
@@ -1475,7 +1487,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 }
             }else
                 {
-                    cerr << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET << "Identifiant de destinataire invalide !" << endl;
+                    cerr << ANSI_BOLD << ANSI_RED << "[FAIL]     " << ANSI_RESET << "Identifiant de destinataire invalide !" << endl;
                     return;
                 }
 
@@ -1485,7 +1497,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
         if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
             {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl;
                 return;
             }
         
@@ -1496,9 +1508,9 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
          sqlite3_bind_int(stmt, 5, 1);
 
         if(sqlite3_step(stmt) == SQLITE_DONE)
-            cout << ANSI_BOLD << ANSI_GREEN << "\n[SUCCES]" << ANSI_RESET << "Message envoye avec succes !!" << endl;
+            cout << ANSI_BOLD << ANSI_GREEN << "[PASS]   "<< ANSI_RESET << "Message envoye avec PASS !!" << endl;
         else 
-            cerr << ANSI_BOLD << ANSI_RED << "\n[ERREUR]" << ANSI_RESET << "Erreur d'envoi : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+            cerr << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET << "Erreur d'envoi : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
         
         sqlite3_finalize(stmt);
 
@@ -1506,7 +1518,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
     void DataBase::afficher_MSG()const
     {
-           cout << "\n --- MESSAGES ENVOYES --- " << endl;
+        cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "MESSAGES ENVOYES" << ANSI_RESET<< endl;
+        //    cout << "\n --- MESSAGES ENVOYES --- " << endl;
            dessinnerLignesMSG();
            cout << "| " << left << setw(8) << "Id_Msg"
                 << "| " << setw(10) << "DEST."
@@ -1538,7 +1551,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             }
             else
             {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
             }
     }
 
@@ -1577,7 +1590,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
     void DataBase::afficher_MSG_recus(string id_)const
     {
-        cout << "\n --- MESSAGES RECUS --- " << endl;
+        cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "MESSAGES RECUS" << ANSI_RESET<< endl;
+        // cout << "\n --- MESSAGES RECUS --- " << endl;
            dessinnerLignesMSG();
            cout << "| " << left << setw(8) << "Id_Msg"
                 << "| " << setw(10) << "EXP."
@@ -1608,7 +1622,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             }
             else
             {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
             }
     }
 
@@ -1619,16 +1633,16 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
             if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
                 {
-                    cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                    cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
                     return;
                 }
             
             sqlite3_bind_text(stmt, 1, id_expediteur.c_str(), -1, SQLITE_TRANSIENT);
 
             if(sqlite3_step(stmt) == SQLITE_DONE)
-                cout << ANSI_BOLD << ANSI_GREEN << "[SUCCES]" << ANSI_RESET << "Messages marques comme lus avec succes !!" << ANSI_RESET << endl;
+                cout << ANSI_BOLD << ANSI_GREEN << "[PASS]  " << ANSI_RESET << "Messages marques comme lus avec PASS !!" << ANSI_RESET << endl;
             else 
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             
             sqlite3_finalize(stmt);
     }
@@ -1636,7 +1650,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
     void DataBase::afficher_MSG_non_lus(string id_)const
     {
-        cout << "\n --- MESSAGES NON LUS --- " << endl; 
+        cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "MESSAGES NON LUS" << ANSI_RESET<< endl;
+        // cout << "\n --- MESSAGES NON LUS --- " << endl; 
            dessinnerLignesMSG();
            cout << "| " << left << setw(8) << "Id_Msg"
                 << "| " << setw(10) << "EXP."
@@ -1670,7 +1685,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                     message.lire_MSG_recus(id_);
             }else
             {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
 
 
@@ -1679,7 +1694,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
     void DataBase:: afficher_MSG_lus(std::string id_user)const
     {
-            cout << "\n --- MESSAGES LUS --- " << endl; 
+        cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "MESSAGES LUS" << ANSI_RESET<< endl;
+            // cout << "\n --- MESSAGES LUS --- " << endl; 
            dessinnerLignesMSG();
            cout << "| " << left << setw(8) << "Id_Msg"
                 << "| " << setw(10) << "EXP."
@@ -1721,14 +1737,15 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             }
             else
             {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
             sqlite3_finalize(stmt);
    }
    //Caching afficher tous les messages
         void DataBase:: afficherTousMessages()const
         {
-                            cout << "\n --- Tous les MESSAGES --- " << endl; 
+        cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "MESSAGES" << ANSI_RESET<< endl;
+                            // cout << "\n --- Tous les MESSAGES --- " << endl; 
                             dessinnerLignesMSG();
                             cout << "| " << left << setw(8) << "Id_Msg"
                                 << "| " << setw(10) << "EXP."
@@ -1771,7 +1788,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             if(!m_caheMessageDestinataires.empty())
             {
             
-                cout << "\n --- MESSAGES ENVOYES --- " << endl; 
+        cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "MESSAGES ENVOYES" << ANSI_RESET<< endl;
+                // cout << "\n --- MESSAGES ENVOYES --- " << endl; 
                 dessinnerLignesMSG();
                 cout << "| " << left << setw(8) << "Id_Msg"
                         << "| " << setw(10) << "EXP."
@@ -1801,7 +1819,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
             }else
                 {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Aucun Message de cet Id dans le cache: " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Aucun Message de cet Id dans le cache: " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
                 }
 
     }
@@ -1821,7 +1839,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             if(!m_caheMessageDestinataires.empty())
             {
             
-                cout << "\n --- MESSAGES ENVOYES --- " << endl; 
+        cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD <<  "MESSAGES ENVOYES" << ANSI_RESET<< endl;
+                // cout << "\n --- MESSAGES ENVOYES --- " << endl; 
                 dessinnerLignesMSG();
                 cout << "| " << left << setw(8) << "Id_Msg"
                         << "| " << setw(10) << "DEST."
@@ -1853,7 +1872,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
             }else
                 {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Aucun Message de cet Id dans le cache: " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Aucun Message de cet Id dans le cache: " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
                 }
         }
     
@@ -1862,7 +1881,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
     void DataBase::afficher_MSG_envoyes(std::string id_user)const
     {
-            cout << "\n --- MESSAGES ENVOYES --- " << endl; 
+        cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "MESSAGES ENVOYES" << ANSI_RESET<< endl;
+            // cout << "\n --- MESSAGES ENVOYES --- " << endl; 
            dessinnerLignesMSG();
            cout << "| " << left << setw(8) << "Id_Msg"
                 << "| " << setw(10) << "DEST."
@@ -1903,7 +1923,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             }
             else
             {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
             sqlite3_finalize(stmt);
     }
@@ -1954,7 +1974,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             }
             else
             {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
             sqlite3_finalize(stmt);
     }
@@ -1971,16 +1991,26 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 while(sqlite3_step(stmt) == SQLITE_ROW)
                 {
                     Data_Message msg;
-                    msg.setIDexpediteur(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
-                    msg.setContenu(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
-                    msg.setDateTime(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3)));
+                    const unsigned char* pExp = sqlite3_column_text(stmt, 0);
+                    const unsigned char* pCont = sqlite3_column_text(stmt, 1);
+                    const unsigned char* pDate = sqlite3_column_text(stmt, 2);
+                    if(pExp == nullptr || pCont == nullptr || pDate == nullptr)
+                    {
+                        cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Données manquantes pour un message. Ignoré." << endl;
+                        continue; // Ignorer ce message et passer au suivant
+                    }else
+                    {
+                        msg.setIDexpediteur(reinterpret_cast<const char*>(pExp));
+                        msg.setContenu(reinterpret_cast<const char*>(pCont));
+                        msg.setDateTime(reinterpret_cast<const char*>(pDate));
+                    }
                     
                     messages.push_back(msg);
                 }
             }
             else
             {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             }  
 
             sqlite3_finalize(stmt);
@@ -2009,7 +2039,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                     }
                     else
                     {
-                        cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Aucun employe trouve avec cet ID." << endl;
+                        cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Aucun employe trouve avec cet ID." << endl;
                         sqlite3_finalize(stmt);
                         return"";
                     }
@@ -2077,7 +2107,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             }
             else
             {
-                cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
                 return "";
             }  
             
@@ -2112,7 +2142,7 @@ std::string DataBase::selectionnerExpediteur(string id_user)
         }
         else
         {
-            cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+            cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
             return "";
         }
 
@@ -2123,7 +2153,7 @@ std::string DataBase::selectionnerExpediteur(string id_user)
     void DataBase::chargerCache()
     {
         if (!m_db) {
-            std::cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << " La connexion à la base est fermée ou inexistante !" << std::endl;
+            std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << " La connexion à la base est fermée ou inexistante !" << std::endl;
             return;
         }
 
@@ -2133,7 +2163,7 @@ std::string DataBase::selectionnerExpediteur(string id_user)
 
         if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
         {
-        //     std::cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << "lors preparation des donnees" << sqlite3_errmsg(m_db) << std::endl;
+        //     std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << "lors preparation des donnees" << sqlite3_errmsg(m_db) << std::endl;
         //     return;
         // }
 
@@ -2163,7 +2193,7 @@ std::string DataBase::selectionnerExpediteur(string id_user)
             sqlite3_finalize(stmt);
         }else
             {
-                std::cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << " Erreur de preparation de requete " << sqlite3_errmsg(m_db) << std::endl; 
+                std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << " Erreur de preparation de requete " << sqlite3_errmsg(m_db) << std::endl; 
             }
     }
 
@@ -2194,7 +2224,7 @@ std::string DataBase::selectionnerExpediteur(string id_user)
             sqlite3_finalize(stmt);
         }else
             {
-                std::cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << " Erreur de preparation de requete " << sqlite3_errmsg(m_db) << std::endl; 
+                std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << " Erreur de preparation de requete " << sqlite3_errmsg(m_db) << std::endl; 
 
             }
     }
@@ -2202,7 +2232,7 @@ std::string DataBase::selectionnerExpediteur(string id_user)
     void afficherLigneEmploye(sqlite3_stmt *stmt_)
     {
         cout << "| " << left << setw(8) << (const char*)sqlite3_column_text(stmt_, 0)
-             << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 1)
+             << " | " << setw(10) << (const char*)sqlite3_column_text(stmt_, 1)
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 2)
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 3)
              << "| " << setw(10) << (const char*)sqlite3_column_text(stmt_, 4)

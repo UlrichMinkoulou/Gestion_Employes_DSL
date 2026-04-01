@@ -33,9 +33,9 @@ const std::string ANSI_BLACK = "\033[30m";
 Admin_db::Admin_db(const char* fileName)
 {
     if(sqlite3_open(fileName, &m_bd) != SQLITE_OK)
-        std::cerr << ANSI_RED << ANSI_BOLD << "\n[ERREUR]" << ANSI_RESET << "Erreur d'ouverture de la BD : " << sqlite3_errmsg(m_bd) << std::endl;
+        std::cerr << ANSI_RED << ANSI_BOLD << "\n[FAIL]  " << ANSI_RESET << "Erreur d'ouverture de la BD : " << sqlite3_errmsg(m_bd) << std::endl;
     else
-    std::cout << ANSI_GREEN << ANSI_BOLD << "\n[SUCCES]" << ANSI_RESET <<  "Base de donnees ouverte avec succes !" << std::endl;
+    std::cout << ANSI_GREEN << ANSI_BOLD << "[PASS]   " << ANSI_RESET <<  "Base de donnees ouverte avec succes !" << std::endl;
     
     char * msg_err;
     std::string sqlCreate = "CREATE TABLE IF NOT EXISTS ADMIN ("
@@ -131,7 +131,7 @@ bool Admin_db::verifierMDPdansBD(std::string id_, std::string mot_de_passe)
 
     if(sqlite3_prepare_v2(m_bd, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
         {
-            std::cerr << ANSI_RED << ANSI_BOLD << "[ERREUR]" << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_bd) << std::endl;
+            std::cerr << ANSI_RED << ANSI_BOLD << "[FAIL]  " << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_bd) << std::endl;
             return false;
         }
 
@@ -142,21 +142,21 @@ bool Admin_db::verifierMDPdansBD(std::string id_, std::string mot_de_passe)
 
             if(crypto_pwhash_str_verify(mdp_bd.c_str(), mot_de_passe.c_str(),  mot_de_passe.length()) == 0)
             {
-                std::cout << ANSI_GREEN << ANSI_BOLD << "\n[SUCCES]" << ANSI_RESET << "Mot de passe correct !" << std::endl;
+                std::cout << ANSI_GREEN << ANSI_BOLD << "[PASS]   " << ANSI_RESET << "Mot de passe correct !" << std::endl;
 
                 sqlite3_finalize(stmt);
                 return true; // ID existe et mot de passe correct
             }
             else
             {
-                std::cout << ANSI_RED << ANSI_BOLD << "\n[ERREUR]" << ANSI_RESET << "Mot de passe incorrect !" << std::endl;
+                std::cout << ANSI_RED << ANSI_BOLD << "\n[FAIL]  " << ANSI_RESET << "Mot de passe incorrect !" << std::endl;
 
                 sqlite3_finalize(stmt);
                 return false; // ID existe mais mot de passe incorrect
             }   
         }
         else{
-                std::cout << ANSI_RED << ANSI_BOLD << "\n[ERREUR]" << ANSI_RESET << "Aucun utilisateur trouvé avec cet ID !" << std::endl;
+                std::cout << ANSI_RED << ANSI_BOLD << "\n[FAIL]  " << ANSI_RESET << "Aucun utilisateur trouvé avec cet ID !" << std::endl;
                
                 sqlite3_finalize(stmt);
                 return false; // ID n'existe pas
@@ -189,7 +189,7 @@ bool Admin_db::connexionAdmin(std::string id_)
         
                 if(sqlite3_prepare_v2(m_bd, sql_search.c_str(), -1, &stmt, NULL) != SQLITE_OK)
                 {
-                    std::cerr << ANSI_RED << ANSI_BOLD << "\n[ERREUR]" << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_bd) << std::endl;
+                    std::cerr << ANSI_RED << ANSI_BOLD << "\n[FAIL]  " << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_bd) << std::endl;
                     return false;
                 }
 
@@ -214,7 +214,7 @@ bool Admin_db::connexionAdmin(std::string id_)
                 } else
                         {
                             m_data_con.res = false;
-                            std::cout << ANSI_RED << ANSI_BOLD << "\n[ERREUR]" << ANSI_RESET << "Id ou mot de passe Incorrect !" << std::endl;
+                            std::cout << ANSI_RED << ANSI_BOLD << "\n[FAIL]  " << ANSI_RESET << "Id ou mot de passe Incorrect !" << std::endl;
                         }
 
                 sqlite3_finalize(stmt);
@@ -237,12 +237,12 @@ void Admin_db::modifierAdmin(std::string id_)
             if(sqlite3_step(stmt) == SQLITE_DONE)
             {
                 if(sqlite3_changes(m_bd) > 0)
-                    std::cout << ANSI_GREEN << ANSI_BOLD << "[SUCCES]" << ANSI_RESET << "Mise a jour reussie !" << std::endl;
+                    std::cout << ANSI_GREEN << ANSI_BOLD << "[PASS]  " << ANSI_RESET << "Mise a jour reussie !" << std::endl;
                 else    
-                    std::cout << ANSI_RED << ANSI_BOLD << "[ERREUR]" << ANSI_RESET << "Aucun Administrateur ne possede cet identifiant " << std::endl;
+                    std::cout << ANSI_RED << ANSI_BOLD << "[FAIL]  " << ANSI_RESET << "Aucun Administrateur ne possede cet identifiant " << std::endl;
             } else
                 {
-                    std::cerr << ANSI_RED << ANSI_BOLD << "[ERREUR]" << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_bd) << std::endl;
+                    std::cerr << ANSI_RED << ANSI_BOLD << "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_bd) << std::endl;
                 }
             sqlite3_finalize(stmt);
         }
@@ -335,7 +335,7 @@ std::string generateurID(sqlite3* bd, std::string c, char m)
 
             if(sqlite3_prepare_v2(m_bd, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
                 {
-                    std::cerr << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_bd) << std::endl;
+                    std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_bd) << std::endl;
                     return false;
                 }
             

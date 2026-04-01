@@ -21,4 +21,5 @@ void presentation();
 void produits_services();
 void boutique();
 void contats();
+void projets();
 #endif

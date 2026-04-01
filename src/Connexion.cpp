@@ -47,11 +47,11 @@ void pageAcceuil()
         switch (option)
         {
             case 1: clearCLI(); presentation();  break;
-            case 2: std::cout<< "Informations non Dispanible !" << std::endl;  break;
-            case 3: std::cout<< "Informations non Dispanible !" << std::endl;  break;
-            case 4: std::cout<< "Informations non Dispanible !" << std::endl;  break;
-            case 5: std::cout<< "Informations non Dispanible !" << std::endl;  break;
-            case 6: resultat = login();  break; //clearCLI(); a remettre plus tard pour eviter les bugs d'affichage
+            case 2: clearCLI(); produits_services(); break;
+            case 3: clearCLI(); projets(); break;
+            case 4: clearCLI(); boutique();  break;
+            case 5: clearCLI(); contats();break; 
+            case 6: clearCLI(); resultat = login();  break; //clearCLI(); a remettre plus tard pour eviter les bugs d'affichage
             
             
             default: resultat = true;
@@ -68,10 +68,10 @@ bool login()
    std::cout << std::endl << std::endl;
     dessinerLdeux();
     std::cout << "| " << ANSI_RED << ANSI_BOLD <<  std::left << std::setw(28) << "DRONE.Solutions ltd." << ANSI_RESET << ANSI_BOLD
-              << "| " << std::setw(18) << "CONNEXION"<< ANSI_RESET << "|" << std::endl;
+              << "| " << std::setw(23) << "CONNEXION"<< ANSI_RESET << "|" << std::endl;
     dessinerLdeux();
 
-    std::cout << "> Identifiant : ";
+    std::cout << "\n> Identifiant : ";
      std::cin >> identifiant_;
      std::cin.ignore(1000, '\n');
 
@@ -80,7 +80,7 @@ bool login()
     else if (identifiant_[0] == 'E')
         resultat = viewUser(identifiant_);
     else
-        std::cout << ANSI_BOLD << ANSI_RED << "[ERREUR]" << ANSI_RESET << "Erreur d'Identifiant." << std::endl;
+        std::cout << ANSI_BOLD << ANSI_RED << "\n[FAIL]" << ANSI_RESET << "FAIL d'Identifiant." << std::endl;
 
     return false;
 
@@ -99,7 +99,7 @@ bool viewUser(std::string IdUser)
                 std::cout << std::endl << std::endl;
                 dessinerLdeux();
                 std::cout << "| " << ANSI_RED << ANSI_BOLD << std::left << std::setw(28) << "DRONE.Solutions ltd." << ANSI_RESET << ANSI_BOLD
-                << "| " << std::setw(18) << User.getData().name<< ANSI_RESET << "|" << std::endl;
+                << "| " << std::setw(23) << User.getData().name<< ANSI_RESET << "|" << std::endl;
                 dessinerLdeux();
                 User.afficherUser(User.getData().id_);
             
@@ -110,7 +110,7 @@ bool viewUser(std::string IdUser)
                 std::cout << "4. Se Deconnecter" << std::endl << std::endl;
                 int choix;
                 std::cout << "> ";
-                //gestion des erreurs de saisie pour le choix du menu user
+                //gestion des FAILs de saisie pour le choix du menu user
                 while(!(std::cin >> choix) || (choix < 1 || choix > 4))
                 {
                     std::cout << "> choix (1-4): ";
@@ -153,7 +153,7 @@ bool viewAdmin(std::string IdAdmin)
         std::cout << std::endl << std::endl;
         dessinerLdeux();
         std::cout << "| "<< ANSI_RED << ANSI_BOLD << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd."<< ANSI_RESET << ANSI_BOLD
-        << "| " << std::setw(18) << admin_user.getAdminData().name<< ANSI_RESET << "|" << std::endl;
+        << "| " << std::setw(23) << admin_user.getAdminData().name<< ANSI_RESET << "|" << std::endl;
         dessinerLdeux();
         admin_user.afficherUserAdmin(admin_user.getAdminData().id_);
         
@@ -169,7 +169,7 @@ bool viewAdmin(std::string IdAdmin)
             std::cout << "4. Se Deconnecter" << std::endl << std::endl;
             std::cout << "> ";
 
-            //gestion des erreurs de saisie pour le choix du menu admin
+            //gestion des FAILs de saisie pour le choix du menu admin
                             while(!(std::cin >> choix) || (choix < 1 || choix > 4))
                             {
                                 std::cout << "> choix (1-4): ";
@@ -189,7 +189,8 @@ bool viewAdmin(std::string IdAdmin)
 
                     do
                         {
-                            std::cout << std::endl << "---------OPTIONS EMPLOYES--------- " << std::endl;
+        std::cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "OPTIONS EMPLOYES" << ANSI_RESET<< std::endl;
+                            // std::cout << std::endl << "---------OPTIONS EMPLOYES--------- " << std::endl;
                             std::cout << "\n\n1. Afficher les Employes" << std::endl;
                             std::cout << "2. Ajouter un Employes" << std::endl;
                             std::cout << "3. Changer Infos Employes" << std::endl;
@@ -199,7 +200,7 @@ bool viewAdmin(std::string IdAdmin)
                             std::cout << "7. Retour Menu Admin" << std::endl << std::endl;
                             std::cout << "> ";  
 
-                            //gestion des erreurs de saisie pour le choix du menu employe
+                            //gestion des FAILs de saisie pour le choix du menu employe
                             while(!(std::cin >> choice) || (choice < 1 || choice > 7))
                             {
                                 std::cout << "> choix (1-7): ";
@@ -234,7 +235,7 @@ bool viewAdmin(std::string IdAdmin)
                                 }
                                 else
                                 {
-                                    std::cout << ANSI_BOLD << ANSI_RED <<"[ERREUR]" << ANSI_RESET << "Identifiant incorrect ou employe inactif." << std::endl;
+                                    std::cout << ANSI_BOLD << ANSI_RED <<"[FAIL]" << ANSI_RESET << "Identifiant incorrect ou employe inactif." << std::endl;
                                 }
                                 break;
                             }
@@ -274,13 +275,31 @@ void presentation()
 {
    std::cout << std::endl << std::endl;
     dessinerLdeux();
-    std::cout << "| " << ANSI_RED << ANSI_BOLD  << std::left << std::setw(28) << "DRONE.SOLUTIIONS ltd." << ANSI_RESET << ANSI_BOLD
-              << "| " << std::setw(18) << "PRESENTATION"<< ANSI_RESET << "|" << std::endl;
+    std::cout << "| " << ANSI_RED << ANSI_BOLD  << std::left << std::setw(28) << "DRONE.SOLUTIONS ltd." << ANSI_RESET << ANSI_BOLD
+              << "| " << std::setw(23) << "PRESENTATION"<< ANSI_RESET << "|" << std::endl;
     dessinerLdeux();
 
-    std::cout << "DRONE.Solutions est une startup Camerounaise qui conçoit des drones et déploie des services via les ";
-    std::cout << "technologies de drones, l’informatique, l’électronique, la robotique, les conceptions FPGA, l’automatique ";
-    std::cout << "et l’intelligence artificielle.\n";
+    std::cout << std::endl << "DRONE.Solutions est une startup Camerounaise qui conçoit des drones et déploie des services via les technologies de drones \n";
+    std::cout << "l’informatique, l’électronique, la robotique, les conceptions FPGA, l’automatique et l’intelligence artificielle.\n\n";
+    std::cout << "Ville : Douala-Cameroun, Rue: Ange-Raphael\n\n";
+
+    int choix;
+
+    std::cout << "";
+}
+
+void contats()
+{
+   std::cout << std::endl << std::endl;
+    dessinerLdeux();
+    std::cout << "| " << ANSI_RED << ANSI_BOLD  << std::left << std::setw(28) << "DRONE.SOLUTIONS ltd." << ANSI_RESET << ANSI_BOLD
+              << "| " << std::setw(23) << "CONTACTS"<< ANSI_RESET << "|" << std::endl;
+    dessinerLdeux();
+
+    std::cout << std::endl << "Contactez nous : dronesolutionscmr@gmail.com\n";
+    std::cout << std::endl << "               : +237 657 670 004\n";
+    std::cout << std::endl << "               : +33 644 667 950\n\n";
+                 std::cout << "         Ville : Douala Cameroun, Ange Raphael\n\n";
 
     int choix;
 
@@ -289,18 +308,40 @@ void presentation()
 
 void produits_services()
 {
+   std::cout << std::endl << std::endl;
+    dessinerLdeux();
+    std::cout << "| " << ANSI_RED << ANSI_BOLD  << std::left << std::setw(28) << "DRONE.SOLUTIONS ltd." << ANSI_RESET << ANSI_BOLD
+              << "| " << std::setw(23) << "PRODUITS ET SERVICES"<< ANSI_RESET << "|" << std::endl;
+    dessinerLdeux();
 
+    std::cout << "\n-> Drones " << std::endl;
+    std::cout << "-> Logiciel d'InterfacAGE Systemes :  " << std::endl;
+    std::cout << "-> Systemes Embarques " << std::endl;
+    std::cout << "-> Robotique " << std::endl;
+    std::cout << "-> Conceptions FPGA " << std::endl;
+    std::cout << "-> Cryptographie pour Embarque \n" << std::endl;
 }
 
 void boutique()
 {
-
+   std::cout << std::endl << std::endl;
+    dessinerLdeux();
+    std::cout << "| " << ANSI_RED << ANSI_BOLD  << std::left << std::setw(28) << "DRONE.SOLUTIONS ltd." << ANSI_RESET << ANSI_BOLD
+              << "| " << std::setw(23) << "BOUTIQUE"<< ANSI_RESET << "|" << std::endl;
+    dessinerLdeux();
+    std::cout<< "\nInformations non Dispanible !\n\n" << std::endl;
 }
 
-void contats()
+void projets()
 {
-
+   std::cout << std::endl << std::endl;
+    dessinerLdeux();
+    std::cout << "| " << ANSI_RED << ANSI_BOLD  << std::left << std::setw(28) << "DRONE.SOLUTIONS ltd." << ANSI_RESET << ANSI_BOLD
+              << "| " << std::setw(23) << "PROJETS"<< ANSI_RESET << "|" << std::endl;
+    dessinerLdeux(); 
+    std::cout<< "\nInformations non Dispanible !\n\n" << std::endl;
 }
+
 
 void messages(std::string id)
 {
@@ -310,7 +351,7 @@ void messages(std::string id)
     {
         /* code */
         
-        std::cout << std::endl << std::endl << "---------------------------------------- Messagerie " << std::endl << std::endl;
+        std::cout << "\n=======================================" << ANSI_BLUE <<  ANSI_BOLD << "MESSAGERIE" << ANSI_RESET<< std::endl;
             DataBase user("entreprise_.db");
             user.message_RNL(id);
             std::cout << std::endl;
@@ -323,7 +364,7 @@ void messages(std::string id)
         std::cout << "5. Retour Menu" << std::endl << std::endl;
         int choix;
         std::cout << "> ";
-            //gestion des erreurs de saisie pour le choix du menu de messagerie
+            //gestion des FAILs de saisie pour le choix du menu de messagerie
                             while(!(std::cin >> choix) || (choix < 1 || choix > 6))
                             {
                                 std::cout << "> choix (1-6): ";
@@ -387,7 +428,7 @@ void messages(std::string id)
                             int choix_discussion; 
                             std::cout << std::endl << "> ";
 
-                            //gestion des erreurs de saisie pour le choix de la discussion
+                            //gestion des FAILs de saisie pour le choix de la discussion
                                 while(!(std::cin >> choix_discussion) || (choix_discussion < 1 || choix_discussion > 3))
                                 {
                                     std::cout << "> choix (1-3): ";
@@ -414,7 +455,7 @@ void messages(std::string id)
                                 }
                                 
                             case 2: user.lire_MSG_recus(id_expediteur); break;
-                            case 3: condition_discussion = true; break;
+                            case 3: condition_discussion = true; clearCLI(); break;
                         }
                     }while (condition_discussion == false);
               break;  
@@ -475,7 +516,7 @@ void dessinerLdeux()
          << std::setfill('-')
          << std::setw(30)  
          << "+" 
-         << std::setw(20)         
+         << std::setw(25)         
          << "+"
          << std::setfill(' ')
          << std::endl;

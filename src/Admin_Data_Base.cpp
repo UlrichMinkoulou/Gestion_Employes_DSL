@@ -35,7 +35,10 @@ Admin_db::Admin_db(const char* fileName)
     if(sqlite3_open(fileName, &m_bd) != SQLITE_OK)
         std::cerr << ANSI_RED << ANSI_BOLD << "\n[FAIL]  " << ANSI_RESET << "Erreur d'ouverture de la BD : " << sqlite3_errmsg(m_bd) << std::endl;
     else
-    std::cout << ANSI_GREEN << ANSI_BOLD << "[PASS]   " << ANSI_RESET <<  "Base de donnees ouverte avec succes !" << std::endl;
+    {
+
+        // std::cout << ANSI_GREEN << ANSI_BOLD << "[PASS]   " << ANSI_RESET <<  "Base de donnees ouverte avec succes !" << std::endl;
+    }
     
     char * msg_err;
     std::string sqlCreate = "CREATE TABLE IF NOT EXISTS ADMIN ("
@@ -142,7 +145,7 @@ bool Admin_db::verifierMDPdansBD(std::string id_, std::string mot_de_passe)
 
             if(crypto_pwhash_str_verify(mdp_bd.c_str(), mot_de_passe.c_str(),  mot_de_passe.length()) == 0)
             {
-                std::cout << ANSI_GREEN << ANSI_BOLD << "[PASS]   " << ANSI_RESET << "Mot de passe correct !" << std::endl;
+                // std::cout << ANSI_GREEN << ANSI_BOLD << "[PASS]   " << ANSI_RESET << "Mot de passe correct !" << std::endl;
 
                 sqlite3_finalize(stmt);
                 return true; // ID existe et mot de passe correct

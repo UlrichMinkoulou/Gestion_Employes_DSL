@@ -115,7 +115,13 @@ class DataBase
         DataBase(const char* nomFichier);
         ~DataBase();
         void ajouterEmploye();
+        //test
+        void ajouterEmployeTest(Employe& emp);
+
         void rechercherUnEmploye()const;
+        //test
+        EmployeData testRechercherUnEmploye(std::string nom)const;
+
         void activerdesactiverEmployer();
         void changerInfoEmploye();
         void afficherEmploye();

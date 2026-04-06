@@ -397,7 +397,7 @@ Employe::Employe()
                                   }
                                   else
                                   {
-                                    cout << "Le mot de passe chiffree : " << hashed_password << endl;
+                                    // cout << "Le mot de passe chiffree : " << hashed_password << endl;
                                   }
             return std::string(hashed_password); 
         }

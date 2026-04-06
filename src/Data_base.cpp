@@ -102,7 +102,8 @@ void DataBase::ajouterEmploye()
         
         Employe e;
             
-        string sqlInsert = "INSERT INTO EMPLOYE (ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, EMAIL, MDP, ETAT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        string sqlInsert = "INSERT INTO EMPLOYE (ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL,  ETAT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        // string sqlInsert = "INSERT INTO EMPLOYE (ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, EMAIL, MDP, ETAT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         sqlite3_stmt *stmt;
 
         if(sqlite3_prepare_v2(m_db, sqlInsert.c_str(), -1, &stmt, NULL) != SQLITE_OK)
@@ -122,8 +123,8 @@ void DataBase::ajouterEmploye()
         sqlite3_bind_text(stmt, 8, e.getType_contrat().c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_double(stmt, 9, e.getSalaire());
         sqlite3_bind_text(stmt, 10, e.getCategorie().c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_bind_text(stmt, 11, e.getEmail().c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_bind_text(stmt, 12, e.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 11, e.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 12, e.getEmail().c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_int(stmt, 13, e.activer());
             
         if(sqlite3_step(stmt) == SQLITE_DONE)
@@ -134,6 +135,45 @@ void DataBase::ajouterEmploye()
         sqlite3_finalize(stmt);
     
             
+    }
+
+//test 
+void DataBase::ajouterEmployeTest(Employe& e)
+    {
+        string id_user = generateurID(m_db, "EDSL", 'e');
+        string sqlInsert = "INSERT INTO EMPLOYE (ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL,  ETAT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        sqlite3_stmt *stmt;
+
+        if(sqlite3_prepare_v2(m_db, sqlInsert.c_str(), -1, &stmt, NULL) != SQLITE_OK)
+        {
+            cerr << ANSI_BOLD << ANSI_RED << "[FAIL]     " << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl; 
+            return;
+        }
+
+
+        sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, e.getNom_().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 3, e.getPrenom_().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 4, e.getdateNaissance_().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 5, e.getDateAdhesion_().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 6, e.getSituationMatrimonial_().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 7, e.getPoste_().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 8, e.getTypeContrat_().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_double(stmt, 9, e.getSalaire_());
+        sqlite3_bind_text(stmt, 10, e.getCategorie_().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 11, e.getMotDePasse_().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 12, e.getEmail_().c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int(stmt, 13, e.activer());
+            
+        if(sqlite3_step(stmt) == SQLITE_DONE)
+    
+        {
+            // cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     " << ANSI_RESET << "Employe ajoute avec succes !! " <<endl;
+        }
+        else
+            cerr << ANSI_BOLD << ANSI_RED << "[FAIL]     " << ANSI_RESET  << "Erreur  lors de l'insertion : " << sqlite3_errmsg(m_db) << endl;
+            
+        sqlite3_finalize(stmt);
     }
 
 
@@ -237,6 +277,7 @@ void DataBase::ajouterEmploye()
         recherche = "%" + recherche + "%"; // format pour le LIkE SQL
         sqlite3_stmt *stmt;
         string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE NOM LIKE ?;";
+        
         if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
         {
             sqlite3_bind_text(stmt, 1, recherche.c_str(), -1, SQLITE_TRANSIENT);
@@ -253,9 +294,85 @@ void DataBase::ajouterEmploye()
                 trouve = true;
             }
 
-            if(!trouve) cout << ANSI_BOLD << ANSI_RED <<"[FAIL]   " "| Aucun Employe trouve pour ce nom. " << ANSI_RESET << setw(15) << " " << "|" << endl;
+            if(trouve != true) cout << ANSI_BOLD << ANSI_RED <<"[FAIL]  "<< ANSI_RESET << " Aucun Employe trouve pour ce nom. " << endl;
         }
         sqlite3_finalize(stmt);
+    }
+
+//test de la rechercher de l'employe par id
+    EmployeData DataBase::testRechercherUnEmploye (string id)const
+    {
+        EmployeData emp;
+        // string recherche;
+        // cout << "Entrez le nom (ou une partie du nom) a rechercher : "; cin >> recherche;
+        // recherche = "%" + recherche + "%"; // format pour le LIkE SQL
+        sqlite3_stmt *stmt;
+        string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
+        
+        if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
+        {
+            std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "ErreurSQL: " << sqlite3_errmsg(m_db) << endl;
+            return emp;
+        }
+
+            sqlite3_bind_text(stmt, 1, id.c_str(), -1, SQLITE_TRANSIENT);
+
+            bool trouve = false;
+
+            auto safeString = [](const unsigned char* ptr) -> std::string {
+                return ptr ? reinterpret_cast<const char*>(ptr) : "";
+
+            };
+            
+
+            if(sqlite3_step(stmt) == SQLITE_ROW)
+            {
+
+                const unsigned char* ptrid = sqlite3_column_text(stmt, 0);
+                const unsigned char* ptrnom = sqlite3_column_text(stmt, 1);
+                const unsigned char* ptrprenom = sqlite3_column_text(stmt, 2);
+                const unsigned char* ptrdate_naissance = sqlite3_column_text(stmt, 3);
+                const unsigned char* ptrdate_adhesion = sqlite3_column_text(stmt, 4);
+                const unsigned char* ptrsituation_matrimoniale = sqlite3_column_text(stmt, 5);
+                const unsigned char* ptrposte = sqlite3_column_text(stmt, 6);
+                const unsigned char* ptrtype_contrat = sqlite3_column_text(stmt, 7);
+                const unsigned char* ptrcategorie = sqlite3_column_text(stmt, 9);
+                const unsigned char* ptrmot_de_passe = sqlite3_column_text(stmt, 10);
+                const unsigned char* ptremail = sqlite3_column_text(stmt, 11);
+
+
+                if(ptrid ==nullptr || ptrnom == nullptr || ptrprenom == nullptr || ptrdate_naissance == nullptr || ptrdate_adhesion == nullptr || ptrsituation_matrimoniale == nullptr || ptrposte == nullptr || ptrtype_contrat == nullptr || ptrcategorie == nullptr || ptrmot_de_passe == nullptr || ptremail == nullptr)
+                {
+                    cerr << ANSI_BOLD << ANSI_RED << "[FAIL]     " << ANSI_RESET  << "Erreur lors de la lecture des données : champ NULL trouvé." << endl;
+                    // continue; // Passer à la ligne suivante
+                }else{
+
+                    emp.m_identifiant_Employe = safeString(ptrid);
+                    emp.m_nom = safeString(ptrnom);
+                    emp.m_prenom = safeString(ptrprenom);
+                    emp.m_date_naissance = safeString(ptrdate_naissance);
+                    emp.m_date_adhesion_entreprise = safeString(ptrdate_adhesion);
+                    emp.m_situation_matrimonial = safeString(ptrsituation_matrimoniale);
+                    emp.m_poste = safeString(ptrposte);
+                    emp.m_type_contrat = safeString(ptrtype_contrat);
+                    emp.m_salaire = sqlite3_column_double(stmt, 8);
+                    emp.m_categorie = safeString(ptrcategorie);
+                    emp.m_mot_de_passe = safeString(ptrmot_de_passe);
+                    emp.m_email = safeString(ptremail);
+                    emp.m_etat = sqlite3_column_int(stmt, 12);
+                    
+                    // std::cout << ANSI_BOLD << ANSI_GREEN << "[PASS]  " << ANSI_RESET << "Employe trouve avec succes !! " <<endl;
+                    
+                    trouve = true;
+                }
+            }
+
+            if(!trouve) cout << ANSI_BOLD << ANSI_RED <<"[FAIL]  " << ANSI_RESET << "| Aucun Employe trouve pour cet id. " << setw(15) << " " << "|" << endl;
+        
+        sqlite3_finalize(stmt);
+
+        // cout << "Employe trouve: " << emp.m_nom << " " << emp.m_prenom << std::endl;
+        return emp; // Retourne un objet Employe par défaut si aucun résultat n'est trouvé
     }
 
 
@@ -775,11 +892,11 @@ void DataBase::ajouterEmploye()
             {
                 mdp_bd = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)); //Récupère le mot de passe crypté de la BD
                 // std::cout << "Mot de passe crypté saisi : " << mdp_crypte << std::endl;
-                std::cout << "Mot de passe crypté dans la BD : " << mdp_bd << std::endl;
+                // std::cout << "Mot de passe crypté dans la BD : " << mdp_bd << std::endl;
 
                 if(crypto_pwhash_str_verify(mdp_bd.c_str(), mot_de_passe.c_str(), mot_de_passe.size()) == 0)
                 {
-                    std::cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mot de passe correct !" << std::endl;
+                    //std::cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mot de passe correct !" << std::endl;
                 
                     sqlite3_finalize(stmt);
                     return true;
@@ -1476,7 +1593,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 valide = admin.verifieridAdminexist(destinataire);
                 if(valide == true)
                 {
-                    cout << ANSI_BOLD << ANSI_GREEN << "[PASS]   "<< ANSI_RESET << "Id Destinataire Administrateur valide !" << endl;
+                    // cout << ANSI_BOLD << ANSI_GREEN << "[PASS]   "<< ANSI_RESET << "Id Destinataire Administrateur valide !" << endl;
                 }
                 else{
                     cerr << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET << "Id Destinataire Administrateur invalide !" << endl;
@@ -1508,7 +1625,10 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
          sqlite3_bind_int(stmt, 5, 1);
 
         if(sqlite3_step(stmt) == SQLITE_DONE)
-            cout << ANSI_BOLD << ANSI_GREEN << "[PASS]   "<< ANSI_RESET << "Message envoye avec PASS !!" << endl;
+        {
+            // cout  << " " << endl;
+            // cout << ANSI_BOLD << ANSI_GREEN << "[PASS]   "<< ANSI_RESET << "Message envoye avec PASS !!" << endl;
+        }
         else 
             cerr << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET << "Erreur d'envoi : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
         
@@ -2182,9 +2302,9 @@ std::string DataBase::selectionnerExpediteur(string id_user)
                 emp.m_type_contrat= reinterpret_cast<const char*>(sqlite3_column_text(stmt,7));
                 emp.m_salaire = sqlite3_column_double(stmt, 8);
                 emp.m_categorie = reinterpret_cast<const char*>(sqlite3_column_text(stmt,9));
-                emp.m_email = reinterpret_cast<const char*>(sqlite3_column_text(stmt,10));
-                emp.m_mot_de_passe = reinterpret_cast<const char*>(sqlite3_column_text(stmt,11));
-                // emp.m_mot_de_passe = reinterpret_cast<const char*>(sqlite3_column_text(stmt,12));
+                emp.m_mot_de_passe = reinterpret_cast<const char*>(sqlite3_column_text(stmt,10));
+                // emp.m_mot_de_passe = reinterpret_cast<const char*>(sqlite3_column_text(stmt,10));
+                emp.m_email = reinterpret_cast<const char*>(sqlite3_column_text(stmt,11));
                 emp.m_etat = sqlite3_column_int(stmt, 12);
 
                 m_caheEmployes.push_back(emp);
@@ -2263,7 +2383,7 @@ std::string DataBase::selectionnerExpediteur(string id_user)
             << "| " << setw(10) << emp.m_salaire
             << "| " << setw(2) << emp.m_categorie
             //  << "| " << setw(14) << emp.m_mot_de_passe
-            << "| " << setw(25) << emp.m_mot_de_passe
+            << "| " << setw(25) << emp.m_email
             << "| " << setw(2) << emp.m_etat << "|" << endl; 
         }
     }

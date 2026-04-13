@@ -343,7 +343,7 @@ void DataBase::ajouterEmployeTest(Employe& e)
 
                 if(ptrid ==nullptr || ptrnom == nullptr || ptrprenom == nullptr || ptrdate_naissance == nullptr || ptrdate_adhesion == nullptr || ptrsituation_matrimoniale == nullptr || ptrposte == nullptr || ptrtype_contrat == nullptr || ptrcategorie == nullptr || ptrmot_de_passe == nullptr || ptremail == nullptr)
                 {
-                    cerr << ANSI_BOLD << ANSI_RED << "[FAIL]     " << ANSI_RESET  << "Erreur lors de la lecture des données : champ NULL trouvé." << endl;
+                    std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]     " << ANSI_RESET  << "Erreur lors de la lecture des données : champ NULL trouvé." << endl;
                     // continue; // Passer à la ligne suivante
                 }else{
 
@@ -367,7 +367,10 @@ void DataBase::ajouterEmployeTest(Employe& e)
                 }
             }
 
-            if(!trouve) cout << ANSI_BOLD << ANSI_RED <<"[FAIL]  " << ANSI_RESET << "| Aucun Employe trouve pour cet id. " << setw(15) << " " << "|" << endl;
+            if(!trouve) 
+            {
+                //std::cout << ANSI_BOLD << ANSI_RED <<"[FAIL]  " << ANSI_RESET << "| Aucun Employe trouve pour cet id. " << std::setw(15) << " " << "|" << std::endl;
+            }
         
         sqlite3_finalize(stmt);
 
@@ -405,7 +408,7 @@ void DataBase::ajouterEmployeTest(Employe& e)
     }
     
     //fonction qui verifie la presence d'un ID dans la base de donnnes
-    bool DataBase::verif_if(string identifiant)
+ bool DataBase::verif_if(string identifiant)
     {
 
         bool trouve = false;
@@ -417,8 +420,8 @@ void DataBase::ajouterEmployeTest(Employe& e)
         {
             sqlite3_bind_text(stmt, 1, identifiant.c_str(), -1, SQLITE_TRANSIENT);
 
-            cout << "\n --- EMPLOYE ---" <<endl;
-            //trouve = false;
+            // cout << "\n --- EMPLOYE ---" <<endl;
+            trouve = false;
             
             while(sqlite3_step(stmt) == SQLITE_ROW)
             {
@@ -428,11 +431,47 @@ void DataBase::ajouterEmployeTest(Employe& e)
                 dessinnerLignes();
             }
 
-            if(!trouve) cout << ANSI_BOLD << ANSI_RED <<"[FAIL]  " << ANSI_RESET << "| Aucun Employe trouve pour cet identifiant. " << setw(15) << " " << "|" << endl;
+            if(!trouve) 
+            {
+                cout << ANSI_BOLD << ANSI_RED <<"[FAIL]  " << ANSI_RESET << "| Aucun Employe trouve pour cet identifiant. " << setw(15) << " " << "|" << endl;
+            }
         }
         sqlite3_finalize(stmt);
         return trouve;
     }
+
+//test 
+bool DataBase::testverif_if(std::string identifiant)
+{
+            bool trouve = false;
+
+        // recherche = "%" + recherche + "%"; // format pour le LIkE SQL
+        sqlite3_stmt *stmt;
+        string sql = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
+        if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+        {
+            sqlite3_bind_text(stmt, 1, identifiant.c_str(), -1, SQLITE_TRANSIENT);
+
+            // cout << "\n --- EMPLOYE ---" <<endl;
+            trouve = false;
+            
+            while(sqlite3_step(stmt) == SQLITE_ROW)
+            {
+                // dessinnerLignes();
+                // afficherLigneEmploye(stmt);
+                trouve = true;
+                // dessinnerLignes();
+            }
+
+            if(!trouve) 
+            {
+                // cout << ANSI_BOLD << ANSI_RED <<"[FAIL]  " << ANSI_RESET << "| Aucun Employe trouve pour cet identifiant. " << setw(15) << " " << "|" << endl;
+            }
+        }
+        sqlite3_finalize(stmt);
+        return trouve;
+}
+
 
 //Modification des infos Employe cote user
 
@@ -831,6 +870,42 @@ void DataBase::ajouterEmployeTest(Employe& e)
 
     }
 
+
+
+//test changer Infos Employes
+void DataBase::testChangerInfosEmploye(std::string id, std::string nouveau_nom, std::string nouveau_prenom, std::string nouveau_poste)
+{
+                            m_caheEmployes.clear();
+                            string sql = "UPDATE EMPLOYE SET NOM=?, PRENOM=?, POSTE=? WHERE ID=?;";
+                            sqlite3_stmt *stmt;
+                            sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL); //laissez ohne v2
+
+                            sqlite3_bind_text(stmt, 4, id.c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 1, nouveau_nom.c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 2, nouveau_prenom.c_str(), -1, SQLITE_TRANSIENT);
+                            sqlite3_bind_text(stmt, 3, nouveau_poste.c_str(), -1, SQLITE_TRANSIENT);
+          
+            
+                            if(sqlite3_step(stmt) == SQLITE_DONE) 
+                                {
+                                    if(sqlite3_changes(m_db) > 0)
+                                    {
+
+                                        // cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     "<< ANSI_RESET << "Mise a jour reussie !" << endl;
+                                        chargerCache();
+                                    }
+                                    else    
+                                        cout << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET  << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+                                }
+                            else
+                                {
+                                    cerr << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET  << endl;
+                                }
+
+                            sqlite3_finalize(stmt);
+}
+
+
 //Fonction pour lire un caractere sans echo dans le terminal
     std::string getPassword()
     {
@@ -903,19 +978,17 @@ void DataBase::ajouterEmployeTest(Employe& e)
                 }
                 else
                 {
-                    std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET << "Mot de passe incorrect !" << std::endl;
+                    // std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET << "Mot de passe incorrect !" << std::endl;
                     sqlite3_finalize(stmt);
                     return false;
                 }
             }
             else
             {
-                std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET << "Aucun utilisateur trouvé avec cet ID !" << std::endl;
+                // std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]   " << ANSI_RESET << "Aucun utilisateur trouvé avec cet ID !" << std::endl;
                 sqlite3_finalize(stmt);
                 return false;
             }
-
-
     }
 
     //opti #1
@@ -1018,7 +1091,75 @@ void DataBase::ajouterEmployeTest(Employe& e)
                     return m_data.res;
     }
 
+//test
+bool DataBase::testConnexionEmploye(std::string id_, std::string mot_de_passe)
+    {
+            
+            m_data.id_ = id_;
+            
+            string mdp_crypte = crypterMotDePasse(mot_de_passe);
+            
+            m_data.res = verifierMDPdansBD(id_, mot_de_passe);
 
+            if(m_data.res == true)
+            {
+
+                        std::string sql_recherche = "SELECT ID, NOM, PRENOM, DATE_NAIS, DATE_ADHE, SITUATION_MAT, POSTE, TYPECONTRAT, SALAIRE, CATEGORIE, MDP, EMAIL, ETAT FROM EMPLOYE WHERE ID = ?;";
+                        // sqlite3_stmt *stmt;
+                        sqlite3_stmt* raw_stmt = nullptr; 
+
+                        if(sqlite3_prepare_v2(m_db, sql_recherche.c_str(), -1, &raw_stmt, nullptr) != SQLITE_OK)
+                        {
+                            std::cerr << ANSI_BOLD << ANSI_GREEN << "\n[INFO]" << ANSI_RESET << "Erreur SQL :" << sqlite3_errmsg(m_db) << std::endl;
+                            return false;
+                        }
+                            //transfert de la responsabilite au pointeur intelligent
+                            SqliteStmtPtr stmt(raw_stmt);
+
+                            sqlite3_bind_text(stmt.get(), 1, m_data.id_.c_str(), -1, SQLITE_TRANSIENT);
+                            //m_data.res = true;
+
+        
+                        
+                        if(sqlite3_step(stmt.get()) == SQLITE_ROW)
+                        {
+                            int etat = (sqlite3_column_int(stmt.get(), 12)); //Récupère la valeur de la colonne ETAT
+
+                                // std::cout << "Valeur de etat : " << etat << std::endl;
+
+                                if(etat ==0) {
+                                        m_data.res = false;
+                                        std::cout << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Compte inactif, veillez contacter l'administrateur !\n\n"  << std::endl;
+                                        // sqlite3_finalize(stmt);
+                                        
+                                        return m_data.res;               
+                                    }
+
+                                        const unsigned char *user_name = sqlite3_column_text(stmt.get(), 1); //ici il peut y avoir probleme si la valeur est NULL, raison pour laquelle on verifie avec la ligne qui suit
+                                        if(user_name != nullptr)
+                                        {
+             
+                                        }else
+                                            {
+                                                m_data.name = "User"; //Valeur par defaut si le nom est NULL
+                                            }
+
+                        } else
+                            {
+                                m_data.res = false;
+                                std::cout << ANSI_BOLD << ANSI_RED<< "[FAIL]  " << ANSI_RESET << "Id ou mot de passe Incorrect !"  << std::endl;
+                            }
+                            
+                            
+                            // sqlite3_finalize(stmt); //Plus besoin de sqlite3_finalize(), le destructeur stmt s'en occupe automatiquement!
+                }
+
+                    return m_data.res;
+    }
+
+
+
+    
 // #include "qrcode.h" // Assure-toi d'avoir inclus la lib
 void dessinerQRCode(canvas_ity::canvas& cv, std::string texte, float x, float y, float tailleCarre) {
     // 1. Créer le QR Code (Version 3 = environ 29x29 modules, assez pour un ID ou URL)
@@ -1280,8 +1421,6 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             {
                 cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << endl;
             }  
-
-
    
     }
 
@@ -1484,6 +1623,205 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
     }
 
 
+    //test
+    void DataBase::testimprimer_fiche_paie_caching(std::string id_emp)
+    {
+ // const vector<EmployeData> vect = m_caheEmployes;
+        bool condition = false;
+
+        auto it = std::find_if(m_caheEmployes.begin(), m_caheEmployes.end(), [&id_emp](const EmployeData& emp){
+            return emp.m_identifiant_Employe == id_emp;
+        });
+
+        if(it != m_caheEmployes.end())
+        {
+            const EmployeData& emp = *it;
+
+
+                    const std::string mois_fr[] = {
+                    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+                                                };
+                    std::time_t t = std::time(nullptr);
+                    std::tm* now = std::localtime(&t);
+
+                    std::string moi_actuel = mois_fr[now->tm_mon];
+                    ostringstream annee_str ;
+                    annee_str << now->tm_year + 1900;   
+                    string annee_ = annee_str.str();   
+
+                    condition = true;
+                    std::string nom = emp.m_nom;
+                    std::string prenom = emp.m_prenom;
+                    std::string id_emp = emp.m_identifiant_Employe;
+                    std::string poste = emp.m_poste;
+                    double salaire_brut = emp.m_salaire;
+                    std::string type_contrat = emp.m_type_contrat;
+                    std::string date_embauche = emp.m_date_adhesion_entreprise;
+                    std::string sit_mat = emp.m_situation_matrimonial;
+                    int etat = emp.m_etat;
+                    std::string dateNaissance = emp.m_date_naissance;
+                    std::string dateTime = __DATE__; //Date de generation de la fiche de paie
+
+                        std::string ville = "Paris";
+                        int largeur = 800;
+                        int hauteur = 1132;
+                        // std::string annee_ = "2026";
+                        // std::string mois_ = "04";
+                        std::string position_gestion = "ACTIVITE";
+                        std::string position_solde = "ACTIVITE NORMALEMENT";
+                        std::string banc = "SG FRANCE";
+                        int nocpt = 2004320986;  //On doit modifier la valeur de facon externe pour chaque employe
+                        int nmbEnfant = 0;
+                        canvas_ity::canvas cv(largeur, hauteur);
+
+                        if(emp.m_etat==0){
+                            position_gestion = "INACTIF";
+                            position_solde = "INACTIF";
+                            salaire_brut = 0.0;
+                        }
+
+
+                        std::vector<unsigned char> font_data = chargerPolice("/home/ulrich/Downloads/Roboto-Regular.ttf");
+                        cv.set_font(font_data.data(), (int)font_data.size(), 30.0f); // Charger une police pour le titre
+
+                            if (largeur <= 0 || hauteur <= 0 || largeur > 5000 || hauteur > 5000) {
+                            std::cerr << "Dimensions invalides !" << std::endl;
+                            return;
+                        }
+                        // --- FOND & CADRE ---
+                        // std::string nom; double brut = 6789.45; // Valeurs d'exemple, à remplacer par des données réelles
+                        cv.set_color(canvas_ity::fill_style, 255, 255, 255, 255); // Blanc
+                        cv.fill_rectangle(0, 0, largeur, hauteur);
+                        
+                        cv.set_color(canvas_ity::stroke_style, 44, 62, 80, 255); // Bleu foncé
+                        cv.set_line_width(5);
+                        cv.stroke_rectangle(10, 10, 780, 580);
+
+                        // --- ENTÊTE ---
+
+                        // On charge l'image
+                        dessinerLogo(cv, "dsl.jpeg", 50, 20, 250, 250); // Chemin du logo et position
+                        // cv.set_font(font_data.data(), (int)font_data.size(), 18.0f); // Note: il faut charger une police .ttf pour un rendu pro
+                        // cv.set_color(canvas_ity::fill_style, 44, 62, 80, 255);
+                        // cv.fill_text("BULLETIN DE PAIE", 250, 60);  
+
+                        cv.set_line_width(2);
+                        cv.move_to(50, 80);
+                        cv.line_to(750, 80);
+                        cv.stroke();
+
+                        // --- INFOS EMPLOYÉ ---
+                        std::string employe = "Matricule : " + id_emp;
+                        std::string annee = "Annee : " + annee_;
+                        std::string mois = "Mois : " + moi_actuel;
+                        cv.set_font(font_data.data(), (int)font_data.size(), 18.0f); // Gras pour les infos
+                        cv.set_color(canvas_ity::fill_style, 0, 0, 0, 255);
+                        cv.fill_text(employe.c_str(), 50, 220);
+                        cv.fill_text(annee.c_str(), 50, 240);
+                        cv.fill_text(mois.c_str(), 50, 260);
+                        cv.fill_text(("date edition: " + dateTime).c_str(), 500, 220);
+                        cv.fill_text(("Nom : " + nom).c_str(), 50, 310);
+                        cv.fill_text(("Prénom : " + prenom).c_str(), 50, 330);
+                        cv.fill_text(("Poste : " + poste).c_str(), 50, 350);
+                        cv.fill_text(("Contrat : " + type_contrat).c_str(), 50, 370);
+                        cv.fill_text(("Ville : " + ville).c_str(), 500, 310);
+
+                        cv.fill_text(("Date d'embauche : " + date_embauche).c_str(), 500, 330);
+                        cv.fill_text(("situation mat: " + sit_mat).c_str(), 500, 350);
+                        cv.fill_text(("nombres enfants: " + std::to_string(nmbEnfant)).c_str(), 500, 370);
+
+                        cv.fill_text(("Position solde: " + position_solde).c_str(), 50, 420);
+                        cv.fill_text(("Position gestion: " + position_gestion).c_str(), 50, 450);
+                        cv.fill_text(("No Identif: 5404" + dateNaissance).c_str(), 500, 450);
+                        cv.fill_text(("Banque: " + banc).c_str(), 50, 480);
+                        cv.fill_text(("no cpt: 0001" + std::to_string(nocpt)).c_str(), 500, 480);
+
+                        // --- TABLEAU DES MONTANTS ---
+                        // Dessiner l'entête du tableau
+                        // cv.set_color(canvas_ity::fill_style, 236, 240, 241, 255); // Gris clair
+                        // cv.fill_rectangle(50, 220, 700, 40);
+                    
+                    
+                        cv.set_font(font_data.data(), (int)font_data.size(), 22.0f); // Gras pour le total
+                        cv.set_color(canvas_ity::fill_style, 0, 0, 0, 255);
+                        cv.fill_text("Code-elt", 50, 530);
+                        cv.fill_text("Désignation", 200, 530);
+                        cv.fill_text("Montant", 600, 530);
+
+                        // Calculs
+                        double cotisations = salaire_brut * 0.22;
+                        double net = salaire_brut - cotisations;
+
+                        // Lignes du tableau
+                        cv.set_font(font_data.data(), (int)font_data.size(), 18.0f); // Gras pour les infos
+                        cv.fill_text("560", 50, 560);
+                        cv.fill_text("Salaire Brut", 200, 560);
+                        cv.fill_text((std::to_string((double)salaire_brut) + " €").c_str(), 600, 560);
+
+                        // cv.set_color(canvas_ity::fill_style, 192, 57, 43, 255); // Rouge pour les retenues//
+                        cv.fill_text("561", 50, 580);
+                        cv.fill_text("Cotisations Sociales (22%)", 200, 580);
+                        cv.fill_text(("-" + std::to_string((double)cotisations) + " €").c_str(), 600, 580);
+                        // cv.fill_text("562", 50, 600 );
+
+                        cv.fill_text("563", 50, 620);
+                        cv.fill_text("Prime mois ", 200, 620);
+                        cv.fill_text("564", 50, 640);
+                        cv.fill_text("Prime mission ", 200, 640);
+                        cv.fill_text("565", 50, 660);
+                        cv.fill_text("impos revenu Pers. Physique ", 200, 660);
+
+                        // --- TOTAL NET ---
+                        cv.set_color(canvas_ity::fill_style, 0, 0, 0, 255); // Vert pour le Net
+                        // cv.fill_rectangle(50, 400, 700, 50);
+                        
+                        //cv.set_color(canvas_ity::fill_style, 255, 255, 255, 255);
+                        cv.set_font(font_data.data(), (int)font_data.size(), 22.0f); // Gras pour le total
+                        cv.fill_text("NET À PAYER", 200, 700);
+                        cv.fill_text((std::to_string((double)net) + " €").c_str(), 600, 700);
+
+                        //codeqr
+                        // cv.set_color(canvas_ity::fill_style, 255, 255, 255, 255);
+                        // cv.fill_rectangle(50 - 10, 750 - 10, 200 + 20, 200 + 20);
+                        std::string infoQr = id_emp +   nom +  std::to_string((double)net) + " €";
+                        dessinerQRCode(cv, infoQr, 50.0f, 750.0f, 4*50.0f); // Position et taille du QR code
+
+                        // --- SAUVEGARDE ---
+                        // La bibliothèque génère un tableau de pixels (RGBA)
+                        std::vector<unsigned char> image(largeur * hauteur * 4);
+                        cv.get_image_data(image.data(), largeur, hauteur, largeur * 4, 0, 0);
+                        // -------------------------------------------------------------
+
+                        // 1. Créer un buffer pour stocker les pixels (RGBA : 4 octets par pixel)
+                        // std::cout << "Tentative de création d'un buffer de : " << (largeur * hauteur * 4) << " octets" << std::endl;
+                        std::vector<unsigned char> pixels(largeur * hauteur * 4);
+
+                        // 2. Transférer le dessin du canvas vers notre buffer de pixels
+                        cv.get_image_data(pixels.data(), largeur, hauteur, largeur * 4, 0, 0);
+
+                        // 3. Ecrire le fichier PNG sur le disque
+                        std::string nomFichier = "Fiche_Paie_RAM" + id_emp + "_" + dateTime + ".png";
+                        
+                        // Paramètres : Nom, Largeur, Hauteur, Canaux (4 pour RGBA), Pixels, Pas (Largeur * 4)
+                        int success = stbi_write_png(nomFichier.c_str(), largeur, hauteur, 4, pixels.data(), largeur * 4);
+
+                        if (success) {
+                            // std::cout << "\033[32m[SUCCÈS]\033[0m Image générée : " << nomFichier << std::endl;
+                            
+                            // --- BONUS : Ouvrir l'image automatiquement (Windows) ---
+                            // std::string cmd = "start " + nomFichier;
+                            // system(cmd.c_str());   
+                        }
+                     
+        }else{
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Identifiant introuvable dans le cache." << endl;
+        }
+    }
+    
+
+
+
     void DataBase::activerdesactiverEmployer()
     {
         cout << "\n\n=======================================" << ANSI_BLUE << ANSI_BOLD << "ACTIVER/DESACTIVER EMPLOYE" << ANSI_RESET<< endl << endl;
@@ -1537,6 +1875,64 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
         sqlite3_finalize(stmt);
 
+    }
+
+    //test
+    void DataBase::testactiverdesactiverEmployer(std::string id, int choix)
+    {
+        // cout << "\n\n=======================================" << ANSI_BLUE << ANSI_BOLD << "ACTIVER/DESACTIVER EMPLOYE" << ANSI_RESET<< endl << endl;
+        // // std::cout << std::endl << std::endl << "--------------------Activer/Desactiver employe" << std::endl << std::endl;
+        // cout << "----Entrez l'identifiant : ";
+        //  cin >> m_data.id_;
+
+        DataBase BD("entreprise_.db");
+        // BD.rechercherUnEmploye_id(id);
+        int etat;
+
+        string sql = "UPDATE EMPLOYE SET ETAT = ? WHERE ID = ?;";
+        sqlite3_stmt* stmt;
+        Employe e;
+        bool valide;
+
+        do
+        {
+            // cout << "\n1. Activer le compte." << endl;
+            // cout << "2. Desactiver le compte." << endl;
+            // cout << "> ";
+            //  cin >> choix;
+            
+            switch (choix)
+            {
+                case 1: etat = 1; valide = true; break;
+                case 2: etat = 0; valide = true; break;
+                
+                default: cout << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Valeur incorrect !" << endl; valide = false;
+                break;
+            }
+        }while (valide == false);
+
+        
+        sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL);
+
+        sqlite3_bind_int(stmt, 1, etat);
+        sqlite3_bind_text(stmt, 2, id.c_str(), -1, SQLITE_TRANSIENT);
+
+        if(sqlite3_step(stmt) == SQLITE_DONE) 
+            {
+                if(sqlite3_changes(m_db) > 0)
+                {
+
+                    // cout << ANSI_BOLD << ANSI_GREEN << "[PASS]  " << ANSI_RESET << "Mise a jour d'etat reussie !" << endl;
+                }
+                else    
+                    cout << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Aucun Employe trouve avec cet Id !" << ANSI_RESET << endl;
+            }
+        else
+            {
+                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour de l'etat : " << sqlite3_errmsg(m_db) << endl;
+            }
+
+        sqlite3_finalize(stmt);  
     }
 
     //Verifier id exist
@@ -1746,7 +2142,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             }
     }
 
-    void DataBase::lire_MSG_recus(std::string id_expediteur)
+    void DataBase::lire_MSG_recus(std::string id_expediteur, int test)
     {
             string sql = "UPDATE MESSAGE SET LU = 0 WHERE ID_EXPEDITEUR = ?;";
             sqlite3_stmt* stmt;
@@ -1758,11 +2154,22 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 }
             
             sqlite3_bind_text(stmt, 1, id_expediteur.c_str(), -1, SQLITE_TRANSIENT);
+            
+            if(test == 0)
+            {
 
-            if(sqlite3_step(stmt) == SQLITE_DONE)
-                cout << ANSI_BOLD << ANSI_GREEN << "[PASS]  " << ANSI_RESET << "Messages marques comme lus avec PASS !!" << ANSI_RESET << endl;
-            else 
-                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                if(sqlite3_step(stmt) == SQLITE_DONE)
+                {
+                   cout << ANSI_BOLD << ANSI_GREEN << "[PASS]  " << ANSI_RESET << "Messages marques comme lus avec success !!" << ANSI_RESET << endl;
+                }
+                else 
+                {
+                    cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de mise a jour : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                }
+            }else if(test == 1)
+            {
+
+            }
             
             sqlite3_finalize(stmt);
     }
@@ -1802,7 +2209,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                     sqlite3_finalize(stmt);
 
                     DataBase message("entreprise_.db");
-                    message.lire_MSG_recus(id_);
+                    message.lire_MSG_recus(id_, 0);
             }else
             {
                 cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation de la requete : " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
@@ -1908,41 +2315,90 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             if(!m_caheMessageDestinataires.empty())
             {
             
-        cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "MESSAGES ENVOYES" << ANSI_RESET<< endl;
-                // cout << "\n --- MESSAGES ENVOYES --- " << endl; 
-                dessinnerLignesMSG();
-                cout << "| " << left << setw(8) << "Id_Msg"
-                        << "| " << setw(10) << "EXP."
-                        << "| " << setw(28) << "OBJET"
-                        << "| " << setw(28) << "CONTENU"
-                        << "| " << setw(20) << "Date/Heure" 
-                        << "|" << endl; 
-                    dessinnerLignesMSG();  
+                cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "MESSAGES RECUS" << ANSI_RESET<< endl;
+                        // cout << "\n --- MESSAGES ENVOYES --- " << endl; 
+                        dessinnerLignesMSG();
+                        cout << "| " << left << setw(8) << "Id_Msg"
+                                << "| " << setw(10) << "EXP."
+                                << "| " << setw(28) << "OBJET"
+                                << "| " << setw(28) << "CONTENU"
+                                << "| " << setw(20) << "Date/Heure" 
+                                << "|" << endl; 
+                            dessinnerLignesMSG();  
 
-            for(const dtMessage& dtmsgdest : m_caheMessageDestinataires)
-                {
-                        string msg = dtmsgdest.contenu.c_str() ? dtmsgdest.contenu : "sans contenu";
-                        string obj = dtmsgdest.objet.c_str() ? dtmsgdest.objet : "sans objet";
-                                
-                        if(msg.length() > 25)  msg = msg.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite le contenu a 25 caracteres.
-                        if(obj.length() > 25)  obj = obj.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite l'objet a 25 caracteres.    
+                    for(const dtMessage& dtmsgdest : m_caheMessageDestinataires)
+                        {
+                                string msg = dtmsgdest.contenu.c_str() ? dtmsgdest.contenu : "sans contenu";
+                                string obj = dtmsgdest.objet.c_str() ? dtmsgdest.objet : "sans objet";
+                                        
+                                if(msg.length() > 25)  msg = msg.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite le contenu a 25 caracteres.
+                                if(obj.length() > 25)  obj = obj.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite l'objet a 25 caracteres.    
 
-                        cout << "| " << left << setw(8) << dtmsgdest.idMessage
-                            << "| " << setw(10)  << dtmsgdest.idExpediteur
-                            << "| " << ANSI_BOLD << ANSI_BLUE    << setw(28)  << obj << ANSI_RESET
-                            << "| " << ANSI_BOLD << ANSI_YELLOW  << setw(28)  << msg << ANSI_RESET
-                            << "| " << setw(20)  << dtmsgdest.date_time
-                            //<< "| " << setw(4) << sqlite3_column_int(stmt, 5)
-                            << "|" << endl;
-                            dessinnerLignesMSG();
+                                cout << "| " << left << setw(8) << dtmsgdest.idMessage
+                                    << "| " << setw(10)  << dtmsgdest.idExpediteur
+                                    << "| " << ANSI_BOLD << ANSI_BLUE    << setw(28)  << obj << ANSI_RESET
+                                    << "| " << ANSI_BOLD << ANSI_YELLOW  << setw(28)  << msg << ANSI_RESET
+                                    << "| " << setw(20)  << dtmsgdest.date_time
+                                    //<< "| " << setw(4) << sqlite3_column_int(stmt, 5)
+                                    << "|" << endl;
+                                    dessinnerLignesMSG();
                 }
 
             }else
                 {
-                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Aucun Message de cet Id dans le cache: " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                    std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Aucun Message de cet Id dans le cache: " << ANSI_RESET << std::endl;
                 }
 
     }
+
+    //Caching
+    void DataBase::afficher_MSG_recus_caching(std::string id)
+    {
+            m_caheMessageDestinataires.clear();
+
+            for(dtMessage& dtmsg:m_cacheMessages)
+            {
+                if(dtmsg.idDestinataire == id) m_caheMessageDestinataires.push_back(dtmsg);
+            }
+
+            if(!m_caheMessageDestinataires.empty())
+            {
+            
+                cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD << "MESSAGES RECUS" << ANSI_RESET<< endl;
+                        // cout << "\n --- MESSAGES ENVOYES --- " << endl; 
+                        dessinnerLignesMSG();
+                        cout << "| " << left << setw(8) << "Id_Msg"
+                                << "| " << setw(10) << "EXP."
+                                << "| " << setw(28) << "OBJET"
+                                << "| " << setw(28) << "CONTENU"
+                                << "| " << setw(20) << "Date/Heure" 
+                                << "|" << endl; 
+                            dessinnerLignesMSG();  
+
+                    for(const dtMessage& dtmsgdest : m_caheMessageDestinataires)
+                        {
+                                string msg = dtmsgdest.contenu.c_str() ? dtmsgdest.contenu : "sans contenu";
+                                string obj = dtmsgdest.objet.c_str() ? dtmsgdest.objet : "sans objet";
+                                        
+                                if(msg.length() > 25)  msg = msg.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite le contenu a 25 caracteres.
+                                if(obj.length() > 25)  obj = obj.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite l'objet a 25 caracteres.    
+
+                                cout << "| " << left << setw(8) << dtmsgdest.idMessage
+                                    << "| " << setw(10)  << dtmsgdest.idExpediteur
+                                    << "| " << ANSI_BOLD << ANSI_BLUE    << setw(28)  << obj << ANSI_RESET
+                                    << "| " << ANSI_BOLD << ANSI_YELLOW  << setw(28)  << msg << ANSI_RESET
+                                    << "| " << setw(20)  << dtmsgdest.date_time
+                                    //<< "| " << setw(4) << sqlite3_column_int(stmt, 5)
+                                    << "|" << endl;
+                                    dessinnerLignesMSG();
+                }
+
+            }else
+                {
+                    std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Aucun Message de cet Id dans le cache: " << ANSI_RESET << std::endl;
+                }    
+    }
+
 
 
         //Caching
@@ -2114,6 +2570,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                     const unsigned char* pExp = sqlite3_column_text(stmt, 0);
                     const unsigned char* pCont = sqlite3_column_text(stmt, 1);
                     const unsigned char* pDate = sqlite3_column_text(stmt, 2);
+                    
                     if(pExp == nullptr || pCont == nullptr || pDate == nullptr)
                     {
                         cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Données manquantes pour un message. Ignoré." << endl;
@@ -2320,7 +2777,7 @@ std::string DataBase::selectionnerExpediteur(string id_user)
     //charger cache de tous les messages
     void DataBase::chargerCacheMSG()
     {
-        m_liste_messages.clear(); //On vide  le vector
+        m_cacheMessages.clear(); //On vide  le vector
 
         string sql = "SELECT ID_MSG, ID_DESTINATAIRE, ID_EXPEDITEUR, OBJET, CONTENU_MESSAGE, DATE_TIME, LU FROM MESSAGE";
         sqlite3_stmt* stmt;
@@ -2387,6 +2844,7 @@ std::string DataBase::selectionnerExpediteur(string id_user)
             << "| " << setw(2) << emp.m_etat << "|" << endl; 
         }
     }
+
 
 
     void dessinnerLignes()

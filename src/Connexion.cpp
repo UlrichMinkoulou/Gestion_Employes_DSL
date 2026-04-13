@@ -454,7 +454,7 @@ void messages(std::string id)
                                     break;
                                 }
                                 
-                            case 2: user.lire_MSG_recus(id_expediteur); break;
+                            case 2: user.lire_MSG_recus(id_expediteur,0); break;
                             case 3: condition_discussion = true; clearCLI(); break;
                         }
                     }while (condition_discussion == false);

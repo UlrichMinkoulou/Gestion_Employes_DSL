@@ -123,7 +123,14 @@ class DataBase
         EmployeData testRechercherUnEmploye(std::string nom)const;
 
         void activerdesactiverEmployer();
+
+        //test
+        void testactiverdesactiverEmployer(std::string id_, int choix);
+
         void changerInfoEmploye();
+        //test chanher info Employes
+        void testChangerInfosEmploye(std::string id, std::string nouveau_nom, std::string nouveau_prenom, std::string nouveau_poste);
+
         void afficherEmploye();
         //caching - optimisation 
         void imprimer_fiche_paie_caching(std::string id_emp);
@@ -131,11 +138,20 @@ class DataBase
 
         void afficherUser(std::string idUser);
         bool connexionEmploye(std::string id_);
+        //test
+        bool testConnexionEmploye(std::string id_, std::string mot_de_passe);
+
         void imprimer_fiche_paie(std::string id_emp);
+        //test
+        void testimprimer_fiche_paie_caching(std::string id_emp);
+
         void rechercherUnEmploye_id(std::string id_);
         void mofifierInfoConnexionEmploye(std::string id_);
         
         bool verif_if(std::string identifiant);
+
+        //test verif_if
+        bool testverif_if(std::string id_);
 
         DataConnxion getData(){return m_data;}
 
@@ -150,12 +166,13 @@ class DataBase
 
 
         void afficher_MSG_recus(std::string id_user)const;
-        void lire_MSG_recus(std::string id_user);
+        void lire_MSG_recus(std::string id_user, int test);
         void afficher_MSG_non_lus(std::string id_user)const;
         void afficher_MSG_lus(std::string id_user)const;
 
         //caching 
         void afficher_MSG_lus_caching(std::string id_user);
+        void afficher_MSG_recus_caching(std::string id_user);
 
         void afficher_MSG_envoyes(std::string id_user)const;
 
@@ -170,6 +187,9 @@ class DataBase
 
         bool verifierMDPdansBD(std::string id_, std::string mot_de_passe);
 
+        //test de performance pour le caching
+        void testPerformanceCaching();
+
         //cahe
         void chargerCache(); //Employes
         void chargerCacheMSG(); //Message
@@ -179,9 +199,9 @@ class DataBase
             return m_caheEmployes;
         } 
 
-        std::vector<Data_Message> getCacheMSG()
+        std::vector<dtMessage> getCacheMSG()
         {
-            return m_liste_messages;
+            return m_cacheMessages;
         }
 
     private:

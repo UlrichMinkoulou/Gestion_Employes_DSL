@@ -1618,7 +1618,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                         }
                      
         }else{
-                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Identifiant introuvable dans le cache." << endl;
+                std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Identifiant introuvable dans le cache." << endl;
         }
     }
 
@@ -1965,7 +1965,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
     void DataBase::envoyer_MSG(string destinataire, string expediteur, string contenu, string objet)
     {
-        bool valide;;
+        bool valide;
         
         //Verifier si le destinataire existe
         
@@ -2557,9 +2557,9 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
     std::vector<Data_Message> DataBase::recupererMessages(std::string id_user)
     {
-            std::vector<Data_Message> messages;
+            m_caching_expediteur.clear();
             sqlite3_stmt* stmt;
-            string sql = "SELECT ID_EXPEDITEUR, CONTENU_MESSAGE, DATE_TIME FROM MESSAGE WHERE ID_DESTINATAIRE = ?;";
+            string sql = "SELECT ID_EXPEDITEUR, CONTENU_MESSAGE, OBJET, DATE_TIME FROM MESSAGE WHERE ID_DESTINATAIRE = ?;";
 
             if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
             {
@@ -2569,9 +2569,10 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                     Data_Message msg;
                     const unsigned char* pExp = sqlite3_column_text(stmt, 0);
                     const unsigned char* pCont = sqlite3_column_text(stmt, 1);
-                    const unsigned char* pDate = sqlite3_column_text(stmt, 2);
+                    const unsigned char* pObj = sqlite3_column_text(stmt, 2);
+                    const unsigned char* pDate = sqlite3_column_text(stmt, 3);
                     
-                    if(pExp == nullptr || pCont == nullptr || pDate == nullptr)
+                    if(pExp == nullptr || pCont == nullptr || pObj == nullptr || pDate == nullptr)
                     {
                         cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Données manquantes pour un message. Ignoré." << endl;
                         continue; // Ignorer ce message et passer au suivant
@@ -2579,10 +2580,11 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                     {
                         msg.setIDexpediteur(reinterpret_cast<const char*>(pExp));
                         msg.setContenu(reinterpret_cast<const char*>(pCont));
+                        msg.setObjet(reinterpret_cast<const char*>(pObj));
                         msg.setDateTime(reinterpret_cast<const char*>(pDate));
                     }
                     
-                    messages.push_back(msg);
+                    m_caching_expediteur.push_back(msg);
                 }
             }
             else
@@ -2592,7 +2594,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
             sqlite3_finalize(stmt);
 
-            return messages;
+            return m_caching_expediteur;
     }
 
 //Discussion entre deux utilisateurs

@@ -210,6 +210,9 @@ class DataBase
 
         Data_Message m_data_msg;
         std::vector<Data_Message> m_liste_messages; //pour stocker les messages dans un vecteur
+        //caching expediteur et destinataire
+        std::vector<Data_Message> m_caching_expediteur;
+        // std::vector<Data_Message> m_caching_destinataire;
         
 
         //Cache

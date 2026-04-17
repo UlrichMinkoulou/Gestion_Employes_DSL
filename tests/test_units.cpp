@@ -436,3 +436,39 @@ TEST_F(DataBaseTest, LireMessagesRecus)
     ASSERT_EQ(msg.back().getIDexpediteur(), "EDSL0001");
     ASSERT_EQ(msg.back().getObjet(), "TestBD");
 }
+
+//test de securite et Cas d'erreurs
+TEST_F(DataBaseTest, TestVerifIdInexistant)
+{
+    ASSERT_EQ(db->testverif_if("IDINEXISTANT"), false);
+    ASSERT_EQ(db->verifieridexist("IDINEXISTANT"), false);
+}
+
+TEST_F(DataBaseTest, TestMauvaisMotDePasse)
+{
+        Employe e("UIj", "John", "2023-12-05", "Celibataire", "Financier", "CDD", 
+              "Password123", "doe@dsl.cm", "B", 30, 4500.0, "1998-02-20");
+        db->ajouterEmployeTest(e);
+
+        ASSERT_FALSE(db->verifierMDPdansBD("EDSL0001", "MauvaisMDP"));
+}
+
+TEST_F(DataBaseTest, TestRechercherId)
+{
+    for(int i = 0; i < 3; ++i)
+    {
+        Employe e("Nom" + std::to_string(i), "Prenom" + std::to_string(i), "2023-12-05", "Celibataire", "Financier", "CDD", 
+                  "Password123", "doe" + std::to_string(i) + "@dsl.cm", "B", 30, 4500.0, "1998-02-20");
+        db->ajouterEmployeTest(e);
+    }
+
+    const EmployeData& e = db->testRechercherUnEmploye("EDSL0002");
+    const EmployeData& e1 = db->testRechercherUnEmploye("EDSL0006");
+
+    ASSERT_TRUE(e.m_identifiant_Employe == "EDSL0002");
+    ASSERT_FALSE(e1.m_identifiant_Employe == "EDSL0006");
+    ASSERT_TRUE(e1.m_nom.empty());
+}
+
+
+//Test Integrite des donnees (Changements)

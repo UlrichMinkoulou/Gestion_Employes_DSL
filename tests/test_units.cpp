@@ -472,3 +472,82 @@ TEST_F(DataBaseTest, TestRechercherId)
 
 
 //Test Integrite des donnees (Changements)
+TEST_F(DataBaseTest, ModifierInfosEmployes)
+{
+    for(int i = 0; i < 3; ++i)
+    {
+        Employe e("Nom" + std::to_string(i), "Prenom" + std::to_string(i), "2023-12-05", "Celibataire", "Financier", "CDD", 
+                  "Password123", "doe" + std::to_string(i) + "@dsl.cm", "B", 30, 4500.0, "1998-02-20");
+        db->ajouterEmployeTest(e);
+    }
+    
+    db->testChangerInfosEmploye("EDSL0002", "Doki", "Med", "Medecin");
+    const EmployeData& e = db->testRechercherUnEmploye("EDSL0002");
+    ASSERT_EQ(e.m_nom, "Doki");
+    ASSERT_EQ(e.m_prenom, "Med");
+    ASSERT_EQ(e.m_poste, "Medecin");
+}
+
+TEST_F(DataBaseTest, CoherenceCache)
+{
+    for(int i = 0; i < 3; ++i)
+    {
+        Employe e("Nom" + std::to_string(i), "Prenom" + std::to_string(i), "2023-12-05", "Celibataire", "Financier", "CDD", 
+                  "Password123", "doe" + std::to_string(i) + "@dsl.cm", "B", 30, 4500.0, "1998-02-20");
+        db->ajouterEmployeTest(e);
+    }
+
+    db->chargerCache();
+
+    db->testChangerInfosEmploye("EDSL0002", "Doki_a", "Medi", "Ingenieur");
+    const EmployeData& e = db->testRechercherUnEmploye("EDSL0002");
+    ASSERT_EQ(e.m_nom, "Doki_a");
+}
+
+//Test connexion Employe
+TEST_F(DataBaseTest, ConnexionEmploye)
+{
+        for(int i = 0; i < 3; ++i)
+    {
+        Employe e("Nom" + std::to_string(i), "Prenom" + std::to_string(i), "2023-12-05", "Celibataire", "Financier", "CDD", 
+                  "Password123", "doe" + std::to_string(i) + "@dsl.cm", "B", 30, 4500.0, "1998-02-20");
+        db->ajouterEmployeTest(e);
+    }
+
+    ASSERT_TRUE(db->testConnexionEmploye("EDSL0001", "Password123")); //bON ID ET MDP
+    ASSERT_FALSE(db->testConnexionEmploye("EDSL001", "Password123")); //mAUVAIS ID ET BON MDP
+    ASSERT_FALSE(db->testConnexionEmploye("EDSL0001", "WrongPassword")); //BON ID ET MAUVAIS MDP
+}
+
+//Test Charger Cache MSG
+TEST_F(DataBaseTest, ChargerCacheMSG)
+{
+    db->envoyer_MSG("ADSL0001", "EDSL0001", "Test de message", "Test");
+    db->envoyer_MSG("ADSL0001", "EDSL0001", "Test de message", "Test");
+    db->envoyer_MSG("ADSL0001", "EDSL0001", "Test de message", "Test"); 
+
+    db->chargerCacheMSG();
+    std::vector<dtMessage> messages = db->getCacheMSG();
+    ASSERT_FALSE(messages.empty());
+    ASSERT_EQ(messages.back().idExpediteur, "EDSL0001");
+    ASSERT_EQ(messages.back().contenu, "Test de message");
+}
+
+//test performance du caching MSG
+// TEST_F(DataBaseTest, PerformanceCachingMSG)
+// {
+//     db->envoyer_MSG("ADSL0001", "EDSL0001", "Test de message", "Test");
+//     db->envoyer_MSG("ADSL0001", "EDSL0001", "Test de message", "Test");
+//     db->envoyer_MSG("ADSL0001", "EDSL0001", "Test de message", "Test"); 
+//         auto start = std::chrono::high_resolution_clock::now();
+//     db->chargerCacheMSG();
+//     db->afficher_MSG_recus_caching("ADSL0001");
+//     auto end = std::chrono::high_resolution_clock::now();
+//     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//     std::cout << "\nTemps d'affichage MSG avec caching : " << duration.count() << " microseconds" << std::endl;
+//     start = std::chrono::high_resolution_clock::now();
+//     db->afficher_MSG_non_lus("ADSL0001");
+//     end = std::chrono::high_resolution_clock::now();
+//     duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//     std::cout << "\nTemps d'affichage MSG sans caching : " << duration.count() << " microseconds\n" << std::endl;
+// }

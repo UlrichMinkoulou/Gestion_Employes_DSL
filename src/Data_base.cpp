@@ -128,9 +128,9 @@ void DataBase::ajouterEmploye()
         sqlite3_bind_int(stmt, 13, e.activer());
             
         if(sqlite3_step(stmt) == SQLITE_DONE)
-            cout << ANSI_BOLD << ANSI_GREEN << "[PASS]     " << ANSI_RESET << "Employe ajoute avec PASS !! " <<endl;
+            cout << ANSI_BOLD << ANSI_GREEN << "\n[PASS]     " << ANSI_RESET << "Employe ajoute avec PASS !! " <<endl;
         else
-            cerr << ANSI_BOLD << ANSI_RED << "[FAIL]     " << ANSI_RESET  << "Erreur  lors de l'insertion : " << sqlite3_errmsg(m_db) << endl;
+            cerr << ANSI_BOLD << ANSI_RED << "\n[FAIL]     " << ANSI_RESET  << "Erreur  lors de l'insertion : " << sqlite3_errmsg(m_db) << endl;
             
         sqlite3_finalize(stmt);
     
@@ -282,7 +282,7 @@ void DataBase::ajouterEmployeTest(Employe& e)
         {
             sqlite3_bind_text(stmt, 1, recherche.c_str(), -1, SQLITE_TRANSIENT);
 
-            cout << "\n --- RESULTAT DE LA RECHERCHE ---" <<endl;
+            cout << "\n --- RESULTAT DE LA RECHERCHE ---\n" <<endl;
             bool trouve = false;
             
             while(sqlite3_step(stmt) == SQLITE_ROW)
@@ -294,7 +294,7 @@ void DataBase::ajouterEmployeTest(Employe& e)
                 trouve = true;
             }
 
-            if(trouve != true) cout << ANSI_BOLD << ANSI_RED <<"[FAIL]  "<< ANSI_RESET << " Aucun Employe trouve pour ce nom. " << endl;
+            if(trouve != true) cout << ANSI_BOLD << ANSI_RED <<"[FAIL]  "<< ANSI_RESET << ANSI_BOLD << " Aucun Employe trouve pour ce nom. " << ANSI_RESET << endl;
         }
         sqlite3_finalize(stmt);
     }
@@ -958,7 +958,7 @@ void DataBase::testChangerInfosEmploye(std::string id, std::string nouveau_nom, 
 
         if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
         {
-            std::cerr << ANSI_BOLD << ANSI_GREEN << "\n[INFO]" << ANSI_RESET << "Erreur SQL :" << sqlite3_errmsg(m_db) << std::endl;
+            std::cerr << ANSI_BOLD << ANSI_RED << "\n[FAIL]" << ANSI_RESET << "Erreur SQL :" << sqlite3_errmsg(m_db) << std::endl;
             return false;
         }
             sqlite3_bind_text(stmt, 1, id_.c_str(), -1, SQLITE_TRANSIENT);
@@ -990,6 +990,8 @@ void DataBase::testChangerInfosEmploye(std::string id, std::string nouveau_nom, 
                 return false;
             }
     }
+
+
 
     //opti #1
     /*
@@ -1985,7 +1987,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                 }
         } else if(destinataire[0] == 'A')
             {
-                Admin_db admin("dataBase_admin.db");
+                Admin_db admin("entreprise_.db");
                 valide = admin.verifieridAdminexist(destinataire);
                 if(valide == true)
                 {
@@ -2346,7 +2348,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
             }else
                 {
-                    std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Aucun Message de cet Id dans le cache: " << ANSI_RESET << std::endl;
+                    std::cout << ANSI_BOLD << ANSI_RED << "\n[FAIL]  " << ANSI_RESET << "Aucun Message de cet Id comme destinataire dans le cache " << std::endl;
                 }
 
     }
@@ -2395,7 +2397,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
             }else
                 {
-                    std::cout << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Aucun Message de cet Id dans le cache: " << ANSI_RESET << std::endl;
+                    std::cout << ANSI_BOLD << ANSI_RED << "\n[FAIL]  " << ANSI_RESET << "Aucun Message de cet Id comme destinataire dans le cache " << std::endl;
                 }    
     }
 
@@ -2403,23 +2405,23 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
         //Caching
     
-        void DataBase::afficher_MSG_envoyes_caching(std::string id_user)
+        void DataBase::afficher_MSG_envoyes_caching(std::string id_exp)
         {
-            m_caheMessageDestinataires.clear();
+            m_caheMessageExpediteurs.clear();
 
             for(dtMessage& dtmsg:m_cacheMessages)
             {
-                if(dtmsg.idDestinataire == id_user) m_caheMessageDestinataires.push_back(dtmsg);
+                if(dtmsg.idExpediteur == id_exp) m_caheMessageExpediteurs.push_back(dtmsg);
             }
 
-            if(!m_caheMessageDestinataires.empty())
+            if(!m_caheMessageExpediteurs.empty())
             {
             
         cout << "\n=======================================" << ANSI_BLUE << ANSI_BOLD <<  "MESSAGES ENVOYES" << ANSI_RESET<< endl;
                 // cout << "\n --- MESSAGES ENVOYES --- " << endl; 
                 dessinnerLignesMSG();
                 cout << "| " << left << setw(8) << "Id_Msg"
-                        << "| " << setw(10) << "DEST."
+                        << " | " << setw(10) << "DEST."
                         << "| " << setw(10) << "EXP.."
                         << "| " << setw(28) << "OBJET"
                         << "| " << setw(28) << "CONTENU"
@@ -2427,20 +2429,20 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
                         << "|" << endl; 
                     dessinnerLignesMSG();  
 
-            for(const dtMessage& dtmsgdest : m_caheMessageDestinataires)
+            for(const dtMessage& dtmsgexpt : m_caheMessageExpediteurs)
                 {
-                        string msg = dtmsgdest.contenu.c_str() ? dtmsgdest.contenu : "sans contenu";
-                        string obj = dtmsgdest.objet.c_str() ? dtmsgdest.objet : "sans objet";
+                        string msg = dtmsgexpt.contenu.c_str() ? dtmsgexpt.contenu : "sans contenu";
+                        string obj = dtmsgexpt.objet.c_str() ? dtmsgexpt.objet : "sans objet";
                                 
                         if(msg.length() > 25)  msg = msg.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite le contenu a 25 caracteres.
                         if(obj.length() > 25)  obj = obj.substr(0, 25) + "...";               //pour des raisons d'affichage, on limite l'objet a 25 caracteres.    
 
-                        cout << "| " << left << setw(8) << dtmsgdest.idMessage
-                            << "| " << setw(10)  << dtmsgdest.idDestinataire
-                            << "| " << setw(10)  << dtmsgdest.idExpediteur
+                        cout << "| " << left << setw(8) << dtmsgexpt.idMessage
+                            << " | " << setw(10)  << dtmsgexpt.idDestinataire
+                            << "| " << setw(10)  << dtmsgexpt.idExpediteur
                             << "| " << ANSI_BOLD << ANSI_BLUE    << setw(28)  << obj << ANSI_RESET
                             << "| " << ANSI_BOLD << ANSI_YELLOW  << setw(28)  << msg << ANSI_RESET
-                            << "| " << setw(20)  << dtmsgdest.date_time
+                            << "| " << setw(20)  << dtmsgexpt.date_time
                             //<< "| " << setw(4) << sqlite3_column_int(stmt, 5)
                             << "|" << endl;
                             dessinnerLignesMSG();
@@ -2448,7 +2450,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
             }else
                 {
-                cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Aucun Message de cet Id dans le cache: " << sqlite3_errmsg(m_db) << ANSI_RESET << endl;
+                cout << ANSI_BOLD << ANSI_RED << "\n[FAIL]  " << ANSI_RESET << "Aucun Message de cet Id comme expediteur dans le cache" << endl;
                 }
         }
     
@@ -2626,8 +2628,8 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
         }
             }else if(id_correspondant[0] == 'A')
             {
-                Admin_db admin("dataBase_admin.db");
-                nom = admin.selectName(id_correspondant);
+                Admin_db admin("entreprise_.db");
+                nom = admin.selectName_caching(id_correspondant);
 
         }
 
@@ -2889,6 +2891,7 @@ std::string DataBase::selectionnerExpediteur(string id_user)
     cout << "+" << setfill('-')
          << setw(10) << "+" 
          << setw(12) << "+" 
+         << setw(12) << "+"
          << setw(30) << "+"
          << setw(30) << "+"
          << setw(22) << "+"        

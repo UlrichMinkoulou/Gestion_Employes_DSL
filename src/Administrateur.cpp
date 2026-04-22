@@ -12,12 +12,12 @@ Admin::Admin()
    m_actif = true; 
 }
 
-std::string Admin::activation()
+int Admin::activation()
 {
     if(m_actif == true)
-        return "OUI";
+        return 1;
     else    
-        return "NON";
+        return 0;
 }
 
 

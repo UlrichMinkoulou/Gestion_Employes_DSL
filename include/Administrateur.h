@@ -8,7 +8,7 @@ class Admin : public Employe
 {
     public:
     Admin();
-    std::string activation();
+    int activation();
     void desactivation();
 
     private:

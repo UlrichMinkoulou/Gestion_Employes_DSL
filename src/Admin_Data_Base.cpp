@@ -44,7 +44,7 @@ Admin_db::Admin_db(const char* fileName)
     std::string sqlCreate = "CREATE TABLE IF NOT EXISTS ADMIN ("
                             "ID TEXT NOT NULL,"
                             "NOM TEXT NOT NULL,"
-                            "ETAT TEXT NOT NULL,"
+                            "ETAT INTERGER,"
                             "MDP TEXT NOT NULL);";
 
     sqlite3_exec(m_bd, sqlCreate.c_str(), NULL, 0, &msg_err);
@@ -71,7 +71,7 @@ void Admin_db::ajouterAdmin()
     
     sqlite3_bind_text(stmt, 1, id.c_str(), -1, SQLITE_TRANSIENT);   
     sqlite3_bind_text(stmt, 2, admin.getNom().c_str(), -1, SQLITE_TRANSIENT);   
-    sqlite3_bind_text(stmt, 3, admin.activation().c_str(), -1, SQLITE_TRANSIENT);  
+    sqlite3_bind_int(stmt, 3, 1);  
     sqlite3_bind_text(stmt, 4, admin.getMot_de_passe().c_str(), -1, SQLITE_TRANSIENT);  
     
     if(sqlite3_step(stmt) == SQLITE_DONE)
@@ -80,6 +80,8 @@ void Admin_db::ajouterAdmin()
         std::cerr << "\nErreur lors de l'insertion : " << sqlite3_errmsg(m_bd) <<  std::endl;
 
     sqlite3_finalize(stmt);
+
+    chargerCacheAdmin();
 }
 
 void Admin_db::afficherAdmin()
@@ -87,7 +89,7 @@ void Admin_db::afficherAdmin()
     /* a Coder urgement */
     dessinnerRow();
     std::cout << "| " << std::left << std::setw(8) << "Id"
-              << "| " << std::setw(10) << "NOM"
+              << " | " << std::setw(10) << "NOM"
               << "| " << std::setw(5)  << "ETAT"
               << "| " << std::setw(14) << "MDP" << "| " << std::endl;
               dessinnerRow();
@@ -109,7 +111,7 @@ void Admin_db::afficherUserAdmin(std::string identifiant)
     /* a Coder urgement */
     dessinnerRow();
     std::cout << "| " << std::left << std::setw(8) << "Id"
-              << "| " << std::setw(10) << "NOM"
+              << " | " << std::setw(10) << "NOM"
               << "| " << std::setw(5) << "ETAT"
               << "| " << std::setw(14) << "MDP" << "| " << std::endl;
               dessinnerRow();
@@ -228,7 +230,7 @@ bool Admin_db::connexionAdmin(std::string id_)
 
 void Admin_db::modifierAdmin(std::string id_)
         {
-            Admin_db admin_User("dataBase_admin.db");
+            Admin_db admin_User("entreprise_.db");
 
             std::cout << "----Modification des Infos de Connexion: " << std::endl << std::endl;
             std::string sql = "UPDATE ADMIN SET MDP=? WHERE ID = ?;";
@@ -248,6 +250,8 @@ void Admin_db::modifierAdmin(std::string id_)
                     std::cerr << ANSI_RED << ANSI_BOLD << "[FAIL]  " << ANSI_RESET << "Erreur lors de la mise a jour : " << sqlite3_errmsg(m_bd) << std::endl;
                 }
             sqlite3_finalize(stmt);
+
+            chargerCacheAdmin();
         }
 
 std::string Admin_db:: selectName(std::string id_)
@@ -277,7 +281,7 @@ std::string Admin_db:: selectName(std::string id_)
 void afficherLigneAdmin(sqlite3_stmt* stmt)
     {
         std::cout << "| " << std::left << std::setw(8) << (const char*)sqlite3_column_text(stmt, 0)
-                  << "| " << std::setw(10) << (const char*)sqlite3_column_text(stmt, 1)
+                  << " | " << std::setw(10) << (const char*)sqlite3_column_text(stmt, 1)
                   << "| " << std::setw(5) << (const char*)sqlite3_column_text(stmt, 2)
                   << "| " << std::setw(14) << (const char*)sqlite3_column_text(stmt, 3) << "|" << std::endl; 
   
@@ -355,3 +359,115 @@ std::string generateurID(sqlite3* bd, std::string c, char m)
                     return false; // ID n'existe pas
                 }
     }
+
+    //caching
+
+    void Admin_db:: chargerCacheAdmin()
+    {
+        if(!m_bd)
+        {
+            std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "La connexion à la base est fermée ou inexistante !" << std::endl;
+            return;
+        }
+
+            m_liste_Admin.clear();
+            std::string sql = "SELECT ID, NOM, ETAT, MDP FROM ADMIN;";
+            sqlite3_stmt* stmt;
+
+            if(sqlite3_prepare_v2(m_bd, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+            {
+                while(sqlite3_step(stmt) == SQLITE_ROW)
+                {
+                    Data_Admin ad;
+                    ad.idAdmin = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+                    ad.nomAdmin = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+                    ad.etatadmin = sqlite3_column_int(stmt, 2);
+                    ad.mdpAdmin = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+
+                    m_liste_Admin.push_back(ad);
+                }
+
+                sqlite3_finalize(stmt);
+
+            }else{
+                std::cerr << ANSI_RED << ANSI_BOLD << "[FAIL]  " << ANSI_RESET << " Probleme au niveau de la requet :" << sqlite3_errmsg(m_bd) << std::endl;
+            }
+        
+    }
+
+    bool Admin_db::verifierMDPdansBD_caching(std::string id, std::string mdp)
+    {
+
+        bool valeur = false;
+
+        for(const Data_Admin& dtAd: m_liste_Admin)
+        {
+            if(dtAd.idAdmin == id) 
+            {
+                if(crypto_pwhash_str_verify(dtAd.mdpAdmin.c_str(), mdp.c_str(), mdp.size()) == 0)
+                    {
+                        valeur = true;
+                        std::cout << ANSI_GREEN << ANSI_BOLD << "\n[PASS]  " << ANSI_RESET << "Verification du Mot de Passe reussit !\n" << std::endl;
+                        return valeur;
+                    
+                    }else
+                         std::cout << ANSI_RED << ANSI_BOLD << "\n[FAIL]  " << ANSI_RESET << "Mauvais mot de Passe !" << std::endl;
+            }
+        }
+
+        return valeur;
+    }
+
+
+void Admin_db::afficherUserAdmin_caching()
+{
+    dessinnerRow();
+    std::cout << "| " << std::left << std::setw(8) << "Id"
+              << " | " << std::setw(10) << "NOM"
+              << "| " << std::setw(5) << "ETAT"
+              << "| " << std::setw(14) << "MDP" << "| " << std::endl;
+              dessinnerRow();
+
+
+            for(const Data_Admin& ad : m_liste_Admin)
+            {
+                std::cout << "| " << std::left << ad.idAdmin
+                          << " | " << std::setw(10) << ad.nomAdmin
+                          << "| " << std::setw(5) << ad.etatadmin
+                          << "| " << std::setw(14) << ad.mdpAdmin << "|" << std::endl;
+            }
+            dessinnerRow();
+}
+
+
+std::string Admin_db::selectName_caching(std::string id)
+{
+    for(const Data_Admin& ad : m_liste_Admin)
+    {
+        if(ad.idAdmin == id)
+            return ad.nomAdmin;
+    }
+
+    return "";
+}
+
+void Admin_db::afficherAdmin_caching()
+{
+    dessinnerRow();
+    std::cout << "| " << std::left << std::setw(8) << "Id"
+              << " | " << std::setw(10) << "NOM"
+              << "| " << std::setw(5) << "ETAT"
+              << "| " << std::setw(14) << "MDP" << "| " << std::endl;
+              dessinnerRow();
+
+
+            for(const Data_Admin& ad : m_liste_Admin)
+            {
+                std::cout << "| " << std::left << ad.idAdmin
+                          << " | " << std::setw(10) << ad.nomAdmin
+                          << "| " << std::setw(5) << ad.etatadmin
+                          << "| " << std::setw(14) << ad.mdpAdmin << "|" << std::endl;
+            }
+            dessinnerRow();
+}
+

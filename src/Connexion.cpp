@@ -145,7 +145,7 @@ bool viewUser(std::string IdUser)
 
 bool viewAdmin(std::string IdAdmin)
 {
-    Admin_db admin_user("dataBase_admin.db");
+    Admin_db admin_user("entreprise_.db");
     bool rester_Menu_Admin = false;
 
     if ( admin_user.connexionAdmin(IdAdmin) == true)
@@ -216,8 +216,15 @@ bool viewAdmin(std::string IdAdmin)
                                 // bd_user.afficherEmploye(); 
                                 // std::cout << "Depuis la la RAM" << std::endl;
                                 std::vector<EmployeData> vect = bd_user.getCache();
+
+                                if(!vect.empty())
+                                {
+
+                                    bd_user.afficherEmploye_caching(vect);
+                                }else{
+                                    std::cout << ANSI_BLUE << "\nBase de Donnees Vide, Aucun employes enregistres \n" << ANSI_RESET;
+                                }
                                 // const Empl data
-                                bd_user.afficherEmploye_caching(vect);
                                 break;
                             }
                             case 2: bd_user.ajouterEmploye(); bd_user.chargerCache(); break;

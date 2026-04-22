@@ -174,10 +174,10 @@ class DataBase
         void afficher_MSG_lus_caching(std::string id_user);
         void afficher_MSG_recus_caching(std::string id_user);
 
-        void afficher_MSG_envoyes(std::string id_user)const;
+        void afficher_MSG_envoyes(std::string id)const;
 
         //Caching
-        void afficher_MSG_envoyes_caching(std::string id_user);
+        void afficher_MSG_envoyes_caching(std::string id_expt);
 
         void message_RNL(std::string id_user);
         std::vector<Data_Message> recupererMessages(std::string id_user);

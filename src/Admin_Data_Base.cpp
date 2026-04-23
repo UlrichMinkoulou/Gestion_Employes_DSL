@@ -471,3 +471,99 @@ void Admin_db::afficherAdmin_caching()
             dessinnerRow();
 }
 
+bool Admin_db::verifieridAdminexist_caching(std::string id_)
+{
+    bool valeur = false;
+
+    for(const Data_Admin& dtAd : m_liste_Admin)
+    {
+        if(dtAd.idAdmin == id_) 
+        {
+            std::cout << ANSI_BOLD << ANSI_GREEN << "[PASS]  " << ANSI_RESET << "Addmin existe \n";
+            return true;
+        }
+    } 
+
+    return valeur;
+}
+
+
+//Test
+void Admin_db :: ajouterAdminTest(Dt_Admin& ad)
+{
+    std::string id_admin = generateurID(m_bd, "ADSL", 'a');
+    
+    std::string sqlInsert = "INSERT INTO ADMIN (ID, NOM, ETAT, MDP) VALUES (?, ?, ?, ?);";
+    sqlite3_stmt* stmt;
+
+    if(sqlite3_prepare_v2(m_bd, sqlInsert.c_str(), -1, &stmt, NULL) != SQLITE_OK)
+    {
+        std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Echec de requet: " <<  sqlite3_errmsg << std::endl;
+        return;
+    }
+
+    sqlite3_bind_text(stmt, 1, id_admin.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, ad.getNom().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 3, ad.getEtat());
+    sqlite3_bind_text(stmt, 4, ad.getMdp().c_str(), -1, SQLITE_TRANSIENT);
+
+        if(sqlite3_step(stmt) == SQLITE_DONE)
+    
+        {
+            // cout << ANSI_BOLD << ANSI_GREEN << "[PASS]  " << ANSI_RESET << "Employe ajoute avec succes !! " <<endl;
+        }
+        else
+            std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET  << "Erreur  lors de l'insertion : " << sqlite3_errmsg(m_bd) << std::endl;
+            
+        sqlite3_finalize(stmt);
+}
+
+bool Admin_db::connexionAdminTest(std::string id_, std::string mdp)
+{
+    return verifierMDPdansBD(id_, mdp);
+}
+
+void Admin_db::modifierAdminTest(std::string id_, std::string nom, std::string mdp, int etat)
+{
+    std::string sql = "UPDATE ADMIN SET NOM=?, MDP=?, ETAT=? WHERE ID = ?;";
+    sqlite3_stmt* stmt;
+
+    if(sqlite3_prepare_v2(m_bd, sql.c_str(), -1, &stmt, NULL) != SQLITE_OK)
+    {
+        std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Echec de requet: " <<  sqlite3_errmsg(m_bd) << std::endl;
+        return;
+    }
+
+    sqlite3_bind_text(stmt, 1, nom.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, mdp.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 3, etat);
+    sqlite3_bind_text(stmt, 4, id_.c_str(), -1, SQLITE_TRANSIENT);
+    
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+}
+
+ Data_Admin Admin_db::testRechercherUnAdmin(std::string id_)
+{
+    std::string sql = "SELECT ID, NOM, ETAT, MDP FROM ADMIN WHERE ID = ?;";
+    sqlite3_stmt* stmt;
+    Data_Admin ad;
+
+    if(sqlite3_prepare_v2(m_bd, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
+    {
+        sqlite3_bind_text(stmt, 1, id_.c_str(), -1, SQLITE_TRANSIENT);
+        if(sqlite3_step(stmt) == SQLITE_ROW)
+        {
+            ad.idAdmin = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+            ad.nomAdmin = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            ad.etatadmin = sqlite3_column_int(stmt, 2);
+            ad.mdpAdmin = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+        }
+    }
+    else
+    {
+        std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Echec de requet: " <<  sqlite3_errmsg(m_bd) << std::endl;
+    }
+    sqlite3_finalize(stmt);
+    return ad;
+}

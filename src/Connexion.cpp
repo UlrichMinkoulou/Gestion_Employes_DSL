@@ -37,7 +37,7 @@ void pageAcceuil()
             << "| " << std::setw(18) << "4. BOUTIQUE"
             << "| " << std::setw(18) << "5. CONTACTS"
             << "| " << std::setw(18) << "6. CONNEXION"<< "|" << ANSI_RESET << std::endl;
-        dessinnerL();
+            dessinnerL();
         std::cout << std::endl << std::endl;
 
         std::cout << "> BIENVENU !! " << std::endl;
@@ -496,24 +496,24 @@ void messages(std::string id)
 void dessinnerL()
 {
 
-    std::cout << "+"
-         << std::setfill('-')
-         << std::setw(30)
-         << "+" 
-         << std::setw(20)
-         << "+" 
-         << std::setw(25)         
-         << "+"
-         << std::setw(20)         
-         << "+"
-         << std::setw(20)
-         << "+"        
-         << std::setw(20)
-         << "+" 
-         << std::setw(20)         
-         << "+"
-         << std::setfill(' ')
-         << std::endl;
+  std::cout << "+"
+            << std::setfill('-')
+            << std::setw(30)
+            << "+" 
+            << std::setw(20)
+            << "+" 
+            << std::setw(25)         
+            << "+"
+            << std::setw(20)         
+            << "+"
+            << std::setw(20)
+            << "+"        
+            << std::setw(20)
+            << "+" 
+            << std::setw(20)         
+            << "+"
+            << std::setfill(' ')
+            << std::endl;
     
 }
 

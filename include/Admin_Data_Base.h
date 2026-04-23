@@ -10,10 +10,33 @@ struct Data_Admin
 {
     std::string idAdmin;
     std::string nomAdmin;
-    std::string prenomAdmin;
     std::string mdpAdmin;
     int etatadmin;
 
+};
+
+struct Dt_Admin
+{
+    public: 
+    Dt_Admin(std::string nom, std::string mdp, int etat):  m_nomAdmin(nom), m_mdpAdmin(mdp), m_etatadmin(etat){}
+    
+    //setteurs
+    // std::string setId(std::string id_){m_idAdmin = id_; return m_idAdmin;}
+    std::string setNom(std::string nom){m_nomAdmin = nom; return m_nomAdmin;}
+    std::string setmdp(std::string mdp){m_mdpAdmin = mdp; return m_mdpAdmin;}
+            int setEtat(int etat){m_etatadmin =  etat; return m_etatadmin;}
+
+    //getteurs
+    std::string getNom(){return m_nomAdmin;}
+    std::string getMdp(){return m_mdpAdmin = crypterMotDePasse(m_mdpAdmin);}
+    int getEtat(){return m_etatadmin;}
+
+
+    private:
+    // std::string m_idAdmin;
+    std::string m_nomAdmin;
+    std::string m_mdpAdmin;
+    int m_etatadmin;
 };
 
 class Admin_db : public Employe
@@ -46,13 +69,22 @@ class Admin_db : public Employe
     void chargerCacheAdmin(); //ok
     void afficherUserAdmin_caching(); //ok
     std::string selectName_caching(std::string id); //ok
+    bool verifieridAdminexist_caching(std::string id_); //ok
     void afficherAdmin_caching(); //ok
+
+    //Test
+    void ajouterAdminTest(Dt_Admin& ad);
+    bool connexionAdminTest(std::string id_, std::string mdp);
+    void modifierAdminTest(std::string id_, std::string nom, std::string mdp, int etat);
+    Data_Admin testRechercherUnAdmin(std::string id_);
  
 
     std::vector<Data_Admin> getCache()
     {
         return m_liste_Admin;
     }
+
+
     
     private:
     sqlite3* m_bd;

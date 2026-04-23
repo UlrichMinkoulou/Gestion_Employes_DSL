@@ -146,7 +146,7 @@ void DataBase::ajouterEmployeTest(Employe& e)
 
         if(sqlite3_prepare_v2(m_db, sqlInsert.c_str(), -1, &stmt, NULL) != SQLITE_OK)
         {
-            cerr << ANSI_BOLD << ANSI_RED << "[FAIL]     " << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl; 
+            cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de preparation : " << sqlite3_errmsg(m_db) << endl; 
             return;
         }
 
@@ -2557,7 +2557,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
             sqlite3_finalize(stmt);
     }
 
-    std::vector<Data_Message> DataBase::recupererMessages(std::string id_user)
+    std::vector<Data_Message> DataBase::recupererMessages(std::string id_desti)
     {
             m_caching_expediteur.clear();
             sqlite3_stmt* stmt;
@@ -2565,7 +2565,7 @@ void dessinerLogo(canvas_ity::canvas& cv, std::string chemin, float x, float y, 
 
             if(sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, NULL) == SQLITE_OK)
             {
-                sqlite3_bind_text(stmt, 1, id_user.c_str(), -1, SQLITE_TRANSIENT);
+                sqlite3_bind_text(stmt, 1, id_desti.c_str(), -1, SQLITE_TRANSIENT);
                 while(sqlite3_step(stmt) == SQLITE_ROW)
                 {
                     Data_Message msg;
@@ -2854,8 +2854,9 @@ std::string DataBase::selectionnerExpediteur(string id_user)
     void dessinnerLignes()
     {
 
-    cout << "+"  << setfill('-');
-    cout << setw(10)
+    cout << "+"  
+         << setfill('-')
+         << setw(10)
          << "+" 
          << setw(12)
          << "+" 

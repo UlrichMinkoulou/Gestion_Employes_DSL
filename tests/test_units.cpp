@@ -1,6 +1,7 @@
 #include <cassert>
 #include "../include/Data_base.h"
 #include "../include/Employe.h"
+#include "../include/Admin_Data_Base.h"
 #include <gtest/gtest.h>
 #include <vector>
 
@@ -13,12 +14,29 @@ class DataBaseTest : public :: testing::Test {
         void SetUp() override
         {
             db = new DataBase("entreprise_.db");
+            // dbAdmin = new Admin_db("entreprise_.db");
         }
 
         void TearDown() override
         {
             delete db;
             std::remove("entreprise_.db"); // Nettoyer la base de données après chaque test
+        }
+};
+
+class Admin_dbTest : public :: testing::Test{
+    protected:
+        Admin_db* dbAdmin;
+
+        void SetUp() override
+        {
+            dbAdmin = new Admin_db("entreprise_.db");
+        }
+
+        void TearDown() override
+        {
+            delete dbAdmin;
+            std::remove("entreprise_.db");
         }
 };
 
@@ -356,6 +374,14 @@ TEST_F(DataBaseTest, ImprimerFichePaie){
 
 TEST_F(DataBaseTest, EnvoiEtReceptionMessages)
 {
+    Employe e("UIj", "John", "2023-12-05", "Celibataire", "Financier", "CDD", 
+              "Password123", "doe@dsl.cm", "B", 30, 4500.0, "1998-02-20");
+    db->ajouterEmployeTest(e);
+    
+    Dt_Admin ad("Admin2", "J#09wtwP", 1);
+    Admin_db admin("entreprise_.db");
+    admin.ajouterAdminTest(ad);
+
     //1. envoi d'un message
     db-> envoyer_MSG("ADSL0001", "EDSL0001", "Test de message", "Test");
 
@@ -426,6 +452,13 @@ TEST_F(DataBaseTest, ActiverDesactiverEmploye)
 // Tests lire Messages
 TEST_F(DataBaseTest, LireMessagesRecus)
 {
+    Employe e("UIj", "John", "2023-12-05", "Celibataire", "Financier", "CDD", 
+              "Password123", "doe@dsl.cm", "B", 30, 4500.0, "1998-02-20");
+    db->ajouterEmployeTest(e);
+    
+    Dt_Admin ad("Admin2", "J#09wtwP", 1);
+    Admin_db admin("entreprise_.db");
+    admin.ajouterAdminTest(ad);
     db->envoyer_MSG("ADSL0001", "EDSL0001", "Test de la BD", "TestBD");
 
     std::vector<Data_Message> msg = db->recupererMessages("ADSL0001");
@@ -522,6 +555,14 @@ TEST_F(DataBaseTest, ConnexionEmploye)
 //Test Charger Cache MSG
 TEST_F(DataBaseTest, ChargerCacheMSG)
 {
+    Employe e("UIj", "John", "2023-12-05", "Celibataire", "Financier", "CDD", 
+              "Password123", "doe@dsl.cm", "B", 30, 4500.0, "1998-02-20");
+    db->ajouterEmployeTest(e);
+    
+    Dt_Admin ad("Admin2", "J#09wtwP", 1);
+    Admin_db admin("entreprise_.db");
+    admin.ajouterAdminTest(ad);
+
     db->envoyer_MSG("ADSL0001", "EDSL0001", "Test de message", "Test");
     db->envoyer_MSG("ADSL0001", "EDSL0001", "Test de message", "Test");
     db->envoyer_MSG("ADSL0001", "EDSL0001", "Test de message", "Test"); 
@@ -551,3 +592,76 @@ TEST_F(DataBaseTest, ChargerCacheMSG)
 //     duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 //     std::cout << "\nTemps d'affichage MSG sans caching : " << duration.count() << " microseconds\n" << std::endl;
 // }
+
+//Admin
+TEST_F(Admin_dbTest, ConnexionAdmin)
+{
+    Dt_Admin ad("Admin2", "J#09wtwP", 1);
+    dbAdmin -> ajouterAdminTest(ad);
+    // dbAdmin -> afficherAdmin();
+
+    ASSERT_TRUE(dbAdmin -> connexionAdminTest("ADSL0001", "J#09wtwP"));
+    ASSERT_FALSE(dbAdmin -> connexionAdminTest("ADSL0001", "WrongPassword"));
+}
+
+TEST_F(Admin_dbTest, VerifierMDPAdmin)
+{
+    Dt_Admin ad("Admin2", "J#09wtwP", 1);
+    dbAdmin -> ajouterAdminTest(ad);
+
+    ASSERT_TRUE(dbAdmin -> verifierMDPdansBD("ADSL0001", "J#09wtwP"));
+    ASSERT_FALSE(dbAdmin -> verifierMDPdansBD("ADSL0001", "WrongPassword"));
+}
+
+TEST_F(Admin_dbTest, AjouterAdmin)
+{
+    Dt_Admin ad("Admin2", "J#09wtwP", 1);
+    dbAdmin -> ajouterAdminTest(ad);
+    dbAdmin -> chargerCacheAdmin();
+
+    std::vector<Data_Admin> liste = dbAdmin -> getCache();
+
+    ASSERT_EQ(liste.back().nomAdmin, "Admin2");
+    // ASSERT_EQ(liste.back().mdpAdmin, crypterMotDePasse("J#09wtwP"));
+    ASSERT_EQ(liste.back().etatadmin, 1);
+
+}
+
+TEST_F(Admin_dbTest, SelectName)
+{
+    Dt_Admin ad("Admin2", "J#09wtwP", 1);
+    dbAdmin -> ajouterAdminTest(ad);
+    dbAdmin -> chargerCacheAdmin();
+
+    std::vector<Data_Admin> liste = dbAdmin -> getCache();
+
+    ASSERT_EQ(liste.back().nomAdmin, "Admin2");
+}
+
+TEST_F(Admin_dbTest, VerifierIdAdminExist)
+{
+    Dt_Admin ad("Admin2", "J#09wtwP", 1);
+    dbAdmin -> ajouterAdminTest(ad);
+
+
+    ASSERT_TRUE(dbAdmin -> verifieridAdminexist("ADSL0001"));
+    ASSERT_FALSE(dbAdmin -> verifieridAdminexist("IDINEXISTANT"));
+}
+
+TEST_F(Admin_dbTest, MofifierAdmin)
+{
+    Dt_Admin ad("Admin2", "J#09wtwP", 1);
+    dbAdmin -> ajouterAdminTest(ad);
+
+    dbAdmin -> modifierAdminTest("ADSL0001", "Admin_Modifie", "NewPassword", 0);
+    
+    const Data_Admin& admin = dbAdmin -> testRechercherUnAdmin("ADSL0001");
+
+    dbAdmin -> chargerCacheAdmin();
+
+    std::vector<Data_Admin> liste = dbAdmin -> getCache();
+
+    ASSERT_EQ(liste.back().nomAdmin, admin.nomAdmin);
+    // ASSERT_EQ(admin.getMdp(), crypterMotDePasse("NewPassword"));
+    ASSERT_EQ(admin.etatadmin, 0);
+}

@@ -1,0 +1,26 @@
+# --- Compilation & Build ---
+build/
+bin/
+obj/
+*.o
+*.a
+*.so
+*.out
+
+# --- Base de données (On ne suit pas les données réelles/tests) ---
+*.db
+*.sqlite3
+
+# --- IDE (Visual Studio Code, CLion) ---
+.vscode/
+.idea/
+cmake-build-debug/
+cmake-build-release/
+*.swp
+
+# --- Google Test (si téléchargé localement) ---
+_deps/
+
+# --- Système ---
+.DS_Store
+Thumbs.db

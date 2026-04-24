@@ -49,7 +49,7 @@ La fiabilité de l'architecture est garantie par une suite de tests unitaires ri
 Bilan visuel des tests
 
 <p align="center">
-  <img src="/tests_results.png" alt="GoogleTest Results">
+  <img src="/Test_results.png" alt="GoogleTest Results">
   <br>
   <i>Capture d'écran montrant le succès des 20 tests unitaires répartis sur les suites DataBaseTest et Admin_dbTest.</i>
 </p>

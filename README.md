@@ -42,6 +42,23 @@ cmake --build build
 * tests/ : Suite complète de validation industrielle sous GoogleTest.
 * lib/ : Intégrations tierces (QR Code, Image processing, Canvas).
 
+
+## Quality Assurance & Testing
+
+La fiabilité de l'architecture est garantie par une suite de tests unitaires rigoureux utilisant le framework GoogleTest (gtest). Chaque module critique est validé pour assurer l'intégrité des données et la stabilité du système.
+Bilan visuel des tests
+
+<p align="center">
+  <img src="/tests_results.png" alt="GoogleTest Results">
+  <br>
+  <i>Capture d'écran montrant le succès des 20 tests unitaires répartis sur les suites DataBaseTest et Admin_dbTest.</i>
+</p>
+
+Logic métier : Validation des flux d'adhésion et de recherche.
+Sécurité : Vérification des protocoles de hachage et des accès admin.
+Messagerie : Tests d'intégrité sur l'envoi et la réception des messages.
+Performance : Monitoring des temps de réponse (moyenne < 400ms).
+
 ## À propos
 Cette version a été spécifiquement optimisée pour un usage exclusif par le service technique de Drone.Solutions, privilégiant la réactivité système et la sécurité des données.
 ------------------------------

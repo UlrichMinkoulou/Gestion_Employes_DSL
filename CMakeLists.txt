@@ -107,6 +107,10 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(SQLITE3 REQUIRED sqlite3)
 pkg_check_modules(SODIUM REQUIRED libsodium)
 
+#config manuels MySQL Connectors
+find_library(MYSQL_LIB NAMES mysqlcppconn REQUIRED)
+find_path(MYSQL_INCLUDE_DIR NAMES mysql_driver.h REQUIRED)
+
 # --- 3. Exécutable Principal ---
 set(SOURCES
     src/main.cpp 
@@ -119,7 +123,18 @@ set(SOURCES
     src/qrcode.c
 )
 add_executable(main ${SOURCES})
-target_link_libraries(main PRIVATE ${SQLITE3_LIBRARIES} ${SODIUM_LIBRARIES})
+
+target_link_libraries(main PRIVATE 
+                        ${SQLITE3_LIBRARIES} 
+                        ${SODIUM_LIBRARIES} 
+                        ${MYSQL_LIB}
+                     )
+                        
+target_link_libraries(main PRIVATE 
+                        ${SQLITE3_LIBRARIES} 
+                        ${SODIUM_LIBRARIES}
+                        ${MYSQL_LIB}
+                     )
 target_include_directories(main PRIVATE ${SQLITE3_INCLUDE_DIRS} ${SODIUM_INCLUDE_DIRS} include)
 
 # --- 4. Exécutable de Tests (Google Test) ---
@@ -136,7 +151,7 @@ add_executable(run_tests
     src/qrcode.c
 )
 
-target_include_directories(run_tests PRIVATE include ${SQLITE3_INCLUDE_DIRS} ${SODIUM_INCLUDE_DIRS})
+target_include_directories(run_tests PRIVATE include ${SQLITE3_INCLUDE_DIRS} ${SODIUM_INCLUDE_DIRS} ${MYSQL_INCLUDE_DIR})
 
 # Liaison avec GTest::gtest_main (gère le main() automatiquement)
 target_link_libraries(run_tests 
@@ -144,6 +159,7 @@ target_link_libraries(run_tests
     GTest::gtest_main 
     ${SQLITE3_LIBRARIES} 
     ${SODIUM_LIBRARIES}
+    ${MYSQL_LIB}
     pthread
 )
 

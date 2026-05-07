@@ -16,7 +16,12 @@
 #include <fstream>
 #include <sodium.h>
 
-
+//integration de MySQL
+#include <mysql_driver.h>
+#include <mysql_connection.h>
+#include <cppconn/driver.h>
+#include <cppconn/exception.h>
+#include <cppconn/prepared_statement.h>
 
 
 // --- LIBRAIRIES DESSIN ET ECRITURE ---
@@ -2897,4 +2902,36 @@ std::string DataBase::selectionnerExpediteur(string id_user)
          << setw(30) << "+"
          << setw(22) << "+"        
          << setfill(' ') << endl;
+    }
+
+
+    //premier test MySQL
+    void DataBase::testerConnexionMySQL()
+    {
+        try{
+            sql::mysql::MySQL_Driver* driver;
+            sql::Connection* con;
+
+            //init le driver
+            driver = sql::mysql::get_mysql_driver_instance();
+
+            // connexion a la base de donnees(serveur, utilisateur, mot de passe)
+            con = driver -> connect("localhost", "root", "");
+
+            //selection BD
+            con -> setSchema("Gestion_emp_bd");
+
+            //test simple execution
+            sql::Statement* stmt = con -> createStatement();
+            stmt->execute("INSERT INTO employe (id, nom, prenom, dateNais, dateAdh, sit_mat, poste, Typ_cont, salaire, Categorie, motdepass, email, etat) VALUES ('EDSL0001', 'MINKOULOU', 'Ulrich', '1997-04-04', '2021-06-21', 'Marié', 'Ingenieur', 'CDD', 12500.00, 'B', 'Mink#97oulou', 'mink.ul@dsl.cm', 1);");
+
+            std::cout << ANSI_BOLD << ANSI_GREEN << "[SUCCESS]  " << ANSI_RESET << "Connexion MySQL réussie et requete d'insertion exécutée avec succès!" << std::endl;
+
+            delete stmt;
+            delete con;
+        }catch(sql::SQLException& e)
+        {
+            std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Erreur de connexion MySQL : " << e.what() << std::endl;
+            std::cerr << ANSI_BOLD << ANSI_RED << "[FAIL]  " << ANSI_RESET << "Code d'erreur : " << e.getErrorCode() << std::endl;
+        }
     }

@@ -154,7 +154,7 @@ bool Admin_db::verifierMDPdansBD(std::string id_, std::string mot_de_passe)
             }
             else
             {
-                std::cout << ANSI_RED << ANSI_BOLD << "\n[FAIL]  " << ANSI_RESET << "Mot de passe incorrect !" << std::endl;
+                // std::cout << ANSI_RED << ANSI_BOLD << "\n[FAIL]  " << ANSI_RESET << "Mot de passe incorrect !" << std::endl;
 
                 sqlite3_finalize(stmt);
                 return false; // ID existe mais mot de passe incorrect
@@ -219,7 +219,7 @@ bool Admin_db::connexionAdmin(std::string id_)
                 } else
                         {
                             m_data_con.res = false;
-                            std::cout << ANSI_RED << ANSI_BOLD << "\n[FAIL]  " << ANSI_RESET << "Id ou mot de passe Incorrect !" << std::endl;
+                            // std::cout << ANSI_RED << ANSI_BOLD << "\n[FAIL]  " << ANSI_RESET << "Id ou mot de passe Incorrect !" << std::endl;
                         }
 
                 sqlite3_finalize(stmt);

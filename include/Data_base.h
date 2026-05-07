@@ -204,6 +204,9 @@ class DataBase
             return m_cacheMessages;
         }
 
+        //inclusion de MySQL
+        void testerConnexionMySQL();
+
     private:
         sqlite3 *m_db;
         DataConnxion m_data;

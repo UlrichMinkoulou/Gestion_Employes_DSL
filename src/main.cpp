@@ -12,10 +12,10 @@
 int main(void) 
 {
   clearCLI();
-  // DataBase db("entreprise_.db");
-  // db.afficherEmploye();
+  DataBase db("entreprise_.db");
+  db.testerConnexionMySQL();
 
-  Admin_db ad("entreprise_.db");
+  // Admin_db ad("entreprise_.db");
   // ad.ajouterAdmin();
   // ad.chargerCacheAdmin();
   // ad.verifieridAdminexist_caching("ADSL0001");

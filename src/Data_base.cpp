@@ -2923,7 +2923,7 @@ std::string DataBase::selectionnerExpediteur(string id_user)
 
             //test simple execution
             sql::Statement* stmt = con -> createStatement();
-            stmt->execute("INSERT INTO employe (id, nom, prenom, dateNais, dateAdh, sit_mat, poste, Typ_cont, salaire, Categorie, motdepass, email, etat) VALUES ('EDSL0001', 'MINKOULOU', 'Ulrich', '1997-04-04', '2021-06-21', 'Marié', 'Ingenieur', 'CDD', 12500.00, 'B', 'Mink#97oulou', 'mink.ul@dsl.cm', 1);");
+            stmt->execute("INSERT INTO employe (id, nom, prenom, dateNais, dateAdh, sit_mat, poste, Typ_cont, salaire, Categorie, motdepass, email, etat) VALUES ('EDSL0002', 'MINKOULOU', 'Ulrich', '1997-04-04', '2021-06-21', 'Marié', 'Ingenieur', 'CDD', 12500.00, 'B', 'Mink#97oulou', 'mink.ul@dsl.cm', 1);");
 
             std::cout << ANSI_BOLD << ANSI_GREEN << "[SUCCESS]  " << ANSI_RESET << "Connexion MySQL réussie et requete d'insertion exécutée avec succès!" << std::endl;
 

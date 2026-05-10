@@ -44,13 +44,6 @@ Employe::Employe()
             return regex_match(nom, pattern);
         }
 
-        std::string Employe::getId()
-        {
-            std::cout << "Entrez l'id : ";
-             std::cin >> m_identifiant_Employe;
-             
-            return m_identifiant_Employe;
-        }
 
         std::string Employe:: getNom() 
         { 
@@ -119,7 +112,7 @@ Employe::Employe()
             ms << mois;
             an << annee;
             
-            m_date_adhesion_entreprise = jr.str() + "." + ms.str() + "." + an.str();
+            m_date_adhesion_entreprise = an.str() + "-" + ms.str() + "-" +jr.str();
 
             return m_date_adhesion_entreprise;
         }
@@ -160,7 +153,7 @@ Employe::Employe()
             ms << mois;
             an << annee;
             
-            m_date_naissance = jr.str() + "." + ms.str() + "." + an.str();
+            m_date_naissance = an.str() + "-" + ms.str() + "-" +jr.str();
 
             return m_date_naissance;
         }
@@ -282,20 +275,6 @@ Employe::Employe()
             return m_type_contrat;
         }
         
-
-        int Employe::getAge() 
-        {
-                
-            cout << "> Entrez l'Age : ";
-            while(!(cin >> m_age) || (m_age < 18 || m_age > 70))
-            {
-                cout << "> Entrez l'Age : ";
-                cin.clear();
-                cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-            }
-
-            return m_age;
-        }
         
 
         double Employe::getSalaire() 

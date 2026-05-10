@@ -121,6 +121,7 @@ set(SOURCES
     src/Connexion.cpp 
     src/Admin_Data_Base.cpp 
     src/qrcode.c
+    src/MySQL_DataBase.cpp
 )
 add_executable(main ${SOURCES})
 
@@ -149,6 +150,7 @@ add_executable(run_tests
     src/Connexion.cpp 
     src/Admin_Data_Base.cpp 
     src/qrcode.c
+    src/MySQL_DataBase.cpp
 )
 
 target_include_directories(run_tests PRIVATE include ${SQLITE3_INCLUDE_DIRS} ${SODIUM_INCLUDE_DIRS} ${MYSQL_INCLUDE_DIR})

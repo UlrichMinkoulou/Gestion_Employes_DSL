@@ -71,6 +71,7 @@ class Employe
         int activer();
         int desactiver();
 
+
         std::string setDateNaissance();
 
         //Ici je declare les bons setteurs
@@ -86,6 +87,7 @@ class Employe
         std::string setEmail(std::string email){m_email = email; return m_email;}
         std::string setCategorie(std::string categorie){m_categorie = categorie; return m_categorie;}
         std::string setId(std::string id){m_identifiant_Employe = id; return m_identifiant_Employe;}
+        std::string setDateNaiss(std::string date_naissance){m_date_naissance = date_naissance; return m_date_naissance;}
 
         //getteurs speciaux
         std::string getNom_(){ return m_nom;}
@@ -94,12 +96,14 @@ class Employe
         std::string getSituationMatrimonial_(){ return m_situation_matrimonial;}
         std::string getPoste_(){ return m_poste;}
         std::string getTypeContrat_(){ return m_type_contrat;}
-        int getAge_(){ return m_age;}
+        // int getAge_(){ return m_age;}
         double getSalaire_(){ return m_salaire;}
         std::string getMotDePasse_(){ return m_mot_de_passe = crypterMotDePasse(m_mot_de_passe);}
         std::string getEmail_(){ return m_email;}
         std::string getCategorie_(){ return m_categorie;}
         std::string getdateNaissance_(){ return m_date_naissance;}
+        int getEtat_(){ return m_etat;}
+        std::string getId_(){ return m_identifiant_Employe;}
         std::string setDateNaissance_(std::string date_naissance){m_date_naissance = date_naissance; return m_date_naissance;}
 
         int setEtat_(int etat){ m_etat = etat; return m_etat;}
